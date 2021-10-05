@@ -3,7 +3,7 @@ mod days;
 mod utils;
 
 fn main() {
-    run_day(22);
+    run_day(24);
 }
 
 fn run_all() {

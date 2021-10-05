@@ -22,6 +22,8 @@ mod day19;
 mod day20;
 mod day21;
 mod day22;
+mod day23;
+mod day24;
 
 pub struct Solution {
     pub part1: String,
@@ -59,6 +61,8 @@ pub fn run_day(day: u8) -> Result<Solution, String> {
         20 => run_parts(|| day20::part1(), || day20::part2()),
         21 => run_both(|| day21::both()),
         22 => run_both(|| day22::both()),
+        23 => run_parts(|| day23::part1(), || day23::part2()),
+        24 => run_both(|| day24::both()),
         _ => Err(String::from("No solution"))
     };
 }
@@ -185,7 +189,22 @@ mod tests {
 
     #[test]
     fn day21() {
-        test_day(21, "1269", "1309");
+        test_day(21, "78", "148");
+    }
+
+    #[test]
+    fn day22() {
+        test_day(22, "1269", "1309");
+    }
+
+    #[test]
+    fn day23() {
+        test_day(23, "184", "231");
+    }
+
+    #[test]
+    fn day24() {
+        test_day(24, "11266889531", "77387711");
     }
 
     fn test_day(day: u8, first: &str, second: &str) {
