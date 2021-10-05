@@ -1,0 +1,13 @@
+[package]
+    name = "aoc_2015_rust"
+    version = "0.1.0"
+    authors = ["AlcatrazEscapee <alex@molleroneill.com>"]
+    edition = "2018"
+
+[dependencies]
+    rust-crypto = "0.2.36"
+    json = "0.12.4"
+    fancy-regex = "0.4.1"
+    itertools = "0.9.0"
+    bit-set = "0.5.2"
+    multimap = "0.8.2"

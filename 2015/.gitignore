@@ -1,0 +1,11 @@
+*
+!*/
+
+!/.gitignore
+!/README.md
+!/LICENSE.txt
+
+!/Cargo.toml
+!/Cargo.lock
+!/src/**/*.rs
+!/inputs/**/day*.txt
