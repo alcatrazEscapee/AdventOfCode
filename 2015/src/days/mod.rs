@@ -24,6 +24,7 @@ mod day21;
 mod day22;
 mod day23;
 mod day24;
+mod day25;
 
 pub struct Solution {
     pub part1: String,
@@ -63,6 +64,7 @@ pub fn run_day(day: u8) -> Result<Solution, String> {
         22 => run_both(|| day22::both()),
         23 => run_parts(|| day23::part1(), || day23::part2()),
         24 => run_both(|| day24::both()),
+        25 => run_parts(|| day25::part1(), || "n/a"),
         _ => Err(String::from("No solution"))
     };
 }
