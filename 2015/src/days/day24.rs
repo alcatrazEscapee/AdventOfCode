@@ -2,7 +2,7 @@
 const INPUT: &str = include_str!("../../inputs/day24.txt");
 
 pub fn both() -> (i128, i128) {
-    let mut weights: Vec<i32> = parse(INPUT);
+    let weights: Vec<i32> = parse(INPUT);
     (solve(&weights, 3), solve(&weights, 4))
 }
 

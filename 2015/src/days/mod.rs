@@ -181,7 +181,7 @@ mod tests {
 
     #[test]
     fn day19() {
-        test_day(19, "", "");
+        test_day(19, "518", "200");
     }
 
     #[test]
@@ -207,6 +207,11 @@ mod tests {
     #[test]
     fn day24() {
         test_day(24, "11266889531", "77387711");
+    }
+
+    #[test]
+    fn day25() {
+        assert_eq!(crate::days::run_day(25).unwrap().part1, "9132360");
     }
 
     fn test_day(day: u8, first: &str, second: &str) {
