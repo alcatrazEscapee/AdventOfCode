@@ -4,3 +4,8 @@
 !/.gitignore
 !/README.md
 !/LICENSE.txt
+
+!/Makefile
+
+!/src/*.hs
+!/inputs/*.txt
