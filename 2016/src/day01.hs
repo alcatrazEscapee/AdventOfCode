@@ -8,14 +8,14 @@ north = (0, 1)
 main :: IO ()
 main = do
     inp <- getContents
-    putStrLn $ "Part 1: " ++ (show . part1 $ inp)
-    putStrLn $ "Part 2: " ++ (show . part2 $ inp)
+    putStrLn $ "Part 1: " ++ (part1 inp)
+    putStrLn $ "Part 2: " ++ (part2 inp)
 
-part1 :: String -> Int
-part1 inp = norm1 . last . walk $ inp
+part1 :: String -> String
+part1 inp = show . norm1 . last . walk $ inp
 
-part2 :: String -> Int
-part2 inp = norm1 (dup points)
+part2 :: String -> String
+part2 inp = show . norm1 $ (dup points)
     where points = acc [start] (tail . walk $ inp)
           acc xs [] = xs
           acc xs (c:cs) = acc (xs ++ project (last xs) c) cs
@@ -30,6 +30,7 @@ step (p, dp) s = (add p (mul dp' delta), dp')
     where dp' = rot dp (head s)
           delta = read (tail s) :: Int
 
+-- (points) -> first duplicate point
 dup :: [Point] -> Point
 dup xs = dup' xs Set.empty
     where dup' (x:xs) seen = if Set.member x seen
@@ -39,10 +40,9 @@ dup xs = dup' xs Set.empty
 -- (c, string) -> string with all instances of 'c' removed
 strip :: Char -> String -> String
 strip c [] = []
-strip c (x : xs) =
-    if x == c
-        then t
-        else x : t
+strip c (x : xs) = if x == c
+                   then t
+                   else x : t
     where t = strip c xs
 
 -- (p, q) -> [projection of points along the line pq]
