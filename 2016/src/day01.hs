@@ -26,9 +26,8 @@ walk inp = map fst corners
           directions = words . strip ',' $ inp
 
 step :: (Point, Point) -> String -> (Point, Point)
-step (p, dp) s = (add p (mul dp' delta), dp')
+step (p, dp) s = (add p . mul dp' . int . tail $ s, dp')
     where dp' = rot dp (head s)
-          delta = read (tail s) :: Int
 
 -- (points) -> first duplicate point
 dup :: [Point] -> Point
