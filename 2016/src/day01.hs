@@ -66,3 +66,6 @@ mul (x, y) s = (x * s, y * s)
 rot :: Point -> Char -> Point
 rot (x, y) 'L' = (-y, x)
 rot (x, y) 'R' = (y, -x)
+
+int :: String -> Int
+int s = read s ::Int

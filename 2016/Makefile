@@ -25,14 +25,11 @@ run : $(BUILD_DIR)/day$(day).exe $(INPUT_DIR)/day$(day).txt
 clean :
 	rm -rf out
 
-$(BUILD_DIR)/%.exe : $(BUILD_DIR)/%.hs
+$(BUILD_DIR)/%.exe : $(SRC_DIR)/%.hs
 	$(MAKE_DIRS)
+	rm $(BUILD_DIR)/Main.hi
+	rm $(BUILD_DIR)/Main.o
 	ghc --make -o $@ -odir $(BUILD_DIR) -hidir $(BUILD_DIR) $<
-
-$(BUILD_DIR)/%.hs : $(SRC_DIR)/%.hs $(SRC_DIR)/utils.hs
-	$(MAKE_DIRS)
-	cp $< $@
-	cat $(SRC_DIR)/utils.hs >> $@
 
 $(INPUT_DIR)/%.txt:
 	$(MAKE_DIRS)

@@ -18,7 +18,6 @@ part2 = part1 . take3 . concat . transpose
 triangles :: [[Int]] -> Int
 triangles = sum . map (fromEnum . tri)
     where tri (a:b:c:_) = a + b > c && a + c > b && b + c > a
-          int s = read s :: Int
 
 take3 :: [a] -> [[a]]
 take3 [] = []
@@ -27,3 +26,6 @@ take3 ls = (take 3 ls) : (take3 . drop 3 $ ls)
 transpose :: [[a]] -> [[a]]
 transpose ([]:_) = []
 transpose x = (map head x) : transpose (map tail x)
+
+int :: String -> Int
+int s = read s ::Int
