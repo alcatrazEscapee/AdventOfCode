@@ -27,8 +27,8 @@ clean :
 
 $(BUILD_DIR)/%.exe : $(SRC_DIR)/%.hs
 	$(MAKE_DIRS)
-	rm $(BUILD_DIR)/Main.hi
-	rm $(BUILD_DIR)/Main.o
+	rm -f $(BUILD_DIR)/Main.hi
+	rm -f $(BUILD_DIR)/Main.o
 	ghc --make -o $@ -odir $(BUILD_DIR) -hidir $(BUILD_DIR) $<
 
 $(INPUT_DIR)/%.txt:
