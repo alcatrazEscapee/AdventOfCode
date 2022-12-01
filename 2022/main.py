@@ -20,7 +20,7 @@ class AoC2022Test(unittest.TestCase):
 
 def make_test_method(day: int, module, part1_expected: str, part2_expected: str):
     def apply(self):
-        inp = get_input(day)
+        inp = get_input(day, './inputs/day%02d.txt')
         with StringIO() as out, redirect_stdout(out):
             module.main(inp)
             output = out.getvalue()
