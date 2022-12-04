@@ -24,29 +24,34 @@ run : $(BUILD_DIR)/day$(day).exe $(INPUT_DIR)/day$(day).txt
 	-@if [ "$(day)" = "" ]; then \
 		echo "No day provided - try with make day=XX" ; \
 	else \
+		printf "Running day$(day) ...\n" ; \
 		cat $(INPUT_DIR)/day$(day).txt | $(BUILD_DIR)/day$(day).exe ; \
 	fi
 
 .PHONY : clean
 clean :
-	rm -rf out
+	-@rm -rf out
 
 .PHONY : test
 test : $(DAYS_EXE)
-	rm $(BUILD_DIR)/log.txt
-	touch $(BUILD_DIR)/log.txt
-	for day in $(DAYS) ; do \
+	-@rm $(BUILD_DIR)/log.txt
+	-@touch $(BUILD_DIR)/log.txt
+	@for day in $(DAYS) ; do \
+		printf "Running day$$day ...\n" ; \
 		printf "Day $$day\n" >> $(BUILD_DIR)/log.txt ; \
 		cat $(INPUT_DIR)/day$$day.txt | $(BUILD_DIR)/day$$day.exe >> $(BUILD_DIR)/log.txt ; \
 	done
-	python test.py
+	@diff --strip-trailing-cr $(INPUT_DIR)/answers.txt $(BUILD_DIR)/log.txt >> /dev/null || ( \
+		printf "\n=== Tests Failed! ===\n\n" && \
+		diff --strip-trailing-cr -u $(INPUT_DIR)/answers.txt $(BUILD_DIR)/log.txt)
+	@printf "Done\n"
 
 
 $(BUILD_DIR)/%.exe : $(SRC_DIR)/%.hs
 	$(MAKE_DIRS)
-	rm -f $(BUILD_DIR)/Main.hi
-	rm -f $(BUILD_DIR)/Main.o
-	ghc --make -o $@ -odir $(BUILD_DIR) -hidir $(BUILD_DIR) $<
+	-@rm -f $(BUILD_DIR)/Main.hi
+	-@rm -f $(BUILD_DIR)/Main.o
+	@ghc --make -o $@ -odir $(BUILD_DIR) -hidir $(BUILD_DIR) $<
 
 $(INPUT_DIR)/%.txt:
 	$(MAKE_DIRS)
