@@ -19,7 +19,7 @@ main = do
 part1 :: String -> String
 part1 = solve nameOf check
     where nameOf (x, y) = head . show $ 5 + x + 3 * y
-          check (x, y) = 0 <= x && x < 3 && 0 <= y && y < 3
+          check (x, y) = -1 <= x && x <= 1 && -1 <= y && y <= 1
 
 part2 :: String -> String
 part2 = solve nameOf check

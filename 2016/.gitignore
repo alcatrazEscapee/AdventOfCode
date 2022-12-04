@@ -8,4 +8,4 @@
 !/Makefile
 
 !/src/*.hs
-!/inputs/*.txt
+!/test.py
