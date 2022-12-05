@@ -7,8 +7,8 @@ type Point = (Int, Int)
 type KeypadCheck = Point -> Bool
 type KeypadNameOf = Point -> Char
 
-origin :: Point = (0, 0)
-diagonalKeypad :: String = "..1...234.56789.ABC...D.." -- The keypad from part 2, as a 5x5 grid
+origin = (0, 0) :: Point
+diagonalKeypad = "..1...234.56789.ABC...D.." :: String -- The keypad from part 2, as a 5x5 grid
 
 main :: IO ()
 main = do
