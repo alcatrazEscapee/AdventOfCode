@@ -17,10 +17,10 @@ int s = read s :: Int
 
 -- (salt, seen, queue, (-1, 0)) -> (number of steps to reach (31, 39), total number of locations you can reach in at most 50 steps)
 bfs :: Int -> Set.Set Point2 -> [Point3] -> (Int, Int) -> (Int, Int)
-bfs _    _    []           (p1, p2) = (p1, p2)
+bfs _    _    []                (p1, p2) = (p1, p2)
 bfs salt seen ((x, y, d):queue) (p1, p2) = if Set.member (x, y) seen
-                                            then bfs salt seen queue (p1, p2)
-                                            else bfs salt seen' queue' (p1', p2')
+                                                then bfs salt seen  queue  (p1, p2)
+                                                else bfs salt seen' queue' (p1', p2')
     where next = filter (\p -> let (x', y', _) = p in isOpen salt x' y') . neighbors $ (x, y, d) :: [Point3]
 
           seen' = Set.insert (x, y) seen
