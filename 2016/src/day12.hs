@@ -1,4 +1,3 @@
-import qualified Data.Char as Char
 
 main :: IO ()
 main = do
