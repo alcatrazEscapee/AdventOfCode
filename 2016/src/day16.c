@@ -1,35 +1,16 @@
-// This is what happens when I realize I dislike haskell so much it made be use C of all things
-// As it's an impossible to optimize, unclear, slow AF language that makes it exceedingly painful to use anything other than linked lists of characters
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#define slice_t char*
-#define new(type) type ## _new
-#define copy(type) type ## _copy
-#define slice_t_copy(x) ((slice_t)strdup(x))
-#define del(x) free(x)
-
-slice_t slice_t_new(size_t n) {
-    slice_t str = malloc(sizeof(char) * n + 1);
-    memset(str, '\0', n + 1);
-    return str;
-}
+#include "aoc.h"
 
 slice_t dragon(slice_t inp, size_t len, size_t target);
 
-int main(int argc, char** argv)
+int main(args)
 {
-    slice_t inp = NULL;
-    size_t buf = 0;
-    size_t len = getline(&inp, &buf, stdin);
+    size_t len; slice_t inp = read_in(inp, len);
 
     slice_t part1 = dragon(inp, len, 272);
     slice_t part2 = dragon(inp, len, 35651584);
 
     printf("Part 1: %s\nPart 2: %s\n", part1, part2);
-    
+
     del(part1);
     del(part2);
     del(inp);

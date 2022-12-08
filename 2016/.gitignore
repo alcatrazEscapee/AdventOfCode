@@ -9,3 +9,4 @@
 
 !/src/*.hs
 !/src/*.c
+!/src/*.h

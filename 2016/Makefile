@@ -6,15 +6,16 @@ SRC_DIR    := src
 
 MAKE_DIRS = @mkdir -p $(@D)
 
-DAYS_HS    := $(shell find $(SRC_DIR) -name '\*.hs')
-DAYS_INPUT := $(shell find $(INPUT_DIR) -name '\*.txt') 
-DAYS_EXE   := $(DAYS_HS:$(SRC_DIR)/%.hs=$(BUILD_DIR)/%.exe)
-DAYS_LOG   := $(DAYS_HS:$(SRC_DIR)/%.hs=$(BUILD_DIR)/%.log)
+DAYS_SRC   := $(shell find $(INPUT_DIR) -name 'day\*.txt')
+DAYS_LOG   := $(DAYS_SRC:$(INPUT_DIR)/%.txt=$(BUILD_DIR)/%.log)
 
-DAYS       := $(DAYS_HS:$(SRC_DIR)/day%.hs=%)
+DAYS       := $(DAYS_SRC:$(INPUT_DIR)/day%.txt=%)
+
+GCC        := gcc -std=c11 -Werror -Wall -Wno-implicit-function-declaration -Wno-unused-label -O3
+GHC        := ghc -O2 --make -odir $(BUILD_DIR) -hidir $(BUILD_DIR)
 
 .DEFAULT_GOAL := run
-.PRECIOUS : $(INPUT_DIR)/%.txt $(BUILD_DIR)/%.exe $(BUILD_DIR)/%.log
+.PRECIOUS : $(INPUT_DIR)/%.txt $(BUILD_DIR)/%.hs.o $(BUILD_DIR)/%.c.o $(BUILD_DIR)/%.c $(BUILD_DIR)/%.log
 
 FORCE :
 
@@ -49,37 +50,41 @@ $(BUILD_DIR)/all.log : $(DAYS_LOG)
 		cat $(BUILD_DIR)/day$$day.log >> $(BUILD_DIR)/all.log ; \
 	done
 
-# Day 12 outputs a C file which must be compiled and executed
-$(BUILD_DIR)/day12.log : FORCE $(BUILD_DIR)/day12.o
-	-@rm -f $(BUILD_DIR)/day12.log
-	@$(BUILD_DIR)/day12.o | tee $(BUILD_DIR)/day12.log
+# $(eval $(call build,...)) where arguments ... are day (in rule), day (in targets), and executable extension
+define build = 
+$(BUILD_DIR)/day$(2).log : FORCE $(BUILD_DIR)/day$(2)$(3) $(INPUT_DIR)/day$(2).txt
+	@mkdir -p $$(@D)
+	-@rm -f $(BUILD_DIR)/day$(1).log
+	@printf "Day $(1)\n" | tee $(BUILD_DIR)/day$(1).log
+	@cat $(INPUT_DIR)/day$(1).txt | $(BUILD_DIR)/day$(1)$(3) | tee $(BUILD_DIR)/day$(1).log
+endef
 
-$(BUILD_DIR)/day12.o : $(BUILD_DIR)/day12.exe $(INPUT_DIR)/day12.txt
-	@cat $(INPUT_DIR)/day12.txt | $(BUILD_DIR)/day12.exe > $(BUILD_DIR)/day12.c
-	@printf "Compiling out/day12.c ...\n"
-	@gcc -std=c11 -O3 -o $(BUILD_DIR)/day12.o $(BUILD_DIR)/day12.c
+$(eval $(call build,12,12,.out.c.o))  # Day 12 outputs a C file to out/ which is compiled
 
-# Day 16 is written in C entirely because haskell is annoying to optimize and it's just ovbious in C
-$(BUILD_DIR)/day16.log : FORCE $(BUILD_DIR)/day16.o $(INPUT_DIR)/day16.txt
-	-@rm -f $(BUILD_DIR)/day16.log
-	@cat $(INPUT_DIR)/day16.txt | $(BUILD_DIR)/day16.o | tee $(BUILD_DIR)/day16.log
+$(eval $(call build,16,16,.c.o))  # Day 16,18 implemented directly in C
+$(eval $(call build,18,18,.c.o))
 
-$(BUILD_DIR)/day16.o : $(SRC_DIR)/day16.c
+$(eval $(call build,$$*,%,.hs.o))  # All other days implemented in haskell and are caught by the pattern rule
+
+
+# Build Artifacts
+
+$(BUILD_DIR)/%.c.o : $(SRC_DIR)/%.c
 	$(MAKE_DIRS)
-	@printf "Compiling src/day16.c ...\n"
-	@gcc -std=c11 -Werror -Wall -Wno-implicit-function-declaration -O3 -o $(BUILD_DIR)/day16.o $(SRC_DIR)/day16.c
+	@printf "Compiling $< ...\n"
+	@$(GCC) -o $@ $<
 
-# Pattern rule which matches the output of most days
-$(BUILD_DIR)/day%.log : FORCE $(BUILD_DIR)/day%.exe $(INPUT_DIR)/day%.txt
-	-@rm -f $(BUILD_DIR)/day$*.log
-	@printf "Day $*\n" | tee $(BUILD_DIR)/day$*.log
-	@cat $(INPUT_DIR)/day$*.txt | $(BUILD_DIR)/day$*.exe | tee $(BUILD_DIR)/day$*.log
+$(BUILD_DIR)/%.out.c.o : $(BUILD_DIR)/%.hs.o $(INPUT_DIR)/day12.txt
+	$(MAKE_DIRS)
+	@cat $(INPUT_DIR)/$*.txt | $(BUILD_DIR)/$*.hs.o > $(BUILD_DIR)/$*.c
+	@printf "Compiling out/$*.c ...\n"
+	@$(GCC) -o $(BUILD_DIR)/$*.out.c.o $(BUILD_DIR)/$*.c
 
-$(BUILD_DIR)/%.exe : $(SRC_DIR)/%.hs
+$(BUILD_DIR)/%.hs.o : $(SRC_DIR)/%.hs
 	$(MAKE_DIRS)
 	-@rm -f $(BUILD_DIR)/Main.hi
 	-@rm -f $(BUILD_DIR)/Main.o
-	@ghc -O2 --make -o $@ -odir $(BUILD_DIR) -hidir $(BUILD_DIR) $<
+	@$(GHC) -o $@ $<
 
 $(INPUT_DIR)/%.txt:
 	$(MAKE_DIRS)
