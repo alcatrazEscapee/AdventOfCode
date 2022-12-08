@@ -51,13 +51,23 @@ $(BUILD_DIR)/all.log : $(DAYS_LOG)
 
 # Day 12 outputs a C file which must be compiled and executed
 $(BUILD_DIR)/day12.log : FORCE $(BUILD_DIR)/day12.o
-	@rm -f $(BUILD_DIR)/day12.log
+	-@rm -f $(BUILD_DIR)/day12.log
 	@$(BUILD_DIR)/day12.o | tee $(BUILD_DIR)/day12.log
 
 $(BUILD_DIR)/day12.o : $(BUILD_DIR)/day12.exe $(INPUT_DIR)/day12.txt
 	@cat $(INPUT_DIR)/day12.txt | $(BUILD_DIR)/day12.exe > $(BUILD_DIR)/day12.c
 	@printf "Compiling out/day12.c ...\n"
 	@gcc -std=c11 -O3 -o $(BUILD_DIR)/day12.o $(BUILD_DIR)/day12.c
+
+# Day 16 is written in C entirely because haskell is annoying to optimize and it's just ovbious in C
+$(BUILD_DIR)/day16.log : FORCE $(BUILD_DIR)/day16.o $(INPUT_DIR)/day16.txt
+	-@rm -f $(BUILD_DIR)/day16.log
+	@cat $(INPUT_DIR)/day16.txt | $(BUILD_DIR)/day16.o | tee $(BUILD_DIR)/day16.log
+
+$(BUILD_DIR)/day16.o : $(SRC_DIR)/day16.c
+	$(MAKE_DIRS)
+	@printf "Compiling src/day16.c ...\n"
+	@gcc -std=c11 -Werror -Wall -Wno-implicit-function-declaration -O3 -o $(BUILD_DIR)/day16.o $(SRC_DIR)/day16.c
 
 # Pattern rule which matches the output of most days
 $(BUILD_DIR)/day%.log : FORCE $(BUILD_DIR)/day%.exe $(INPUT_DIR)/day%.txt
@@ -69,7 +79,7 @@ $(BUILD_DIR)/%.exe : $(SRC_DIR)/%.hs
 	$(MAKE_DIRS)
 	-@rm -f $(BUILD_DIR)/Main.hi
 	-@rm -f $(BUILD_DIR)/Main.o
-	@ghc --make -o $@ -odir $(BUILD_DIR) -hidir $(BUILD_DIR) $<
+	@ghc -O2 --make -o $@ -odir $(BUILD_DIR) -hidir $(BUILD_DIR) $<
 
 $(INPUT_DIR)/%.txt:
 	$(MAKE_DIRS)
