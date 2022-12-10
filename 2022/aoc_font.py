@@ -26,9 +26,6 @@ WIDTH = 4
 def recognize(grid: FiniteGrid, offset_x: int = 0, offset_y: int = 0) -> str:
     width, height = grid.width - offset_x, grid.height - offset_y
 
-    assert (width + 1) % (WIDTH + 1) == 0, 'Uneven amount of letters: width %d' % width
-    assert height == HEIGHT, 'Font height %d != 6' % height
-
     dx = 0
     letters = []
     while dx < width:

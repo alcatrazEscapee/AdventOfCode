@@ -17,8 +17,8 @@ def main(text: str):
             if (cycle - 20) % 40 == 0:  # Record marked pulses for part 1
                 pulses.append(x * cycle)
 
-            px, py = cycle % 40, cycle // 40
-            if abs(px - x - 1) <= 1:  # When the sprite lines up, mark the screen
+            px, py = (cycle - 1) % 40, (cycle - 1) // 40
+            if abs(px - x) <= 1:  # When the sprite lines up, mark the screen
                 pixels[px, py] = '#'
             cycle += 1
 
@@ -33,7 +33,7 @@ def main(text: str):
             x += int(parts[1])
 
     print('Part 1:', sum(pulses))
-    print('Part 2: %s\n%s' % (recognize(pixels, offset_x=1), pixels))
+    print('Part 2: %s\n%s' % (recognize(pixels), pixels))
 
 
 if __name__ == '__main__':
