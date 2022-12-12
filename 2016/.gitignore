@@ -6,7 +6,10 @@
 !/LICENSE.txt
 
 !/Makefile
+!/Cargo.toml
+!/Cargo.lock
 
 !/src/*.hs
+!/src/*.rs
 !/src/*.c
 !/src/*.h

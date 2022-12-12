@@ -3,11 +3,14 @@ SHELL := /bin/bash
 INPUT_DIR  := inputs
 BUILD_DIR  := out
 SRC_DIR    := src
+RUST_DIR   := target/release
 
 MAKE_DIRS = @mkdir -p $(@D)
 
 DAYS_SRC   := $(shell find $(INPUT_DIR) -name 'day\*.txt')
+DAYS_RS    := $(shell find $(SRC_DIR) -name 'day\*.rs')
 DAYS_LOG   := $(DAYS_SRC:$(INPUT_DIR)/%.txt=$(BUILD_DIR)/%.log)
+DAYS_RUST  := $(DAYS_RS:$(SRC_DIR)/%.rs=$(RUST_DIR)/%.exe)
 
 DAYS       := $(DAYS_SRC:$(INPUT_DIR)/day%.txt=%)
 
@@ -30,7 +33,8 @@ run : $(BUILD_DIR)/day$(day).log
 
 .PHONY : clean
 clean : FORCE
-	-@rm -rf out
+	-@rm -rf $(BUILD_DIR)
+	-@rm -rf $(RUST_DIR)
 
 .PHONY : test
 test : $(BUILD_DIR)/all.log
@@ -59,9 +63,12 @@ $(BUILD_DIR)/day$(2).log : FORCE $(BUILD_DIR)/day$(2)$(3) $(INPUT_DIR)/day$(2).t
 	@cat $(INPUT_DIR)/day$(1).txt | $(BUILD_DIR)/day$(1)$(3) | tee $(BUILD_DIR)/day$(1).log
 endef
 
+$(eval $(call build,05,05,.rs.o)) # Day 05, 14 implemented in Rust due needing MD5 (and high performance), and not wanting to do that in either C or Haskell
+$(eval $(call build,14,14,.rs.o))
+
 $(eval $(call build,12,12,.out.c.o))  # Day 12 outputs a C file to out/ which is compiled
 
-$(eval $(call build,16,16,.c.o))  # Day 16,18 implemented directly in C
+$(eval $(call build,16,16,.c.o))  # Day 16, 18 implemented directly in C
 $(eval $(call build,18,18,.c.o))
 
 $(eval $(call build,$$*,%,.hs.o))  # All other days implemented in haskell and are caught by the pattern rule
@@ -86,6 +93,14 @@ $(BUILD_DIR)/%.hs.o : $(SRC_DIR)/%.hs
 	-@rm -f $(BUILD_DIR)/Main.o
 	@$(GHC) -o $@ $<
 
+$(BUILD_DIR)/%.rs.o : $(RUST_DIR)/%.exe
+	$(MAKE_DIRS)
+	@cp $< $@
+
+$(DAYS_RUST) : $(DAYS_RS) Cargo.toml Cargo.lock
+	@printf "Compiling $(DAYS_RS) ...\n"
+	@cargo build --release
+
 $(INPUT_DIR)/%.txt:
 	$(MAKE_DIRS)
-	touch $@
+	@touch $@
