@@ -126,13 +126,13 @@ def a_star(start: T, end: T | Callable[[T], bool], step_fn: Callable[[T], Iterat
 
     while queue:
         total += 1
-        curr_cost, curr = heapq.heappop(queue)
+        _, curr = heapq.heappop(queue)
+        curr_cost = costs[curr]
         if end(curr):
             path = [curr]
             while curr in paths:
                 curr = paths[curr]
                 path.append(curr)
-                curr_cost -= heuristic_fn(curr)
             return AStar(path[::-1], round(curr_cost), total)
         for step in step_fn(curr):
             if unit_cost:
