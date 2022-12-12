@@ -53,7 +53,6 @@ def simulate(monkeys: List[Monkey], p: int, part1: bool) -> int:
 
 def parse_monkeys(text: str) -> Tuple[List[Monkey], int]:
     monkeys = []
-    monkey_items = []
     for i, part in enumerate(text.split('\n\n')):
         _, start, op, test, if_true, if_false = [x.strip() for x in part.split('\n')]
         start = ints(start)
@@ -68,7 +67,6 @@ def parse_monkeys(text: str) -> Tuple[List[Monkey], int]:
         op_par = functools.partial(operator.mul if op_char == '*' else operator.add, value)
 
         monkeys.append(Monkey(i, start, square if is_square else op_par, div_by, if_true, if_false))
-        monkey_items.append(start)
 
     # For part 2, instead of representing the monkey's items as a single integer,
     # We represent each monkey's value as the tuple of integers, modulo each other monkey's value
