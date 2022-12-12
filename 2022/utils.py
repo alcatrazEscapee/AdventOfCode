@@ -1,6 +1,7 @@
-import re
+from typing import Generic, TypeVar, Optional, Sequence, Tuple, NamedTuple, List, Callable, Iterator, Dict
 
-from typing import Generic, TypeVar, Optional, Sequence, Tuple, NamedTuple, List, Callable, Iterator
+import re
+import heapq
 
 T = TypeVar('T')
 V = TypeVar('V')
@@ -20,6 +21,15 @@ def sign(a: float) -> int:
 class Point2(NamedTuple):
     x: int
     y: int
+
+    def __add__(self, other: Tuple[int, int]) -> 'Point2': return Point2(self.x + other[0], self.y + other[1])
+    def __sub__(self, other: Tuple[int, int]) -> 'Point2': return Point2(self.x - other[0], self.y - other[1])
+
+    def neighbors(self) -> Iterator['Point2']:
+        yield Point2(self.x + 1, self.y)
+        yield Point2(self.x - 1, self.y)
+        yield Point2(self.x, self.y + 1)
+        yield Point2(self.x, self.y - 1)
 
 
 class FiniteGrid(Generic[T]):
@@ -92,3 +102,46 @@ class FiniteGrid(Generic[T]):
         for y in range(self.height):
             for x in range(self.width):
                 yield Point2(x, y)
+
+
+AStar = NamedTuple('AStar', path=List, cost=int, heap_ops=int)
+
+def a_star(start: T, end: T | Callable[[T], bool], step_fn: Callable[[T], Iterator[Tuple[T, int] | T]], heuristic_fn: Callable[[T], float] = lambda p: 0, unit_cost: bool = True) -> AStar:
+    """
+    :param start: The starting node.
+    :param end: The target end node.
+    :param step_fn: A step function. Returns a sequence of next nodes, (next, next_cost) if unit_cost is `False`
+    :param heuristic_fn: The heuristic. For A* to always return the best path, must always **underestimate** the cost to reach the goal
+    :param unit_cost: If `True`, each result of the step function must be a single T, and the cost will be assumed to be 1.
+    """
+    queue: List[Tuple[float, T]] = [(heuristic_fn(start), start)]
+    paths: Dict[T, T] = {}  # Mapping of node -> node along the cheapest path
+    costs: Dict[T, int] = {start: 0}
+    total: int = 0
+
+    if not callable(end):
+        single_end = end
+        def end(e: T) -> bool:
+            return e == single_end
+
+    while queue:
+        total += 1
+        curr_cost, curr = heapq.heappop(queue)
+        if end(curr):
+            path = [curr]
+            while curr in paths:
+                curr = paths[curr]
+                path.append(curr)
+                curr_cost -= heuristic_fn(curr)
+            return AStar(path[::-1], round(curr_cost), total)
+        for step in step_fn(curr):
+            if unit_cost:
+                adj, step_cost = step, 1
+            else:
+                adj, step_cost = step
+            adj_cost = curr_cost + step_cost
+            if adj not in costs or adj_cost < costs[adj]:
+                paths[adj] = curr
+                costs[adj] = adj_cost
+                heapq.heappush(queue, (adj_cost + heuristic_fn(adj), adj))
+    raise ValueError('A* did not reach the target')
