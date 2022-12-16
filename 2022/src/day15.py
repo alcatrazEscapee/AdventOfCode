@@ -1,10 +1,10 @@
 from utils import get_input, ints
-from typing import NamedTuple, Optional, Iterator
+from typing import Tuple, List, NamedTuple, Optional, Iterator
 
 
 def main(text: str):
-    ranges = []
-    areas = []
+    ranges: List[Tuple[int, int]] = []
+    areas: List[Rect] = []
     width = 2000000
     for line in text.split('\n'):
         sx, sy, bx, by = ints(line)
@@ -51,7 +51,7 @@ def main(text: str):
 
     # For the 'initially valid' state, we just pick a square (in original coordinates) diamond, which is 'large enough'
     # It needs to contain original square, which means we pick a much larger diamond.
-    # Excess area is not a problem, since we identify it's contigous and won't accidentally find it as the valid solution
+    # Excess area is not a problem, since we identify it's contiguous and won't accidentally find it as the valid solution
     x0, y0 = transform(0, -3 * width)
     x1, y1 = transform(0, 3 * width)
 
