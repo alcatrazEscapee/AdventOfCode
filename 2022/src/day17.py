@@ -54,9 +54,9 @@ def main(jets: str):
                 # Skip ahead by the known interval
                 cycle_length = total_rocks - prior_total_rocks
                 cycle_count = (1000000000000 - total_rocks - 1) // cycle_length
-
                 total_rocks += cycle_count * cycle_length
                 skip_y += (max_y - prior_max_y) * cycle_count
+                phase = 'part2'
             else:
                 seen[state] = max_y, total_rocks
 
