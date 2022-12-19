@@ -1,64 +1,109 @@
 # Day 19: Not Enough Minerals
 # Rank: 269 / 141
 
+from utils import get_input, ints
+from typing import NamedTuple, List
+from time import time_ns
+
+import math
 import functools
 
-from utils import get_input, ints
+
+class Blueprint(NamedTuple):
+    id: int
+    ore_robot_ore_cost: int
+    clay_robot_ore_cost: int
+    obsidian_robot_ore_cost: int
+    obsidian_robot_clay_cost: int
+    geode_robot_ore_cost: int
+    geode_robot_obsidian_cost: int
+
 
 def main(text: str):
-    lines = text.split('\n')
-    bps = []
-    for line in lines:
-        bp_id, ore_r_ore_cost, clay_r_ore_cost, obsid_r_ore_cost, obsid_r_clay_cost, geo_r_ore_cost, geo_r_obsid_cost = ints(line)
-        bps.append((bp_id, (ore_r_ore_cost, 0), (clay_r_ore_cost, 0), (obsid_r_ore_cost, obsid_r_clay_cost), (geo_r_ore_cost, geo_r_obsid_cost)))
+    blueprints: List[Blueprint] = [Blueprint(*ints(line)) for line in text.split('\n')]
 
-    print('bps', bps)
-    ans = 0
-    for bp_id, bp in enumerate(bps):
-        print(bpc := max_geos(bp, 0, 0, 0, 0, 0, 1, 0, 0, 0), bpc * (bp_id + 1), (bp_id + 1))
-        ans += bpc * (bp_id + 1)
-    print('FNAL', ans)
+    print('Part 1:', sum(solve(blueprint, 24) * blueprint.id for blueprint in blueprints))
+    print('Part 2:', math.prod(solve(blueprint, 32) for blueprint in blueprints[:3]))
 
 
-@functools.lru_cache(None)
-def max_geos(bp, t, ore, clay, obsid, geos, ore_rs, clay_rs, obsid_rs, geos_rs):
-    if t == 32:
-        return geos
+def solve(blueprint: Blueprint, max_time: int) -> int:
 
-    bp_id, (ore_r_ore_cost, _), (clay_r_ore_cost, _), (obsid_r_ore_cost, obsid_r_clay_cost), (geo_r_ore_cost, geo_r_obsid_cost) = bp
+    # Reduce the state space!
+    # 1. We can only produce one robot per minute, so we never need more of a given type of resource than can be consumed in a given minute.
+    #    After that point, we don't even need to care about how much of that resource we have, or how many of the robots we have!
+    # 2. If we don't purchase a robot in one round that we could've, then we cannot purchase that robot in a future round (as we should've bought it now)
+    #    This affects the 'don't buy anything' case, which we then pass robots that we can't buy
+    # 3. If we ever reach a point where the time left * the maximum amount of a given resource we could spend per turn on a given resource is less than
+    #    our supply of that resource, we don't allow buying any more of that robot - even if we aren't producing enough to exceed our buy rate.
+    # 4. We can stop at max_time - 1 and return geodes + geodes_robots, rather than doing an additional iteration choosing what to buy
+    # 5. We can instead stop at max_time - 2 and return geodes + 2 * geodes_robots + (if we can afford a geode robot, 1 else 0), rather than spending an additional iteration!
 
-    b_ore = ore
-    b_clay = clay
-    b_obsid = obsid
-    b_geos = geos
+    max_ore = max(blueprint.ore_robot_ore_cost, blueprint.clay_robot_ore_cost, blueprint.obsidian_robot_ore_cost, blueprint.geode_robot_ore_cost)
+    max_clay = blueprint.obsidian_robot_clay_cost
+    max_obsidian = blueprint.geode_robot_obsidian_cost
 
-    #print(t, ore, clay, obsid, geos, ore_rs, clay_rs, obsid_rs, geos_rs)
+    max_consumable_ore = max_time * max_ore
+    max_consumable_clay = max_time * max_ore
+    max_consumable_obsidian = max_time * max_ore
 
-    ore += ore_rs
-    clay += clay_rs
-    obsid += obsid_rs
-    geos += geos_rs
+    print('Blueprint %d State Space = %d Minutes x Robots (%d x %d x %d) x Resources (%d x %d x %d) = %d' % (
+        blueprint.id,
+        max_time,
+        max_ore, max_clay, max_obsidian,
+        max_consumable_ore, max_consumable_clay, max_consumable_obsidian,
+        state_space := max_time * max_ore * max_clay * max_obsidian * max_consumable_ore * max_consumable_clay * max_consumable_obsidian))
 
-    best_so_far = 0
-    buy = False
-    if b_ore >= geo_r_ore_cost and b_obsid >= geo_r_obsid_cost:
-        buy = True
-        best_so_far = max(best_so_far, max_geos(bp, t + 1, ore - geo_r_ore_cost, clay, obsid - geo_r_obsid_cost, geos, ore_rs, clay_rs, obsid_rs, geos_rs + 1))
-    else:
-        if b_ore >= obsid_r_ore_cost and b_clay >= obsid_r_clay_cost:
-            buy = True
-            best_so_far = max(best_so_far, max_geos(bp, t + 1, ore - obsid_r_ore_cost, clay - obsid_r_clay_cost, obsid, geos, ore_rs, clay_rs, obsid_rs + 1, geos_rs))
-        else:
-            if b_ore >= ore_r_ore_cost:
-                buy = True
-                best_so_far = max(best_so_far, max_geos(bp, t + 1, ore - ore_r_ore_cost, clay, obsid, geos, ore_rs + 1, clay_rs, obsid_rs, geos_rs))
-            if b_ore >= clay_r_ore_cost:
-                buy = True
-                best_so_far = max(best_so_far, max_geos(bp, t + 1, ore - clay_r_ore_cost, clay, obsid, geos, ore_rs, clay_rs + 1, obsid_rs, geos_rs))
+    @functools.lru_cache(None)
+    def recurse(time: int, ore: int, clay: int, obsidian: int, geodes: int, ore_robots: int, clay_robots: int, obsidian_robots: int, geode_robots: int, allow_ore: bool = True, allow_clay: bool = True, allow_obsidian: bool = True, allow_geode: bool = True) -> int:
 
-            # Don't buy anything
-            best_so_far = max(best_so_far, max_geos(bp, t + 1, ore, clay, obsid, geos, ore_rs, clay_rs, obsid_rs, geos_rs))
-    return best_so_far
+        afford_geode = ore >= blueprint.geode_robot_ore_cost and obsidian >= blueprint.geode_robot_obsidian_cost
+
+        if time == max_time - 2:  # Terminal condition - skips the last two iterations because the result is easy to compute and saves iterations
+            return geodes + 2 * geode_robots + (1 if afford_geode else 0)
+
+        # Allowable conditions: these implement notes (1) and (3) from above
+        if (ore_robots >= max_ore and ore >= max_ore) or ore - max_ore >= (max_ore - ore_robots) * (max_time - time):
+            ore_robots = ore = max_ore
+            allow_ore = False
+
+        if (clay_robots >= max_clay and clay >= max_clay) or clay - max_clay >= (max_clay - clay_robots) * (max_time - time):
+            clay_robots = clay = max_clay
+            allow_clay = False
+
+        if (obsidian_robots >= max_obsidian and obsidian >= max_obsidian) or obsidian - max_obsidian >= (max_obsidian - obsidian_robots) * (max_time - time):
+            obsidian_robots = obsidian = max_obsidian
+            allow_obsidian = False
+
+        afford_ore = ore >= blueprint.ore_robot_ore_cost
+        afford_clay = ore >= blueprint.clay_robot_ore_cost
+        afford_obsidian = ore >= blueprint.obsidian_robot_ore_cost and clay >= blueprint.obsidian_robot_clay_cost
+
+        value = 0
+        if afford_ore and allow_ore:
+            value = max(value, recurse(time + 1, ore + ore_robots - blueprint.ore_robot_ore_cost, clay + clay_robots, obsidian + obsidian_robots, geodes + geode_robots, ore_robots + 1, clay_robots, obsidian_robots, geode_robots))
+        if afford_clay and allow_clay:
+            value = max(value, recurse(time + 1, ore + ore_robots - blueprint.clay_robot_ore_cost, clay + clay_robots, obsidian + obsidian_robots, geodes + geode_robots, ore_robots, clay_robots + 1, obsidian_robots, geode_robots))
+        if afford_obsidian and allow_obsidian:
+            value = max(value, recurse(time + 1, ore + ore_robots - blueprint.obsidian_robot_ore_cost, clay + clay_robots - blueprint.obsidian_robot_clay_cost, obsidian + obsidian_robots, geodes + geode_robots, ore_robots, clay_robots, obsidian_robots + 1, geode_robots))
+        if afford_geode and allow_geode:
+            value = max(value, recurse(time + 1, ore + ore_robots - blueprint.geode_robot_ore_cost, clay + clay_robots, obsidian + obsidian_robots - blueprint.geode_robot_obsidian_cost, geodes + geode_robots, ore_robots, clay_robots, obsidian_robots, geode_robots + 1))
+
+        # Consider not buying anything
+        # Only allow buying things in the future we cannot afford now - this implements note (2) from above.
+        value = max(value, recurse(time + 1, ore + ore_robots, clay + clay_robots, obsidian + obsidian_robots, geodes + geode_robots, ore_robots, clay_robots, obsidian_robots, geode_robots, not afford_ore, not afford_clay, not afford_obsidian, not afford_geode))
+
+        return value
+
+    start = time_ns()
+    max_value = recurse(0, 0, 0, 0, 0, 1, 0, 0, 0)
+    stop = time_ns()
+
+    info = recurse.cache_info()
+    print('Took %d ms, ' % ((stop - start) // 1_000_000), end='')
+    print('state space explored = %d (%2.6f%%), cache hit = %2.1f%%, ' % (info.currsize, 100 * info.currsize / state_space, 100 * info.hits / (info.hits + info.misses)), end='')
+    print('result = %d' % max_value)
+    return max_value
+
 
 if __name__ == '__main__':
     main(get_input(19))

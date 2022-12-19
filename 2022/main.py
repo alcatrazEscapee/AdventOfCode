@@ -42,7 +42,7 @@ def setup():
 
     try:
         for day in range(1, 1 + 25):
-            test = make_test_method(day, eval('day%02d' % day), *answers[day])
+            test = make_test_method(day, eval('day%02d' % day), *answers[day][:2])
             test.__name__ = 'test day %02d' % day
             setattr(AoC2022Test, test.__name__, test)
     except NameError:
