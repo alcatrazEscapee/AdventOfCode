@@ -1,64 +1,69 @@
 from utils import get_input
+from typing import NamedTuple, Union, Dict
+
+OPS = {'+': lambda a, b: a + b, '-': lambda a, b: a - b, '*': lambda a, b: a * b, '/': lambda a, b: a // b}
+INV_OPS = {'+': '-', '-': '+', '*': '/', '/': '*'}
+
+
+class Term(NamedTuple):
+    lhs: Union['Term', 'Value']
+    op: str
+    rhs: Union['Term', 'Value']
+
+    def const(self) -> bool: return self.lhs.const() and self.rhs.const()
+    def value(self) -> int: return OPS[self.op](self.lhs.value(), self.rhs.value())
+    def terminal(self) -> bool: return isinstance(self.lhs, Value) and isinstance(self.rhs, Value)
+    def commutes(self) -> bool: return self.op in '+*='
+
+class Value(NamedTuple):
+    raw: int | str
+
+    def const(self) -> bool: return isinstance(self.raw, int)
+    def value(self) -> int: return self.raw
 
 
 def main(text: str):
-    lines = text.split('\n')
-
-    ops = {}
-    values = {}
-    for line in lines:
-        key, vals = line.split(': ')
-        if vals.isnumeric():
-            values[key] = int(vals)
+    # Parse the input
+    jobs: Dict[str, Value | list] = {}
+    for line in text.split('\n'):
+        k, v = line.split(': ')
+        if v.isnumeric():
+            jobs[k] = Value(int(v))
         else:
-            print(key, vals)
-            ops[key] = vals.split(' ')
-    print(ops)
+            jobs[k] = v.split(' ')
 
-    del values['humn']
-    ops['root'] = ops['root'][0], '-', ops['root'][2]
-    initial_values = values
-    start = 3699945358000
-    for v in range(start, start + 1000):
-        values = dict(initial_values)
-        values['humn'] = v
-        while True:
-            modified = False
-            for ret, (lhs, op, rhs) in ops.items():
-                if ret not in values and lhs in values and rhs in values:
-                    values[ret] = eval('%d %s %d' % (values[lhs], op, values[rhs]))
-                    modified = True
-            if not modified:
-                #print(len(lines) - len(values), values)
+    # Part 1: the entire term is const, so we just recursively evaluate it
+    print('Part 1:', build('root', jobs).value())
 
-                #print(ops['root'])
-                #print(expand('root', ops, values).replace('humn', 'x').replace(' ', '').replace('x', 'B'))
+    # Modify the input for part 2
+    jobs['humn'] = Value('x')
+    jobs['root'][1] = '='
 
-                break
-            if 'root' in values:
-                print(values['root'], v)
-                if values['root'] == 0:
-                    return
-                break
+    # Use our special solver which, assuming there's exactly one instance of 'humn', un-does each operation until it arrives at a terminal state
+    print('Part 2:', reduce(build('root', jobs)))
 
-def expand(term, ops, vals):
-    if term in vals:
-        return vals[term]
-    if term in ops:
-        lhs, op, rhs = ops[term]
-        if lhs in vals and rhs in vals:
-            return eval('%d %s %d' % (vals[lhs], op, rhs[vals]))
-        lhs = expand(lhs, ops, vals)
-        rhs = expand(rhs, ops, vals)
-        if isinstance(lhs, int) and isinstance(rhs, int):
-            return eval('%d %s %d' % (lhs, op, rhs))
-        lhs = str(lhs)
-        rhs = str(rhs)
-        return '(%s %s %s)' % (lhs, op, rhs)
-    if term == 'humn':
-        return 'x'
-    print('wut', term)
+def build(key: str, jobs: Dict[str, Term | Value]) -> Term | Value:
+    job = jobs[key]
+    if isinstance(job, Value):
+        return job
+    lhs, op, rhs = job
+    return Term(build(lhs, jobs), op, build(rhs, jobs))
 
+def reduce(term: Term) -> int:
+    if term.terminal():
+        return term.lhs.value() if term.lhs.const() else term.rhs.value()
+    if not term.lhs.const() and term.commutes():
+        return reduce(Term(term.rhs, term.op, term.lhs))
+    if term.rhs.commutes():
+        lhs, rhs = (term.rhs.lhs, term.rhs.rhs) if term.rhs.rhs.const() else (term.rhs.rhs, term.rhs.lhs)
+        return reduce(Term(lhs, term.op, construct(term.lhs, INV_OPS[term.rhs.op], rhs)))
+    if term.rhs.lhs.const():
+        return reduce(Term(term.rhs.rhs, term.op, construct(term.rhs.lhs, term.rhs.op, term.lhs)))
+    else:
+        return reduce(Term(term.rhs.lhs, term.op, construct(term.lhs, INV_OPS[term.rhs.op], term.rhs.rhs)))
+
+def construct(lhs: Value, op: str, rhs: Value) -> Value:
+    return Value(OPS[op](lhs.value(), rhs.value()))
 
 
 if __name__ == '__main__':
