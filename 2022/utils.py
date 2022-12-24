@@ -23,13 +23,10 @@ class Point2(NamedTuple):
     y: int
 
     def __add__(self, other: Tuple[int, int]) -> 'Point2': return Point2(self.x + other[0], self.y + other[1])
-
     def __sub__(self, other: Tuple[int, int]) -> 'Point2': return Point2(self.x - other[0], self.y - other[1])
-
     def __neg__(self) -> 'Point2': return Point2(-self.x, -self.y)
 
     def cw(self, quadrant_iv: bool = True) -> 'Point2': return Point2(-self.y, self.x) if quadrant_iv else Point2(self.y, -self.x)
-
     def ccw(self, quadrant_iv: bool = True) -> 'Point2': return Point2(self.y, -self.x) if quadrant_iv else Point2(-self.y, self.x)
 
     def neighbors(self) -> Iterator['Point2']:
