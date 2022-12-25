@@ -7,9 +7,11 @@ My Advent of Code solutions from 2022. Most of these are cleaned up and document
 
 - Language Used: Python 3.10
 - IDE: PyCharm
+- Runtime: 59.4 seconds for all 25 days
+  - Day 16 (34.9s), Day 23 (14.0s), Day 19 (2.7s), and Day 24 (2.1s) are the slowest, the rest are all less than a second.
 - Leaderboard Appearances: 20 (13 part 1's, 7 part 2's)
 - Total Leaderboard Score: 1170 points
-- Global Leaderboard Rank: 52nd
+- Global Leaderboard Rank: 47th
 - Best Leaderboard Rank: A tie between Day 18, Part 1 (00:01:43, 10th), and Day 20, Part 2: (00:10:42, 10th). Both days were the result of execution going about as well as it could go... and fast.
 - Longest Puzzle: Day 22 (Part 2), at 10:57:22. I spend about two hours on Part 2, before going to bed and re-attempting it in the morning, with an improved mindset and spent most of the day implementing a generic cube folder, which was great fun!
   - Largest Part 2 Difficulty Spike: Day 22 - for the aforementioned reason.

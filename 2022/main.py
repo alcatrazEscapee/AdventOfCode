@@ -6,6 +6,7 @@ import csv
 import unittest
 
 from io import StringIO
+from time import time_ns
 from utils import get_input
 from contextlib import redirect_stdout
 
@@ -20,9 +21,11 @@ class AoC2022Test(unittest.TestCase):
 def make_test_method(day: int, module, part1_expected: str, part2_expected: str):
     def apply(self):
         inp = get_input(day, './inputs/day%02d.txt')
+        start = time_ns()
         with StringIO() as out, redirect_stdout(out):
             module.main(inp)
             output = out.getvalue()
+        end = time_ns()
 
         part1 = part2 = ''
         for line in output.split('\n'):
@@ -33,6 +36,7 @@ def make_test_method(day: int, module, part1_expected: str, part2_expected: str)
 
         self.assertEqual(part1_expected, part1)
         self.assertEqual(part2_expected, part2)
+        print('Day %02d : %d ms' % (day, (end - start) / 1_000_000))
     return apply
 
 def setup():
