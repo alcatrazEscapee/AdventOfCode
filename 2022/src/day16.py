@@ -4,7 +4,7 @@
 from utils import get_input
 from time import time_ns
 from collections import defaultdict
-from typing import Dict, Tuple, List, FrozenSet
+from typing import Dict, Tuple, List
 
 import re
 import sys
@@ -43,20 +43,24 @@ def floyd_warshall(graph: Dict[str, List[str]]) -> Dict[Tuple[str, str], int]:
                 pairs[p, q] = min(pairs[p, q], pairs[p, r] + pairs[r, q])
     return pairs
 
-def build_graph(flows: Dict[str, int], graph: Dict[Tuple[str, str], int]) -> Tuple[Dict[str, int], Dict[str, List[Tuple[str, int]]]]:
+def build_graph(flows: Dict[str, int], graph: Dict[Tuple[str, str], int]) -> Tuple[List[int], List[List[Tuple[int, int]]]]:
     # Performs some additional sanitizations on the input graphs
     # 1. Restructures the graph of edges -> weights to a map of vertex -> (vertex, weight), for fast iteration.
     # 2. Drops any edges which are between flow = 0 nodes, unless those are edges from 'AA' -> a flow > 0 node.
     # 3. Removes all self edges present in the graph
     # 4. Adds +1 to all edge weights, to represent the time taken to open the valve
+    # 5. Map all graph nodes to integers, so we can use a much more efficient 'seen' graph that can copy faster (a bitmask)
     pruned = defaultdict(list)
     for (p, q), d in graph.items():
         if (flows[p] > 0 or p == 'AA') and flows[q] > 0 and p != q:
             pruned[p].append((q, d + 1))
     flows = {v: f for v, f in flows.items() if f > 0}
+    keys = ['AA'] + list(flows.keys())
+    flows = [flows[v] if v in flows else 0 for v in keys]
+    pruned = [[(keys.index(vi), vn) for vi, vn in pruned[k]] if k in pruned else [] for k in keys]
     return flows, pruned
 
-def solve(flows: Dict[str, int], graph: Dict[str, List[Tuple[str, int]]], max_time: int = 30):
+def solve(flows: List[int], graph: List[List[Tuple[int, int]]], max_time: int = 30):
     state_space = 2**len(flows) * len(flows) * max_time
     start = time_ns()
     print('Running... size of state space is 2^%d x %d x %d = %d' % (len(flows), len(flows), max_time, state_space))
@@ -66,18 +70,20 @@ def solve(flows: Dict[str, int], graph: Dict[str, List[Tuple[str, int]]], max_ti
         print('Took %d ms, ' % ((time_ns() - start) // 1_000_000), end='')
         print('state space explored = %2.1f%%, cache hit = %2.1f%%' % (100 * info.currsize / state_space, 100 * info.hits / (info.hits + info.misses)))
 
+    visited_all = (1 << len(flows)) - 1
+
     @functools.lru_cache(None)
-    def calculate_flow_recursive(visited: FrozenSet[str], pos: str, time: int) -> int:
+    def calculate_flow_recursive(visited: int, pos: int, time: int) -> int:
         # Returns the maximum flow you can achieve
         # State is represented as {visited} x position x time
-        if len(visited) == len(flows):
+        if visited == visited_all:
             return 0
         if time >= max_time:
             return 0
         best_flow = 0
         for next_pos, step_time in graph[pos]:
-            if next_pos not in visited:
-                next_visited = visited | {next_pos}
+            if (visited >> next_pos) & 1 == 0:
+                next_visited = visited | (1 << next_pos)
                 next_time = time + step_time
 
                 if next_time < max_time:
@@ -89,7 +95,7 @@ def solve(flows: Dict[str, int], graph: Dict[str, List[Tuple[str, int]]], max_ti
         return best_flow
 
     # Part 1, we start at 'AA' with no flow, and no nodes visited
-    print('Part 1:', calculate_flow_recursive(frozenset(), 'AA', 0))
+    print('Part 1:', calculate_flow_recursive(0, 0, 0))
     print_info()
     start = time_ns()
 
@@ -100,12 +106,11 @@ def solve(flows: Dict[str, int], graph: Dict[str, List[Tuple[str, int]]], max_ti
     # 2. We start with a time of 4, meaning we'll still do the same max_time comparisons.
     # Both of those two facts *should* cause the memoization on our recursive function to get us through the next part in a reasonable time
     # In the worst case, our state space only gets bigger by a factor of 1 << len(flows)
+    # Note that we can always consider state '0' visited, since it is our starting state and we never return to it
     part2 = 0
-    for i in range(1 << len(flows)):
-        partition = {f for j, f in enumerate(flows) if (i >> j) & 1 == 1}
-
-        left = calculate_flow_recursive(frozenset(partition), 'AA', 4)
-        right = calculate_flow_recursive(frozenset(flows.keys() - partition), 'AA', 4)
+    for i in range(1 << (len(flows))):
+        left = calculate_flow_recursive(i | 1, 0, 4)
+        right = calculate_flow_recursive(((~i) & visited_all) | 1, 0, 4)
         total = left + right
 
         if total > part2:
