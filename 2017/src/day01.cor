@@ -1,0 +1,8 @@
+let ns = read_text('./inputs/day01.txt') . list . map(int)
+fn solve(offset) -> ns . len . range
+    . filter(fn(i) -> ns[i] == ns[(i + offset) % len(ns)])
+    . map(fn(i) -> ns[i])
+    . sum
+
+print('Part 1:', solve(1))
+print('Part 2:', solve(len(ns) / 2))
