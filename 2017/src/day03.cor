@@ -1,0 +1,39 @@
+let inp = read_text('./inputs/day03.txt') . int
+
+fn ccw(vec) -> vector(-vec[1], vec[0])
+
+let p = vector(0, 0), dp = vector(1, 0)
+let iwalk = 0, istep = 0, step = 1
+let values = dict() . default(0)
+
+values[p] = 1
+let part2 = nil
+
+for i in range(2, 1 + inp) {
+    p += dp
+    istep += 1
+
+    if istep == step {
+        istep = 0
+        iwalk += 1
+        dp = dp.ccw
+    }
+
+    if iwalk == 2 {
+        iwalk = 0
+        step += 1
+    }
+
+    if part2 is nil {
+        let value = range(9)
+            .map(fn(i) -> values[p + vector(i / 3 - 1, i % 3 - 1)])
+            .sum
+        if value > inp {
+            part2 = value
+        }
+        values[p] = value
+    }
+}
+
+print('Part 1:', p . map(abs) . sum)
+print('Part 2:', part2)
