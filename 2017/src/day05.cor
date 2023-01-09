@@ -1,0 +1,18 @@
+let inp = read_text('./inputs/day05.txt') . split('\n') . map(int)
+
+fn solve(inc) {
+    let inp = inp . list
+    let ptr = 0, step = 0
+    loop {
+        if ptr < 0 or ptr >= len(inp) {
+            return step
+        }
+        let jump = inp[ptr]
+        inp[ptr] = inc(jump)
+        ptr += jump
+        step += 1
+    }
+}
+
+print('Part 1:', solve((+1)))
+print('Part 2:', solve(fn(i) -> if i >= 3 then i - 1 else i + 1))

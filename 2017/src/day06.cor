@@ -1,0 +1,27 @@
+let mem = read_text('./inputs/day06.txt') . split('\t') . map(int)
+let step = 1
+
+fn run() {
+    let seen = set()
+    loop {
+        let vmax = mem . max
+        let imax = mem . find(vmax)
+        
+        mem[imax] = 0
+        for i in range(imax + 1, imax + 1 + vmax) {
+            mem[i % len(mem)] += 1
+        }
+
+        let state = mem.vector
+        if state in seen {
+            return step
+        }
+        step += 1
+        seen.push(state)
+    }
+}
+
+let part1 = run(), part2 = run() - part1
+
+print('Part 1:', part1)
+print('Part 2:', part2)
