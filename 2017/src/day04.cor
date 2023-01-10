@@ -7,4 +7,4 @@ fn solve(f) -> inp
     . len
 
 print('Part 1:', solve(set))
-print('Part 2:', solve(fn(x) -> x . map(sorted) . set))
+print('Part 2:', solve(fn(x) -> x . map(sort) . set))

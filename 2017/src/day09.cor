@@ -1,0 +1,26 @@
+let inp = read_text('./inputs/day09.txt')
+let depth = 0, score = 0, garbage = false, escape = false, total = 0
+
+for c in inp {
+    if garbage {
+        if escape {
+            escape = false
+        } elif c == '>' {
+            garbage = false
+        } elif c == '!' {
+            escape = true
+        } else {
+            total += 1
+        }
+    } elif c == '{'  {
+        depth += 1
+    } elif c == '}' {
+        score += depth
+        depth -= 1
+    } elif c == '<' {
+        garbage = true
+    }
+}
+
+print('Part 1:', score)
+print('Part 2:', total)

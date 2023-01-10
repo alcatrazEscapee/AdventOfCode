@@ -1,0 +1,14 @@
+let registers = dict().default(0)
+let max_reg = 0
+
+for line in read_text('./inputs/day08.txt') . split('\n') {
+    let reg, inc, val, _, test, op, test_val = line.split(' ')
+    
+    if ('' + registers[test] + op + int(test_val)) . eval {
+        registers[reg] += if inc == 'inc' then int(val) else -int(val)
+        max_reg = max(max_reg, registers[reg])
+    }
+}
+
+print('Part 1:', registers . values . max)
+print('Part 2:', max_reg)
