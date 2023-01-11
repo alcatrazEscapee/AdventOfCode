@@ -6,7 +6,7 @@ for line in read_text('./inputs/day08.txt') . split('\n') {
     
     if '' + registers[test] + op + int(test_val) . eval {
         registers[reg] += if inc == 'inc' then int(val) else -int(val)
-        max_reg = max(max_reg, registers[reg])
+        max_reg max= registers[reg]
     }
 }
 

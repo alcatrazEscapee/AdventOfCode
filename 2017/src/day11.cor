@@ -1,0 +1,21 @@
+// Axial Coordinates / Flat Top (q, r)
+let steps = {
+    'n': (0, -1),
+    's': (0, 1),
+    'ne': (1, -1),
+    'sw': (-1, 1),
+    'nw': (-1, 0),
+    'se': (1, 0)
+}
+
+fn norm1(x) -> (abs(sum(x)) + sum(x.map(abs))) / 2
+
+let pos = (0, 0)
+let max_pos = 0
+for key in read_text('./inputs/day11.txt') . split(',') {
+    pos += steps[key]
+    max_pos max= pos . norm1
+}
+
+print('Part 1:', pos . norm1)
+print('Part 2:', max_pos)

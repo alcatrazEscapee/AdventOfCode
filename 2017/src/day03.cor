@@ -1,12 +1,14 @@
 let inp = read_text('./inputs/day03.txt') . int
 
-fn ccw(vec) -> vector(-vec[1], vec[0])
+fn ccw(vec) {
+    let x, y = vec
+    (-y, x)
+}
 
-let p = vector(0, 0), dp = vector(1, 0)
+let p = (0, 0), dp = (1, 0)
 let iwalk = 0, istep = 0, step = 1
-let grid = dict() . default(0)
+let grid = {p: 1} . default(0)
 
-grid[p] = 1
 let part2 = nil
 
 for i in range(2, 1 + inp) {
@@ -26,7 +28,7 @@ for i in range(2, 1 + inp) {
 
     if part2 is nil {
         let value = range(9)
-            .map(fn(i) -> grid[p + vector(i / 3 - 1, i % 3 - 1)])
+            .map(fn(i) -> grid[p + (i / 3 - 1, i % 3 - 1)])
             .sum
         if value > inp {
             part2 = value
