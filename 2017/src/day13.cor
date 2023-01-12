@@ -1,0 +1,20 @@
+let layers = read_text('./inputs/day13.txt')
+    . split('\n')
+    . map(fn(line) {
+        let n, d = line . split(': ') . map(int)
+        (n, d, (d - 1) * 2)
+    })
+
+print('Part 1:', layers . map(fn(layer) {
+    let n, d, mod = layer
+    (if n % mod == 0 then n * d else 0)
+}) . sum)
+
+let wait = 1
+loop {
+    if layers . all(fn(layer) -> (layer[0] + wait) % layer[2] != 0) {
+        print('Part 2:', wait)
+        exit
+    }
+    wait += 1
+}

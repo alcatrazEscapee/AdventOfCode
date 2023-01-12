@@ -4,7 +4,7 @@ let max_reg = 0
 for line in read_text('./inputs/day08.txt') . split('\n') {
     let reg, inc, val, _, test, op, test_val = line.split(' ')
     
-    if '' + registers[test] + op + int(test_val) . eval {
+    if '%s %s %s' % (registers[test], op, test_val.int) . eval {
         registers[reg] += if inc == 'inc' then int(val) else -int(val)
         max_reg max= registers[reg]
     }
