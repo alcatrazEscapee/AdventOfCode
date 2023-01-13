@@ -1,0 +1,43 @@
+let startA, startB = read_text('./inputs/day15.txt') . split('\n') . map(fn(line) -> split(' ', line)[4].int)
+let mod = 2147483647, mask16 = (1 << 16) - 1
+let mulA = 16807, mulB = 48271
+
+let genA = startA, genB = startB
+let part1 = 0
+
+for _ in range(40_000_000) {
+    genA = (genA * mulA) % mod
+    genB = (genB * mulB) % mod
+
+    if genA & mask16 == genB & mask16 {
+        part1 += 1
+    }
+}
+
+print('Part 1:', part1)
+
+let part2 = 0
+
+genA = startA
+genB = startB
+
+for _ in range(5_000_000) {
+    loop {
+        genA = (genA * mulA) % mod
+        if genA & 3 == 0 {
+            break
+        }
+    }
+    loop {
+        genB = (genB * mulB) % mod
+        if genB & 7 == 0 {
+            break
+        }
+    }
+
+    if (genA & mask16) == (genB & mask16) {
+        part2 += 1
+    }
+}
+
+print('Part 1:', part2)
