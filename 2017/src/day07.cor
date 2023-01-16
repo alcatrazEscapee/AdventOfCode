@@ -15,7 +15,7 @@ for line in read_text('./inputs/day07.txt') . split('\n') {
 }
 
 let leafs = tree . values . concat . set
-let root = tree . keys . filter(fn(k) -> k not in leafs) . head
+let root = tree . keys . filter(fn(k) -> k not in leafs) . peek
 
 print('Part 1:', root)
 
@@ -26,7 +26,7 @@ fn balance(node) {
         if children . set . len > 1 {
             // This node is not balanced
             // Find the correct weight, assuming it is unambigious from just this node
-            let correct = children . filter(fn(i) -> children.findn(i) > 1) . head
+            let correct = children . filter(fn(i) -> len(children.filter(==i)) > 1) . peek
             for incorrect, child in zip(children, tree[node]) {
                 if incorrect != correct {
                     print('Part 2:', weights[child] - incorrect + correct)

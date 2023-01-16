@@ -18,7 +18,7 @@ fn dance() {
             order = order[-i:] + order[:-i]
         } elif c == 'p' {
             let a, b = arg
-            let ia = order . find(a), ib = order . find(b)
+            let ia = order . index_of(a), ib = order . index_of(b)
             order[ia] = b
             order[ib] = a
         } elif c == 'x' {
@@ -49,4 +49,4 @@ loop {
     }
 }
 
-print('Part 2:', seen . filter(fn(k) -> seen[k] == target) . head . reduce(+))
+print('Part 2:', seen . filter(fn(e) -> e[1] == target) . peek . peek . reduce(+))

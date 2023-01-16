@@ -4,8 +4,7 @@ let step = 1
 fn run() {
     let seen = set()
     loop {
-        let vmax = mem . max
-        let imax = mem . find(vmax)
+        let vmax = mem . max, imax = mem . index_of(vmax)
         
         mem[imax] = 0
         for i in range(imax + 1, imax + 1 + vmax) {

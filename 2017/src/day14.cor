@@ -3,7 +3,7 @@ let n = 256
 
 fn knot_hash(inp) {
     let lengths = (inp . trim . map(ord)) + [17, 31, 73, 47, 23]
-    let hash = range(0, n), pos = 0, skip = 0
+    let hash = range(0, n) . list, pos = 0, skip = 0
     for _ in range(64) {
         for length in lengths {
             for i, v in range(length) . map(fn(i) -> hash[(pos + i) % n]) . reverse . enumerate {
@@ -21,7 +21,7 @@ fn knot_hash(inp) {
 
 let grid = range(128) . map(fn(i) -> knot_hash('%s-%d' % (inp, i)))
 
-print('Part 1:', grid . map(findn('1')) . sum)
+print('Part 1:', grid . map(fn(line) -> line . filter(=='1') . len) . sum)
 
 let seen = set()
 let adj = ((0, 1), (0, -1), (-1, 0), (1, 0))

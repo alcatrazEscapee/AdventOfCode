@@ -3,7 +3,7 @@ let n = 256
 
 
 fn knot_hash(lengths, rounds) {
-    let hash = range(0, n), pos = 0, skip = 0
+    let hash = range(0, n) . list, pos = 0, skip = 0
     for _ in range(rounds) {
         for length in lengths {
             for i, v in range(length) . map(fn(i) -> hash[(pos + i) % n]) . reverse . enumerate {
