@@ -1,0 +1,85 @@
+let code = read_text('./inputs/day18.txt')
+    . split('\n')
+    . map(fn(line) -> line . split(' ') . map(fn(c) -> int(c, c)))
+
+let ip = 0
+let registers = dict() . default(0)
+let prev = nil
+loop {
+    let op, *arg = code[ip]
+    ip += 1
+
+    fn value(n) -> if arg[n] is int then arg[n] else registers[arg[n]]
+
+    if op == 'set' {
+        registers[arg[0]] = value(1)
+    } elif op == 'add' {
+        registers[arg[0]] += value(1)
+    } elif op == 'mul' {
+        registers[arg[0]] *= value(1)
+    } elif op == 'mod' {
+        registers[arg[0]] %= value(1)
+    } elif op == 'snd' {
+        prev = value(0)
+    } elif op == 'jgz' {
+        if value(0) > 0 {
+            ip += -1 + value(1)
+        }
+    } elif op == 'rcv' {
+        print('Part 1:', prev)
+        break
+    }
+}
+
+
+fn program(program_id, inputs, outputs) {
+    let ip = 0, sends = 0
+    let registers = {'p': program_id} . default(0)
+
+    fn run() {
+        let deadlock = true
+        loop {
+            let op, *arg = code[ip]
+            ip += 1
+
+            fn value(n) -> if arg[n] is int then arg[n] else registers[arg[n]]
+
+            if op == 'set' {
+                registers[arg[0]] = value(1)
+            } elif op == 'add' {
+                registers[arg[0]] += value(1)
+            } elif op == 'mul' {
+                registers[arg[0]] *= value(1)
+            } elif op == 'mod' {
+                registers[arg[0]] %= value(1)
+            } elif op == 'snd' {
+                sends += 1
+                outputs.push(value(0))
+            } elif op == 'jgz' {
+                if value(0) > 0 {
+                    ip += -1 + value(1)
+                }
+            } elif op == 'rcv' {
+                if inputs {
+                    registers[arg[0]] = inputs.pop_front
+                } else {
+                    ip -= 1 // Need to execute this instruction next time `run` is called
+                    return !deadlock
+                }
+            }
+
+            deadlock = false
+        }
+        return false
+    }
+
+    (run, fn() -> sends)
+}
+
+let left = [], right = []
+let program_1, _     = program(0, left, right),
+    program_2, part2 = program(1, right, left)
+
+while program_1() or program_2() {}
+
+print('Part 2:', part2())
