@@ -1,0 +1,33 @@
+let particles = read_text('./inputs/day20.txt')
+    . split('\n')
+    . map(fn(line) {
+        let p, v, a = line[:-1]
+            . split('>, ')
+            . map(fn(part) -> part[3:]
+                . split(',')
+                . map(int)
+                . vector
+            )
+        (p, v, a, true)
+    })
+
+fn norm1(p) -> p . map(abs) . sum
+
+// 'Infinite' ~ 1000
+for _ in range(1000) {
+    let positions = dict()
+    for i, (p, v, a, alive) in particles . enumerate {
+        v += a
+        p += v
+        if alive and p in positions {
+            alive = false
+            particles[positions[p]][3] = false
+        } else {
+            positions[p] = i
+        }
+        particles[i] = (p, v, a, alive)
+    }
+}
+
+print('Part 1:', (particles . enumerate . min_by(fn(e) -> norm1(e[1][0])))[0])
+print('Part 2:', particles . filter(fn(p) -> p[3]) . len)
