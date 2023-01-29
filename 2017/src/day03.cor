@@ -18,7 +18,7 @@ for i in range(2, 1 + inp) {
     if istep == step {
         istep = 0
         iwalk += 1
-        dp = dp.ccw
+        dp .= ccw
     }
 
     if iwalk == 2 {

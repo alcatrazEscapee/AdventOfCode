@@ -17,7 +17,7 @@ let rules = dict()
 for key, val in base_rules {
     rules[key] = val
     for _ in range(4) {
-        key = key.rotate
+        key .= rotate
         rules[key] = val
         rules[key.flip] = val
     }
