@@ -29,5 +29,5 @@ for _ in range(1000) {
     }
 }
 
-print('Part 1:', (particles . enumerate . min_by(fn(e) -> norm1(e[1][0])))[0])
-print('Part 2:', particles . filter(fn(p) -> p[3]) . len)
+print('Part 1:', (particles . enumerate . min_by(fn((_, (pos, *_))) -> norm1(pos)))[0])
+print('Part 2:', particles . filter(fn((_, _, _, alive)) -> alive) . len)

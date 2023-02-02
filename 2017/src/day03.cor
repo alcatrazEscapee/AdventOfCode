@@ -1,9 +1,6 @@
 let inp = read_text('./inputs/day03.txt') . int
 
-fn ccw(vec) {
-    let x, y = vec
-    (-y, x)
-}
+fn ccw((x, y)) -> (-y, x)
 
 let p = (0, 0), dp = (1, 0)
 let iwalk = 0, istep = 0, step = 1

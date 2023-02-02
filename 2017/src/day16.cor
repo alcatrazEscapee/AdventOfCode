@@ -1,8 +1,7 @@
 let inp = read_text('./inputs/day16.txt')
     . split(',')
     . map(fn(line) {
-        let c = line[0]
-        let arg = line[1:] . split('/')
+        let c = line[0], arg = line[1:] . split('/')
         if c == 'x' or c == 's' {
             arg = arg . map(int)
         }
@@ -49,4 +48,4 @@ loop {
     }
 }
 
-print('Part 2:', seen . filter(fn(e) -> e[1] == target) . peek . peek . reduce(+))
+print('Part 2:', seen . filter(fn((_, v)) -> v == target) . peek . peek . reduce(+))

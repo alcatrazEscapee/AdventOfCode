@@ -8,7 +8,7 @@ let steps = {
     'se': (1, 0)
 }
 
-fn norm1(x) -> (abs(sum(x)) + sum(x.map(abs))) / 2
+fn norm1((x, y)) -> (abs(x + y) + abs(x) + abs(y)) / 2
 
 let pos = (0, 0)
 let max_pos = 0

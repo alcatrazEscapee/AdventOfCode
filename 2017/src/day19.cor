@@ -1,8 +1,8 @@
 let inp = read_text('./inputs/day19.txt') . split('\n')
 let width = len(inp[0]), height = len(inp)
 
-fn grid(pos) -> inp[pos[1]][pos[0]]
-fn flip(pos) -> (pos[1], pos[0])
+fn grid((x, y)) -> inp[y][x]
+fn flip((x, y)) -> (y, x)
 
 let pos = (range(width) . filter(fn(x) -> grid((x, 0)) == '|') . peek, 0), step = (0, 1)
 let seen = ''
@@ -17,7 +17,7 @@ loop {
         // continue
     } elif c == '+' {
         // turn
-        let adj = flip(step)
+        let adj = step.flip
         if grid(pos + adj) != ' ' {
             step = adj
         } else {
