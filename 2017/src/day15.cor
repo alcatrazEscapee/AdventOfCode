@@ -2,7 +2,7 @@ let startA, startB = read_text('./inputs/day15.txt') . split('\n') . map(fn(line
 let mod = 2147483647, mask16 = (1 << 16) - 1
 let mulA = 16807, mulB = 48271
 
-let genA = startA, genB = startB
+let genA, genB = (startA, startB)
 let part1 = 0
 
 for _ in range(40_000_000) {
@@ -18,8 +18,7 @@ print('Part 1:', part1)
 
 let part2 = 0
 
-genA = startA
-genB = startB
+genA, genB = (startA, startB)
 
 for _ in range(5_000_000) {
     loop {

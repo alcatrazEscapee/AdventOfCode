@@ -22,9 +22,9 @@ fn dance() {
             order[ib] = a
         } elif c == 'x' {
             let i, j = arg
-            let t = order[i]
-            order[i] = order[j]
-            order[j] = t
+            let ix, jx = (order[i], order[j])
+            order[i] = jx
+            order[j] = ix
         }
     }
 }
