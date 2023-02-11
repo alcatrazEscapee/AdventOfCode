@@ -1,0 +1,55 @@
+let inp = read_text('./inputs/day22.txt') . split('\n')
+
+fn setup() {
+    let g = dict() . default('.')
+    for y, line in inp.enumerate {
+        for x, c in line.enumerate {
+            g[(x, y)] = c
+        }
+    }
+    (g,  (len(inp[0]) / 2, len(inp) / 2), (0, -1), 0)
+}
+
+
+fn right((x, y)) -> (-y, x)
+fn left((x, y)) -> (y, -x)
+fn flip((x, y)) -> (-x, -y)
+
+let grid, virus, dir, infected = setup()
+for _ in range(10000) {
+    let curr = grid[virus]
+    if curr == '#' {
+        dir .= right
+        grid[virus] = '.'
+    } else {
+        dir .= left
+        grid[virus] = '#'
+        infected += 1
+    }
+    virus += dir
+}
+
+print('Part 1:', infected)
+
+grid, virus, dir, infected  = setup()
+
+for _ in range(10000000) {
+    let curr = grid[virus]
+    if curr == '.' {
+        dir .= left
+        grid[virus] = 'W'
+    } elif curr == 'W' {
+        grid[virus] = '#'
+        infected += 1
+    } elif curr == '#' {
+        dir .= right
+        grid[virus] = 'F'
+    } elif curr == 'F' {
+        dir .= flip
+        grid[virus] = '.'
+    }
+    virus += dir
+}
+
+print('Part 2:', infected)
+
