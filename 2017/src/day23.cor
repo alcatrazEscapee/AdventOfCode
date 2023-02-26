@@ -69,16 +69,20 @@ loop {
 which we can optimize by using a fast implementation if `is_prime`
 */
 
-let b = ((read_text('./inputs/day23.txt') . split('\n'))[0] . split(' '))[2] . int, c
+let b = read_text('./inputs/day23.txt')
+     . split('\n')
+     . [0]
+     . split(' ')
+     . [2]
+     . int
 
 print('Part 1:', (b - 2) ** 2)
 
 b = (b * 100) + 100000
-c = b + 17000
 
 fn is_prime(n) -> range(2, 1 + sqrt(n)) . any(fn(p) -> n % p == 0)
 
-let h = 0
+let h = 0, c = b + 17000
 loop {
     if b.is_prime {
         h += 1
