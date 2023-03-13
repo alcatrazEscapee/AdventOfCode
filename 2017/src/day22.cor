@@ -31,7 +31,7 @@ for _ in range(10000) {
 
 print('Part 1:', infected)
 
-grid, virus, dir, infected  = setup()
+grid, virus, dir, infected = setup()
 
 for _ in range(10000000) {
     let curr = grid[virus]

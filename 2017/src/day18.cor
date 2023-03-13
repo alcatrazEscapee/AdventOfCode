@@ -31,6 +31,7 @@ loop {
     }
 }
 
+struct Program(run, total)
 
 fn program(program_id, inputs, outputs) {
     let ip = 0, sends = 0
@@ -73,13 +74,13 @@ fn program(program_id, inputs, outputs) {
         return false
     }
 
-    (run, fn() -> sends)
+    Program(run, fn() -> sends)
 }
 
 let left = [], right = []
-let program_1, _     = program(0, left, right),
-    program_2, part2 = program(1, right, left)
+let program_1 = program(0, left, right),
+    program_2 = program(1, right, left)
 
-while program_1() or program_2() {}
+while program_1->run() or program_2->run() {}
 
-print('Part 2:', part2())
+print('Part 2:', program_2->total())

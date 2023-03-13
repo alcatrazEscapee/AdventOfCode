@@ -1,14 +1,16 @@
+struct Particle(pos, v, a, alive)
+
 let particles = read_text('./inputs/day20.txt')
     . split('\n')
     . map(fn(line) {
-        let p, v, a = line[:-1]
+        let pos, v, a = line[:-1]
             . split('>, ')
             . map(fn(part) -> part[3:]
                 . split(',')
                 . map(int)
                 . vector
             )
-        (p, v, a, true)
+        Particle(pos, v, a, true)
     })
 
 fn norm1(p) -> p . map(abs) . sum
@@ -16,18 +18,17 @@ fn norm1(p) -> p . map(abs) . sum
 // 'Infinite' ~ 1000
 for _ in range(1000) {
     let positions = dict()
-    for i, (p, v, a, alive) in particles . enumerate {
-        v += a
-        p += v
-        if alive and p in positions {
-            alive = false
-            particles[positions[p]][3] = false
+    for i, p in particles . enumerate {
+        p->v += p->a
+        p->pos += p->v
+        if p->alive and p->pos in positions {
+            p->alive = false
+            particles[positions[p->pos]]->alive = false
         } else {
-            positions[p] = i
+            positions[p->pos] = i
         }
-        particles[i] = (p, v, a, alive)
     }
 }
 
-print('Part 1:', (particles . enumerate . min_by(fn((_, (pos, *_))) -> norm1(pos)))[0])
-print('Part 2:', particles . filter(fn((_, _, _, alive)) -> alive) . len)
+print('Part 1:', particles . enumerate . min_by(fn((_, p)) -> norm1(p->pos)) . [0])
+print('Part 2:', particles . filter(->alive) . len)

@@ -60,7 +60,9 @@ This reduces to:
 
 ```
 loop {
-    h += b.is_prime
+    if b.is_prime {
+        h += 1
+    }
     if b == c { break }
     b += 17
 }
