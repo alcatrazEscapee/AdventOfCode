@@ -1,3 +1,6 @@
+// Allow dead code, since this module's helpers aren't all used by each individual compilation target (day)
+#![allow(dead_code)]
+
 use std::io::{self, BufRead};
 use std::sync::{Arc, Mutex};
 use std::thread::{self, JoinHandle};

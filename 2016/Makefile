@@ -63,8 +63,9 @@ $(BUILD_DIR)/day$(2).log : FORCE $(BUILD_DIR)/day$(2)$(3) $(INPUT_DIR)/day$(2).t
 	@cat $(INPUT_DIR)/day$(1).txt | $(BUILD_DIR)/day$(1)$(3) | tee $(BUILD_DIR)/day$(1).log
 endef
 
-$(eval $(call build,05,05,.rs.o)) # Day 05, 14 implemented in Rust due needing MD5 (and high performance), and not wanting to do that in either C or Haskell
+$(eval $(call build,05,05,.rs.o)) # Day 05, 14, 17 implemented in Rust due needing MD5 (and high performance), and not wanting to do that in either C or Haskell
 $(eval $(call build,14,14,.rs.o))
+$(eval $(call build,17,17,.rs.o))
 
 $(eval $(call build,12,12,.out.c.o))  # Day 12 outputs a C file to out/ which is compiled
 
@@ -81,7 +82,7 @@ $(BUILD_DIR)/%.c.o : $(SRC_DIR)/%.c
 	@printf "Compiling $< ...\n"
 	@$(GCC) -o $@ $<
 
-$(BUILD_DIR)/%.out.c.o : $(BUILD_DIR)/%.hs.o $(INPUT_DIR)/day12.txt
+$(BUILD_DIR)/%.out.c.o : $(BUILD_DIR)/%.hs.o $(INPUT_DIR)/%.txt
 	$(MAKE_DIRS)
 	@cat $(INPUT_DIR)/$*.txt | $(BUILD_DIR)/$*.hs.o > $(BUILD_DIR)/$*.c
 	@printf "Compiling out/$*.c ...\n"
