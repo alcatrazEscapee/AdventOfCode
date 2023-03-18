@@ -18,7 +18,10 @@ data State = On | Off
 type Screen = [[State]]
 
 -- Of 6 x 50 pixels
+screenHeight :: Int
 screenHeight = 6
+
+screenWidth :: Int
 screenWidth = 50
 
 main :: IO ()
@@ -71,41 +74,43 @@ transpose x = (map head x) : transpose (map tail x)
 pInstruction :: ReadP Instruction
 pInstruction = do
     name <- pWord
-    char ' '
+    _ <- char ' '
     inst <- case name of
         "rect" -> pRectInstruction
         "rotate" -> pOtherInstruction
+        _ -> error "Invalid instruction"
     return inst
 
 pRectInstruction :: ReadP Instruction
 pRectInstruction = do
     x <- pInt
-    char 'x'
+    _ <- char 'x'
     y <- pInt
     return (Rect x y)
 
 pOtherInstruction :: ReadP Instruction
 pOtherInstruction = do
     rowOrCol <- pWord
-    char ' '
+    _ <- char ' '
     inst <- case rowOrCol of
         "row" -> pRowInstruction
         "column" -> pColInstruction
+        _ -> error "Invalid row/col"
     return inst
 
 pRowInstruction :: ReadP Instruction
 pRowInstruction = do
-    string "y="
+    _ <- string "y="
     y <- pInt
-    string " by "
+    _ <- string " by "
     by <- pInt
     return (Row y by)
 
 pColInstruction :: ReadP Instruction
 pColInstruction = do
-    string "x="
+    _ <- string "x="
     x <- pInt
-    string " by "
+    _ <- string " by "
     by <- pInt
     return (Col x by)
 

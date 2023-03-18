@@ -1,5 +1,3 @@
-import Data.Ord
-
 import qualified Data.Char as Char
 import qualified Data.List as List
 import qualified Data.Map as Map
@@ -29,14 +27,16 @@ roll n c = Char.chr $ a + ((Char.ord c - a + n) `mod` 26)
     where a = Char.ord 'a'
 
 isRealRoom :: Room -> Bool
-isRealRoom (nameParts, sectorId, checksum) = checksum == expected
+isRealRoom (nameParts, _, checksum) = checksum == expected
     where expected = take 5 . map fst . List.sortBy compareCountThenAlphabetical . Map.toList $ counts
           counts = foldl account Map.empty (concat nameParts)
           account counter c = Map.insertWith (+) c 1 counter
+
+          compareCountThenAlphabetical :: (Char, Int) -> (Char, Int) -> Ordering
           compareCountThenAlphabetical (x1, c1) (x2, c2)
             | c1 < c2 = GT
             | c1 > c2 = LT
-            | c1 == c2 = compare x1 x2
+            | otherwise = compare x1 x2
 
 parseRooms :: String -> [Room]
 parseRooms inp = map parseRoom . lines $ inp
@@ -47,12 +47,12 @@ parseRooms inp = map parseRoom . lines $ inp
 pRoom :: ReadP Room
 pRoom = do
     name <- sepBy1 pWord (char '-')
-    char '-'
-    id <- pNumber
-    char '['
+    _ <- char '-'
+    sectorId <- pNumber
+    _ <- char '['
     checksum <- pWord
-    char ']'
-    return (name, id, checksum)
+    _ <- char ']'
+    return (name, sectorId, checksum)
 
 pNumber :: ReadP Int
 pNumber = do

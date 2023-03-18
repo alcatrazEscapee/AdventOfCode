@@ -2,7 +2,9 @@ import qualified Data.Set as Set
 
 type Point = (Int, Int)
 
+start :: Point
 start = (0, 0)
+north :: Point
 north = (0, 1)
 
 main :: IO ()
@@ -32,13 +34,14 @@ step (p, dp) s = (add p . mul dp' . int . tail $ s, dp')
 -- (points) -> first duplicate point
 dup :: [Point] -> Point
 dup xs = dup' xs Set.empty
-    where dup' (x:xs) seen = if Set.member x seen
+    where dup' (x:xs') seen = if Set.member x seen
                              then x
-                             else dup' xs (Set.insert x seen)
+                             else dup' xs' (Set.insert x seen)
+          dup' _ _ = error "No duplicate points"
 
 -- (c, string) -> string with all instances of 'c' removed
 strip :: Char -> String -> String
-strip c [] = []
+strip _ [] = []
 strip c (x : xs) = if x == c
                    then t
                    else x : t
@@ -66,6 +69,7 @@ mul (x, y) s = (x * s, y * s)
 rot :: Point -> Char -> Point
 rot (x, y) 'L' = (-y, x)
 rot (x, y) 'R' = (y, -x)
+rot _ _ = error "Invalid rotation"
 
 int :: String -> Int
 int s = read s ::Int

@@ -7,8 +7,12 @@ type Point = (Int, Int)
 type KeypadCheck = Point -> Bool
 type KeypadNameOf = Point -> Char
 
-origin = (0, 0) :: Point
-diagonalKeypad = "..1...234.56789.ABC...D.." :: String -- The keypad from part 2, as a 5x5 grid
+origin :: Point
+origin = (0, 0)
+
+-- The keypad from part 2, as a 5x5 grid
+diagonalKeypad :: String
+diagonalKeypad = "..1...234.56789.ABC...D.."
 
 main :: IO ()
 main = do
@@ -44,6 +48,7 @@ dir c = case c of 'U' -> (0, -1)
                   'D' -> (0, 1)
                   'L' -> (-1, 0)
                   'R' -> (1, 0)
+                  _   -> error "Invalid direction"
 
 add :: Point -> Point -> Point
 add (x0, y0) (x1, y1) = (x0 + x1, y0 + y1)

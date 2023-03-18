@@ -12,7 +12,8 @@ main = do
 
 characterFrequencies :: String -> [Char] 
 characterFrequencies = map fst . List.sortBy (comparing snd) . Map.toList . foldl account Map.empty
-    where account counter c = Map.insertWith (+) c 1 counter
+    where account :: Map.Map Char Int -> Char -> Map.Map Char Int
+          account counter c = Map.insertWith (+) c 1 counter
 
 transpose :: [[a]] -> [[a]]
 transpose ([]:_) = []

@@ -35,7 +35,7 @@ sequencesABBA ip = seq ip []
     where seq (a:b:c:d:xs) acc = if a == d && b == c && a /= b
                                  then seq (c:d:xs) ((a:b:c:d:[]) : acc)
                                  else seq (b:c:d:xs) acc
-          seq (x:xs)       acc = seq xs acc
+          seq (_:xs)       acc = seq xs acc
           seq []           acc = acc
 
 -- Extracts sequences of 'ABA' from a string and returns the list of all such sequences
@@ -44,12 +44,12 @@ sequencesABA ip = seq ip []
     where seq (a:b:c:xs) acc = if a == c && a /= b
                                then seq (b:c:xs) ((a:b:c:[]) : acc)
                                else seq (b:c:xs) acc
-          seq (x:xs)     acc = seq xs acc
+          seq (_:xs)     acc = seq xs acc
           seq []         acc = acc
 
 -- Flips a string 'ABA' to 'BAB'
 flipABA :: String -> String
-flipABA (a:b:c) = (b:a:b:[])
+flipABA (a:b:_) = (b:a:b:[])
 flipABA xs = xs
 
 

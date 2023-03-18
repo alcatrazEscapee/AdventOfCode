@@ -4,6 +4,9 @@ main = do
     inp <- getContents
     putStrLn (parse inp)
 
+
+-- Rather than compile and execute this assembly, or decompile it for meaning, we transpile it to C.
+-- With x86-64 clang 15.0.0 -O3, this is able to reduce to a single `mov` instruction.
 parse :: String -> String
 parse inp = "#include <stdio.h>\n\n\
             \inline static void part1() {\n\

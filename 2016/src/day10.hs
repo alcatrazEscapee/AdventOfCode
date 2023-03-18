@@ -88,29 +88,30 @@ solve inp = (part1, part2)
 pInstruction :: ReadP Instruction
 pInstruction = do
     name <- pWord
-    char ' '
+    _ <- char ' '
     inst <- case name of 
         "value" -> pValueInstruction
         "bot" -> pSplitInstruction
+        _ -> error "Invalid instruction"
     return inst
 
 pValueInstruction :: ReadP Instruction
 pValueInstruction = do
     value <- pInt
-    string " goes to bot "
+    _ <- string " goes to bot "
     bot <- pInt
     return (Value bot value)
 
 pSplitInstruction :: ReadP Instruction
 pSplitInstruction = do
     bot <- pInt
-    string " gives low to "
+    _ <- string " gives low to "
     lowType <- pWord
-    char ' '
+    _ <- char ' '
     low <- pInt
-    string " and high to "
+    _ <- string " and high to "
     highType <- pWord
-    char ' '
+    _ <- char ' '
     high <- pInt
     return (Split bot (lowType == "output") low (highType == "output") high)
 

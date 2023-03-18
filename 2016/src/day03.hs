@@ -18,6 +18,7 @@ part2 = part1 . take3 . concat . transpose
 triangles :: [[Int]] -> Int
 triangles = sum . map (fromEnum . tri)
     where tri (a:b:c:_) = a + b > c && a + c > b && b + c > a
+          tri _ = error "Not a triple"
 
 take3 :: [a] -> [[a]]
 take3 [] = []

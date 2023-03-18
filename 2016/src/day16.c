@@ -2,9 +2,9 @@
 
 slice_t dragon(slice_t inp, size_t len, size_t target);
 
-int main(args)
+main
 {
-    size_t len; slice_t inp = read_in(inp, len);
+    read_input(inp, len);
 
     slice_t part1 = dragon(inp, len, 272);
     slice_t part2 = dragon(inp, len, 35651584);
@@ -39,7 +39,7 @@ slice_t dragon(slice_t inp, size_t len, size_t target) {
     while ((len & 1) == 0) {
         len = len >> 1;
         next = new(slice_t)(len);
-        for (int i = 0; i < len; i++) {
+        for (size_t i = 0; i < len; i++) {
             next[i] = prev[(i << 1)] == prev[(i << 1) | 1] ? '1' : '0';
         }
         del(prev);
