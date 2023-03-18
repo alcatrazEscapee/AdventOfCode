@@ -32,7 +32,7 @@ solve = show . fst . foldl1 crt
 
 parse :: String -> [(Int, Int)]
 parse inp = map parseLine . map words . lines $ inp
-    where parseLine (_:nj:_:mj:_:_:_:_:_:_:_:tj:_) = (- (int . tail $ nj) - (int . init $ tj), int mj)
+    where parseLine (_:(_:nj):_:mj:_:_:_:_:_:_:_:tj:_) = (- (int nj) - (int . init $ tj), int mj)
           parseLine _ = error "Invalid input line"
 
 int :: String -> Int

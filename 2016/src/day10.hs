@@ -1,7 +1,5 @@
-import qualified Data.Char as Char
 import qualified Data.Map as Map
 
-import Text.ParserCombinators.ReadP
 import Data.Maybe
 
 type IntMultiMap = Map.Map Int [Int]
@@ -20,12 +18,12 @@ isValue _ = False
 main :: IO ()
 main = do
     inp <- getContents
-    let (part1, part2) = solve inp
+    let (part1, part2) = solve . parse $ inp
     putStrLn $ "Part 1: " ++ part1
     putStrLn $ "Part 2: " ++ part2
 
-solve :: String -> (String, String)
-solve inp = (part1, part2)
+solve :: [Instruction] -> (String, String)
+solve instructions = (part1, part2)
     where part1 = show resultBot
           part2 = show $ output 0 * output 1 * output 2
                 where output x = head . fromJust . Map.lookup x $ resultOutputs
@@ -76,49 +74,10 @@ solve inp = (part1, part2)
                       toMapValue _ = error "Not a Value"
           
           rules = filter (not . isValue) $ instructions
-          instructions = parse inp :: [Instruction]
 
-          parse :: String -> [Instruction]
-          parse = map parseLine . lines
-          parseLine = fst . head . readP_to_S pInstruction
-
-
--- Parser Tokens
-
-pInstruction :: ReadP Instruction
-pInstruction = do
-    name <- pWord
-    _ <- char ' '
-    inst <- case name of 
-        "value" -> pValueInstruction
-        "bot" -> pSplitInstruction
-        _ -> error "Invalid instruction"
-    return inst
-
-pValueInstruction :: ReadP Instruction
-pValueInstruction = do
-    value <- pInt
-    _ <- string " goes to bot "
-    bot <- pInt
-    return (Value bot value)
-
-pSplitInstruction :: ReadP Instruction
-pSplitInstruction = do
-    bot <- pInt
-    _ <- string " gives low to "
-    lowType <- pWord
-    _ <- char ' '
-    low <- pInt
-    _ <- string " and high to "
-    highType <- pWord
-    _ <- char ' '
-    high <- pInt
-    return (Split bot (lowType == "output") low (highType == "output") high)
-
-pWord :: ReadP String
-pWord = munch1 Char.isAlpha
-
-pInt :: ReadP Int
-pInt = do
-    v <- munch1 Char.isDigit
-    return (read v)
+parse :: String -> [Instruction]
+parse = map (parse' . words) . lines
+    where parse' :: [String] -> Instruction
+          parse' ("value" : x : _ : _ : _ : bot : []) = Value (read bot) (read x)
+          parse' ("bot"   : bot : _ : _ : _ : tx : x : _ : _ : _ : ty : y : []) = Split (read bot) (tx == "output") (read x) (ty == "output") (read y)
+          parse' _ = error "Invalid input line"
