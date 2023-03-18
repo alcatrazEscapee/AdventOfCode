@@ -1,6 +1,5 @@
-import qualified Data.Char as Char
-
-import Text.ParserCombinators.ReadP
+import qualified Data.List as List
+import qualified Data.Maybe as Maybe
 
 -- Each line of the input is an instruction
 -- 1. Turn on Rect (x, y), 2. Rotate Row x by <num>, 3. Rotate Col y by <num>
@@ -34,8 +33,14 @@ main = do
 parseAndExecuteInstructions :: String -> Screen
 parseAndExecuteInstructions = foldl execInstruction start . parse
     where start = replicate screenHeight (replicate screenWidth Off)
-          parse = map parseLine . lines
-          parseLine = fst . head . readP_to_S pInstruction
+          parse = map (parse' . words) . lines
+          
+          parse' :: [String] -> Instruction
+          parse' ("rect" : xy : []) = Rect (read . take n $ xy) (read . drop (n + 1) $ xy)
+                where n = Maybe.fromJust . List.elemIndex 'x' $ xy
+          parse' ("rotate" : "row"    : (_:_:y) : _ : by : []) = Row (read y) (read by)
+          parse' ("rotate" : "column" : (_:_:x) : _ : by : []) = Col (read x) (read by)
+          parse' _ = error "Invalid input line"
 
 totalPixelsTurnedOn :: Screen -> Int
 totalPixelsTurnedOn = sum . map (length . filter (== On))
@@ -68,56 +73,3 @@ rotateByRow y by width screen = (take y screen) ++ [newRow] ++ (drop (y + 1) scr
 transpose :: [[a]] -> [[a]]
 transpose ([]:_) = []
 transpose x = (map head x) : transpose (map tail x)
-
--- Parser Tokens
-
-pInstruction :: ReadP Instruction
-pInstruction = do
-    name <- pWord
-    _ <- char ' '
-    inst <- case name of
-        "rect" -> pRectInstruction
-        "rotate" -> pOtherInstruction
-        _ -> error "Invalid instruction"
-    return inst
-
-pRectInstruction :: ReadP Instruction
-pRectInstruction = do
-    x <- pInt
-    _ <- char 'x'
-    y <- pInt
-    return (Rect x y)
-
-pOtherInstruction :: ReadP Instruction
-pOtherInstruction = do
-    rowOrCol <- pWord
-    _ <- char ' '
-    inst <- case rowOrCol of
-        "row" -> pRowInstruction
-        "column" -> pColInstruction
-        _ -> error "Invalid row/col"
-    return inst
-
-pRowInstruction :: ReadP Instruction
-pRowInstruction = do
-    _ <- string "y="
-    y <- pInt
-    _ <- string " by "
-    by <- pInt
-    return (Row y by)
-
-pColInstruction :: ReadP Instruction
-pColInstruction = do
-    _ <- string "x="
-    x <- pInt
-    _ <- string " by "
-    by <- pInt
-    return (Col x by)
-
-pWord :: ReadP String
-pWord = munch1 Char.isAlpha
-
-pInt :: ReadP Int
-pInt = do
-    v <- munch1 Char.isDigit
-    return (read v)
