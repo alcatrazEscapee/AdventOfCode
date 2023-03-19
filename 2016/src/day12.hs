@@ -9,22 +9,22 @@ main = do
 -- With x86-64 clang 15.0.0 -O3, this is able to reduce to a single `mov` instruction.
 parse :: String -> String
 parse inp = "#include <stdio.h>\n\n\
-            \inline static void part1() {\n\
+            \static int part1() {\n\
             \    int a, b, c, d;\n\
             \    a = b = c = d = 0;\n\
-            \    d = 0;\n" ++ body ++ "\n\n    printf(\"Part 1: %d\\n\", a);\n\
+            \    d = 0;\n" ++ body ++ "\n    return a;\n\
             \}\n\
-            \inline static void part2() {\n\
+            \static int part2() {\n\
             \    int a, b, c, d;\n\
             \    a = b = c = d = 0;\n\
-            \    c = 1;\n" ++ body ++ "\n\n    printf(\"Part 2: %d\\n\", a);\n\
+            \    c = 1;\n" ++ body ++ "\n    return a;\n\
             \}\n\
             \int main() {\n\
-            \    part1();\n\
-            \    part2();\n\
+            \    printf(\"Part 1: %d\\n\", part1());\n\
+            \    printf(\"Part 2: %d\\n\", part2());\n\
             \    return 0;\n\
             \}"
-    where body = foldl (\acc x -> acc ++ "\n" ++ x) "" $ map parseInst . zip [0..] . map words . lines $ inp
+    where body = unlines . map parseInst . zip [0..] . map words . lines $ inp
         
           parseInst :: (Int, [String]) -> String
           parseInst (code, (op:args)) = "\tlabel_" ++ (show code) ++ ": " ++ case op of 

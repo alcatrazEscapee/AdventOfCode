@@ -24,33 +24,35 @@ part2 = solve supportsSSL sequencesABA
 -- Solver
 -- (predicate that checks if an IP subsequences are supported) -> (sequence splitter for an IP) -> (input) -> (count of supported IPs)
 solve :: (IP -> Bool) -> (String -> [String]) -> String -> String
-solve support seq = show . length . filter support . map mapParts . splitInto
+solve support find = show . length . filter support . map mapParts . splitInto
     where mapParts (left, right) = (mapPart left, mapPart right)
-          mapPart = concat . map seq
+          mapPart = concat . map find
 
 
 -- Extracts sequences of 'ABBA' from a string and returns the list of all such sequences
 sequencesABBA :: String -> [String]
-sequencesABBA ip = seq ip []
-    where seq (a:b:c:d:xs) acc = if a == d && b == c && a /= b
-                                 then seq (c:d:xs) ((a:b:c:d:[]) : acc)
-                                 else seq (b:c:d:xs) acc
-          seq (_:xs)       acc = seq xs acc
-          seq []           acc = acc
+sequencesABBA ip = find ip []
+    where find :: String -> [String] -> [String]
+          find (a:b:c:d:xs) acc = if a == d && b == c && a /= b
+                                 then find (c:d:xs) ((a:b:c:d:[]) : acc)
+                                 else find (b:c:d:xs) acc
+          find (_:xs)       acc = find xs acc
+          find []           acc = acc
 
 -- Extracts sequences of 'ABA' from a string and returns the list of all such sequences
 sequencesABA :: String -> [String]
-sequencesABA ip = seq ip []
-    where seq (a:b:c:xs) acc = if a == c && a /= b
-                               then seq (b:c:xs) ((a:b:c:[]) : acc)
-                               else seq (b:c:xs) acc
-          seq (_:xs)     acc = seq xs acc
-          seq []         acc = acc
+sequencesABA ip = find ip []
+    where find :: String -> [String] -> [String]
+          find (a:b:c:xs) acc = if a == c && a /= b
+                               then find (b:c:xs) ((a:b:c:[]) : acc)
+                               else find (b:c:xs) acc
+          find (_:xs)     acc = find xs acc
+          find []         acc = acc
 
 -- Flips a string 'ABA' to 'BAB'
 flipABA :: String -> String
 flipABA (a:b:_) = (b:a:b:[])
-flipABA xs = xs
+flipABA _ = error "Invalid ABA subsequence"
 
 
 -- Splits the input string into a list of IPs
