@@ -1,6 +1,8 @@
 *
 !*/
 !/.gitignore
+!/LICENSE.txt
+!/README.md
 !/Makefile
 
 !/src/day**.cor
