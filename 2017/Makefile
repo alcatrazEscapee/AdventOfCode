@@ -26,5 +26,5 @@ $(ACTUAL) : $(DAYS_COR) FORCE
 	@for day in $(DAYS) ; do \
 		printf "Test Day $$day\n" ; \
 		printf "Day $$day\n" >> $(ACTUAL) ; \
-		cordy src/day$$day.cor >> $(ACTUAL) ; \
+		cordy -o src/day$$day.cor >> $(ACTUAL) ; \
 	done

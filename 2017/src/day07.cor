@@ -26,7 +26,7 @@ fn balance(node) {
         if children . set . len > 1 {
             // This node is not balanced
             // Find the correct weight, assuming it is unambigious from just this node
-            let correct = children . filter(fn(i) -> len(children.filter(==i)) > 1) . peek
+            let correct = children . filter(fn(i) -> children . filter(==i) . len . (>1)) . peek
             for incorrect, child in zip(children, tree[node]) {
                 if incorrect != correct {
                     print('Part 2:', weights[child] - incorrect + correct)

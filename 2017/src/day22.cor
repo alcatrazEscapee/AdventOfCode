@@ -7,7 +7,7 @@ fn setup() {
             g[(x, y)] = c
         }
     }
-    (g,  (len(inp[0]) / 2, len(inp) / 2), (0, -1), 0)
+    (g, (len(inp[0]) / 2, len(inp) / 2), (0, -1), 0)
 }
 
 
