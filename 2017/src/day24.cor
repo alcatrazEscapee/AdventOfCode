@@ -1,0 +1,42 @@
+let nodes = read_text('./inputs/day24.txt')
+    . split('\n')
+    . map(fn(line) -> line . split('/'). map(int) . vector)
+
+let N = nodes . len
+assert N < 64 // Since we do bit packing
+
+@memoize
+fn strength(mask) {
+    let strength = 0
+    for i, (l, r) in nodes . enumerate {
+        if (mask >> i) & 1 {
+            strength += l + r
+        }
+    }
+    strength
+}
+
+// metric := a fn(T, T) -> T which picks between two masks, for which one is the best
+// last := the last used connection
+// mask := the mask representing currently used nodes
+// value := the current maximum strength
+@memoize
+fn best(metric, last, mask) {
+    let best_mask = mask
+    for i, (l, r) in nodes . enumerate {
+        if (mask >> i) & 1 == 0 and (l == last or r == last) {
+            best_mask .= metric(best(metric, if l == last then r else l, mask | (1 << i)))
+        }
+    }
+    best_mask
+}
+
+fn best_by_strength(l, r) -> if strength(l) > strength(r) then l else r
+
+print('Part 1:', best(fn(l, r) -> if strength(l) > strength(r) then l else r, 0, 0) . strength)
+print('Part 2:', best(fn(l, r) {
+    let li = count_ones(l), ri = count_ones(r)
+    if li > ri then l else
+        if li < ri then r else
+            if strength(l) > strength(r) then l else r
+}, 0, 0) . strength)
