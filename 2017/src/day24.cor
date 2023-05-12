@@ -6,20 +6,14 @@ let N = nodes . len
 assert N < 64 // Since we do bit packing
 
 @memoize
-fn strength(mask) {
-    let strength = 0
-    for i, (l, r) in nodes . enumerate {
-        if (mask >> i) & 1 {
-            strength += l + r
-        }
-    }
-    strength
-}
+fn strength(mask) -> nodes
+    . enumerate
+    . map(fn((i, (l, r))) -> if (mask >> i) & 1 then l + r else 0)
+    . sum
 
 // metric := a fn(T, T) -> T which picks between two masks, for which one is the best
 // last := the last used connection
 // mask := the mask representing currently used nodes
-// value := the current maximum strength
 @memoize
 fn best(metric, last, mask) {
     let best_mask = mask
@@ -30,8 +24,6 @@ fn best(metric, last, mask) {
     }
     best_mask
 }
-
-fn best_by_strength(l, r) -> if strength(l) > strength(r) then l else r
 
 print('Part 1:', best(fn(l, r) -> if strength(l) > strength(r) then l else r, 0, 0) . strength)
 print('Part 2:', best(fn(l, r) {

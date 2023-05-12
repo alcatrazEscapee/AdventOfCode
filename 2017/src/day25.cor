@@ -1,0 +1,38 @@
+struct Rule(write, move, state)
+
+let lines = split('\n')
+let state, N, rules
+
+fn word(n, line) -> line . split(' ') . [n]
+
+do {
+    let inp = read_text('./inputs/day25.txt') . split('\n\n')
+    let prefix = inp[0] . lines
+    
+    state = prefix . [0] . word(3) . [0]
+    N = prefix . [1] . word(5) . int
+    
+    rules = inp[1:] . map(fn(group) {
+        let parts = group . lines
+        let state = parts . [0] . word(2) . [0]
+
+        fn rule(i) -> Rule(
+            parts . [i] . word(-1) . [0] . int,
+            parts . [i + 1] . word(-1) . (fn(x) -> if x == 'left.' then -1 else 1),
+            parts . [i + 2] . word(-1) . [0]
+        )
+
+        (state, (rule(2), rule(6)))
+    }) . dict
+}
+
+let tape = dict() . default(0), pointer = 0
+
+for _ in range(N) {
+    let rule = rules[state][tape[pointer]]
+    tape[pointer] = rule->write
+    pointer += rule->move
+    state = rule->state
+}
+
+print('Part 1:', tape . values . sum)

@@ -11,7 +11,7 @@ FORCE :
 
 .PHONY : run
 run :
-	@cordy src/day$(day).cor
+	@cordy -o src/day$(day).cor
 
 .PHONY : test
 test : $(ACTUAL)
