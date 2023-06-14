@@ -2,20 +2,16 @@ let weights = dict()
 let tree = dict()
 
 for line in read_text('./inputs/day07.txt') . split('\n') {
-    let node, weight, *children = line
-        . replace(' (', ', ')
-        . replace(')', '')
-        . replace(' -> ', ', ')
-        . split(', ')
+    let (_, node, weight, children) = line . search('^(\w+) \((\d+)\)(?: -> )?(.*)')
     
     weights[node] = int(weight)
     if children {
-        tree[node] = children
+        tree[node] = children . split(', ')
     } 
 }
 
 let leafs = tree . values . concat . set
-let root = tree . keys . filter(fn(k) -> k not in leafs) . peek
+let root = tree . keys . filter(not in leafs) . peek
 
 print('Part 1:', root)
 
