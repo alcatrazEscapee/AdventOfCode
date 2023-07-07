@@ -8,7 +8,7 @@ let inp = read_text('./inputs/day16.txt')
         (c, arg)
     })
 
-let order = 'abcdefghijklmnop' . list
+let order = [...'abcdefghijklmnop']
 
 fn dance() {
     for c, arg in inp {

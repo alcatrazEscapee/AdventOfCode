@@ -21,7 +21,7 @@ let part1 = knot_hash(inp . split(',') . map(int), 1)
 
 print('Part 1:', part1[0] * part1[1])
 
-let sparse = knot_hash((inp . trim . map(ord)) + [17, 31, 73, 47, 23], 64)
+let sparse = knot_hash([...inp . trim . map(ord), 17, 31, 73, 47, 23], 64)
 let dense = range(0, n, 16)
     . map(fn(i) -> sparse[i:i + 16] . reduce(^) . ('%02x' %))
     . reduce(+)

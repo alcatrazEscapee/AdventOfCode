@@ -2,7 +2,7 @@ let inp = read_text('./inputs/day14.txt')
 let n = 256
 
 fn knot_hash(inp) {
-    let lengths = (inp . trim . map(ord)) + [17, 31, 73, 47, 23]
+    let lengths = [...inp . trim . map(ord), 17, 31, 73, 47, 23]
     let hash = range(0, n) . list, pos = 0, skip = 0
     for _ in range(64) {
         for length in lengths {
