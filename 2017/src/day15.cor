@@ -1,4 +1,7 @@
-let startA, startB = read_text('./inputs/day15.txt') . split('\n') . map(fn(line) -> split(' ', line)[4].int)
+let startA, startB = read_text('./inputs/day15.txt')
+    . split('\n')
+    . map(fn(line) -> line . split ' ' . [4] . int)
+
 let mod = 2147483647, mask16 = (1 << 16) - 1
 let mulA = 16807, mulB = 48271
 

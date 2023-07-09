@@ -14,5 +14,5 @@ fn solve(inc) {
     }
 }
 
-print('Part 1:', solve((+1)))
+print('Part 1:', solve(+1))
 print('Part 2:', solve(fn(i) -> if i >= 3 then i - 1 else i + 1))
