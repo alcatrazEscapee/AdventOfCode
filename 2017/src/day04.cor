@@ -1,10 +1,13 @@
-let inp = read_text('./inputs/day04.txt')
+// N.B. This was rewritten as an example of using 'bare evaluation'
+// It is an exercise in using the least amount of parenthesis as possible
+
+let inp = read_text './inputs/day04.txt'
 
 fn solve(f) -> inp 
-    . split('\n')
-    . map(split(' '))
-    . filter(fn(x) -> len(f(x)) == len(x))
+    . split '\n'
+    . map(split ' ')
+    . filter(fn(x) -> len(f x) == len x)
     . len
 
-print('Part 1:', solve(set))
-print('Part 2:', solve(fn(x) -> x . map(sort) . set))
+print('Part 1:', solve set)
+print('Part 2:', solve(fn(x) -> x . map sort . set))
