@@ -1,0 +1,15 @@
+*
+!*/
+
+!/.gitignore
+!/README.md
+!/LICENSE.txt
+
+!/utils.py
+!/main.py
+!/test.py
+!/aoc_font.py
+
+!/day*/*.py
+!/day*/*.txt
+!/day*/*.pdf
