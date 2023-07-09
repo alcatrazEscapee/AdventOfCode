@@ -1,7 +1,7 @@
 # Day 13: Distress Signal
 # Rank: 18 / 27
 
-from utils_all import get_input
+from utils import get_input
 from typing import List
 from functools import cmp_to_key
 
