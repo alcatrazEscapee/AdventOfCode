@@ -9,4 +9,6 @@
 !/run.py
 
 !/day*/*.py
+!/day*/*.md
+!/day*/*_niosii.s
 !/day*/input*.*
