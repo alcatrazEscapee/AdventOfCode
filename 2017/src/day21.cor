@@ -1,0 +1,58 @@
+let base_rules = read_text('./inputs/day21.txt')
+    . split('\n')
+    . map(fn(line) -> line
+        . split(' => ')
+        . map(split('/'))
+        . map(vector))
+
+fn rotate(k) {
+    let n = len(k)
+    range(n) . map(fn(y) -> range(n) . map(fn(x) -> k[x][n - 1 - y]) . vector) . vector
+}
+
+fn flip(k) -> k . map(fn(kr) -> kr[::-1]) . vector
+
+let rules = dict()
+
+for key, val in base_rules {
+    rules[key] = val
+    for _ in range(4) {
+        key .= rotate
+        rules[key] = val
+        rules[key.flip] = val
+    }
+}
+
+let grid = ('.#.', '..#', '###') . map(vector)
+
+fn total_on() -> grid . map(fn(line) -> line . filter(=='#') . len) . sum
+
+for step in range(1, 1 + 18) {
+
+    let w = if len(grid) % 2 == 0 then 2 else 3
+    let n = len(grid) / w
+    let w1 = w + 1
+    let new_grid = range(w1 * n) . map(fn(x) -> ['?'] * w1 * n . vector)
+
+    for gx in range(n) {
+        for gy in range(n) {
+            let key = range(w)
+                . map(fn(y) -> grid[gy * w + y][gx * w : (gx + 1) * w])
+                . vector
+            let new = rules[key]
+            for dx in range(w1) {
+                for dy in range(w1) {
+                    new_grid[gy * w1 + dy][gx * w1 + dx] = new[dy][dx]
+                }
+            }
+        }
+    }
+
+    grid = new_grid
+
+    if step == 5 {
+        print('Part 1:', total_on())
+    }
+}
+
+print('Part 2:', total_on())

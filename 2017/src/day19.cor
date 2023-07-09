@@ -1,0 +1,34 @@
+let inp = read_text('./inputs/day19.txt') . split('\n')
+let width = len(inp[0]), height = len(inp)
+
+fn grid((x, y)) -> inp[y][x]
+fn flip((x, y)) -> (y, x)
+
+let pos = (range(width) . filter(fn(x) -> grid((x, 0)) == '|') . peek, 0), step = (0, 1)
+let seen = ''
+let steps = 0
+
+loop {
+    pos += step
+    steps += 1
+    
+    let c = grid(pos)
+    if c == '|' or c == '-' {
+        // continue
+    } elif c == '+' {
+        // turn
+        let adj = step.flip
+        if grid(pos + adj) != ' ' {
+            step = adj
+        } else {
+            step = -adj
+        }
+    } elif c == ' ' {
+        break
+    } else {
+        seen += c
+    }
+}
+
+print('Part 1:', seen)
+print('Part 2:', steps)

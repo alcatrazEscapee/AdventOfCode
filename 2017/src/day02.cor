@@ -1,0 +1,21 @@
+let ns = read_text('./inputs/day02.txt')
+    . split('\n') 
+    . map(fn(line) -> line . split('\t') . map(int))
+
+print('Part 1:', ns
+    . map(fn(ns) -> max(ns) - min(ns))
+    . sum)
+
+fn div(a, b) -> a != b and a % b == 0
+
+print('Part 2:', ns . map(fn(n) {
+    for a in n {
+        for b in n {
+            if div(a, b) {
+                return a / b
+            } elif div(b, a) {
+                return b / a
+            }
+        }
+    }
+}) . sum)

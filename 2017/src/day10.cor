@@ -1,0 +1,29 @@
+let inp = read_text('./inputs/day10.txt')
+let n = 256
+
+
+fn knot_hash(lengths, rounds) {
+    let hash = range(0, n) . list, pos = 0, skip = 0
+    for _ in range(rounds) {
+        for length in lengths {
+            for i, v in range(length) . map(fn(i) -> hash[(pos + i) % n]) . reverse . enumerate {
+                hash[(pos + i) % n] = v
+            }
+            
+            pos = (pos + length + skip) % n
+            skip += 1
+        }
+    }
+    hash
+}
+
+let part1 = knot_hash(inp . split(',') . map(int), 1)
+
+print('Part 1:', part1[0] * part1[1])
+
+let sparse = knot_hash([...inp . trim . map(ord), 17, 31, 73, 47, 23], 64)
+let dense = range(0, n, 16)
+    . map(fn(i) -> sparse[i:i + 16] . reduce(^) . ('%02x' %))
+    . reduce(+)
+
+print('Part 2:', dense)

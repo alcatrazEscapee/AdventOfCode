@@ -1,0 +1,50 @@
+let inp = read_text('./inputs/day14.txt')
+let n = 256
+
+fn knot_hash(inp) {
+    let lengths = [...inp . trim . map(ord), 17, 31, 73, 47, 23]
+    let hash = range(0, n) . list, pos = 0, skip = 0
+    for _ in range(64) {
+        for length in lengths {
+            for i, v in range(length) . map(fn(i) -> hash[(pos + i) % n]) . reverse . enumerate {
+                hash[(pos + i) % n] = v
+            }
+            
+            pos = (pos + length + skip) % n
+            skip += 1
+        }
+    }
+    range(0, n, 16)
+        . map(fn(i) -> hash[i:i + 16] . reduce(^) . ('%08b' %))
+        . reduce(+)
+}
+
+let grid = range(128) . map(fn(i) -> knot_hash('%s-%d' % (inp, i)))
+
+print('Part 1:', grid . map(fn(line) -> line . filter(=='1') . len) . sum)
+
+let seen = set()
+let adj = ((0, 1), (0, -1), (-1, 0), (1, 0))
+let regions = 0
+
+for x in range(128) {
+    for y in range(128) {
+        if grid[y][x] == '1' and (x, y) not in seen {
+            regions += 1
+            let queue = [(x, y)]
+            while queue {
+                let x, y = queue.pop
+                seen.push((x, y))
+                for dx, dy in adj {
+                    let px = x + dx, py = y + dy, p = (px, py)
+                    if px >= 0 and px < 128 and py >= 0 and py < 128 and grid[py][px] == '1' and p not in seen {
+                        seen.push(p)
+                        queue.push(p)
+                    }
+                }
+            }
+        }
+    }
+}
+
+print('Part 2:', regions)

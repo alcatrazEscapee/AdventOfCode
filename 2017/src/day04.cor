@@ -1,0 +1,10 @@
+let inp = read_text('./inputs/day04.txt')
+
+fn solve(f) -> inp 
+    . split('\n')
+    . map(split(' '))
+    . filter(fn(x) -> len(f(x)) == len(x))
+    . len
+
+print('Part 1:', solve(set))
+print('Part 2:', solve(fn(x) -> x . map(sort) . set))

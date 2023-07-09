@@ -1,0 +1,38 @@
+let inp = read_text('./inputs/day03.txt') . int
+
+fn ccw((x, y)) -> (-y, x)
+
+let p = (0, 0), dp = (1, 0)
+let iwalk = 0, istep = 0, step = 1
+let grid = {p: 1} . default(0)
+
+let part2 = nil
+
+for i in range(2, 1 + inp) {
+    p += dp
+    istep += 1
+
+    if istep == step {
+        istep = 0
+        iwalk += 1
+        dp .= ccw
+    }
+
+    if iwalk == 2 {
+        iwalk = 0
+        step += 1
+    }
+
+    if part2 is nil {
+        let value = range(9)
+            .map(fn(i) -> grid[p + (i / 3 - 1, i % 3 - 1)])
+            .sum
+        if value > inp {
+            part2 = value
+        }
+        grid[p] = value
+    }
+}
+
+print('Part 1:', p . map(abs) . sum)
+print('Part 2:', part2)

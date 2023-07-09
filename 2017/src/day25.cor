@@ -1,0 +1,32 @@
+struct Rule(write, move, state)
+
+let state_regex = '[Ii]n state ([A-Z])'
+let rule_regex = 'If the current value is [01]:
+    - Write the value ([01]).
+    - Move one slot to the (right|left).
+    - Continue with state ([A-Z]).'
+
+let inp = read_text('./inputs/day25.txt') . split('\n\n')
+let prefix, *rules = inp
+
+let state = prefix . search(state_regex) . fn(((_, state))) -> state
+let N = prefix . search('[0-9]+') . [0] . [0] . int
+
+rules = rules . map(fn(group) -> (
+    group . search(state_regex) . fn(((_, state))) -> state,
+    group . search(rule_regex) . map(fn((_, write, move, state)) -> Rule(
+        write . int,
+        if move == 'left' then -1 else 1,
+        state))
+)) . dict
+
+let tape = dict() . default(0), pointer = 0
+
+for _ in range(N) {
+    let rule = rules[state][tape[pointer]]
+    tape[pointer] = rule->write
+    pointer += rule->move
+    state = rule->state
+}
+
+print('Part 1:', tape . values . sum)

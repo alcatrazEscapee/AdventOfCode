@@ -1,0 +1,33 @@
+let inp = read_text('./inputs/day12.txt')
+    . split('\n')
+    . map(fn(line) {
+        let l, r = line . split(' <-> ')
+        (int(l), r . split(', ') . map(int))
+    })
+
+let groups = set()
+let part1 = nil, part2 = 0
+for key, _ in inp {
+    if key not in groups {
+        let group = set()
+        let queue = [key]
+        
+        while queue {
+            let pos = queue.pop
+            if pos not in group {
+                group.push(pos)
+                queue += inp[pos][1]
+            }
+        }
+
+        if 0 in group {
+            part1 = group.len
+        }
+
+        groups |= group
+        part2 += 1
+    }
+}
+
+print('Part 1:', part1)
+print('Part 2:', part2)

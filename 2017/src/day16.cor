@@ -1,0 +1,51 @@
+let inp = read_text('./inputs/day16.txt')
+    . split(',')
+    . map(fn(line) {
+        let c = line[0], arg = line[1:] . split('/')
+        if c == 'x' or c == 's' {
+            arg = arg . map(int)
+        }
+        (c, arg)
+    })
+
+let order = [...'abcdefghijklmnop']
+
+fn dance() {
+    for c, arg in inp {
+        if c == 's' {
+            let i = arg[0]
+            order = order[-i:] + order[:-i]
+        } elif c == 'p' {
+            let a, b = arg
+            let ia = order . index_of(a), ib = order . index_of(b)
+            order[ia] = b
+            order[ib] = a
+        } elif c == 'x' {
+            let i, j = arg
+            let ix, jx = (order[i], order[j])
+            order[i] = jx
+            order[j] = ix
+        }
+    }
+}
+
+dance()
+
+print('Part 1:', order . reduce(+))
+
+// Find a cycle
+let seen = {order . vector : 1}
+let n = 1, target
+loop {
+    dance()
+    n += 1
+    let key = order.vector
+    if key in seen {
+        target = 1_000_000_000 % (n - seen[key])
+        break
+    } else {
+        seen[key] = n
+    }
+}
+
+print('Part 2:', seen . filter(fn((_, v)) -> v == target) . peek . peek . reduce(+))
