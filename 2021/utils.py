@@ -2,6 +2,7 @@
 from typing import Tuple, List, Optional, Sequence, Callable, Generic, TypeVar, NamedTuple, Generator, Iterable
 
 import re
+import inspect
 
 
 T = TypeVar('T')
@@ -9,8 +10,10 @@ K = TypeVar('K')
 V = TypeVar('V')
 
 
-def get_input(path: str = './input.txt') -> str:
-    with open(path, 'r', encoding='utf-8') as f:
+def get_input(day: int = None, path: str = '../inputs/day%02d.txt') -> str:
+    if day is None:
+        *_, day = ints(inspect.stack()[1].filename)
+    with open(path % day, 'r', encoding='utf-8') as f:
         return f.read()
 
 def ints(text: str, sign_prefixes: bool = True) -> Tuple[int, ...]:

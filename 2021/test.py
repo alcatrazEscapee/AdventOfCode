@@ -1,9 +1,6 @@
 
 from main import run_day, resolve_input, example
-
-from day18 import day18
-from day22 import day22
-from day24 import day24
+from src import day18, day22, day24
 
 # Tests for all AoC Puzzles
 

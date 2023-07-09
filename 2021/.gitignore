@@ -10,6 +10,4 @@
 !/test.py
 !/aoc_font.py
 
-!/day*/*.py
-!/day*/*.txt
-!/day*/*.pdf
+!/src/*.py
