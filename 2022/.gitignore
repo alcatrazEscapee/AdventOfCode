@@ -1,0 +1,11 @@
+*
+!*/
+
+!/.gitignore
+!/README.md
+!/LICENSE.txt
+
+!/src/*.py
+!/utils.py
+!/main.py
+!/aoc_font.py
