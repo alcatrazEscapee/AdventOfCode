@@ -35,16 +35,6 @@ fn solve_recursive(weights: &Vec<i32>, i: usize, space: i32, qe: i128, min_qe: &
     }
 }
 
-fn min(a: Option<i128>, b: Option<i128>) -> Option<i128> {
-    match a {
-        Some(a0) => match b {
-            Some(b0) => Some(std::cmp::min(a0, b0)),
-            None => a
-        }
-        None => b
-    }
-}
-
 fn parse(values: &str) -> Vec<i32> {
     values.lines()
         .map(|line| line.parse::<i32>().unwrap())

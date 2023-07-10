@@ -82,14 +82,14 @@ impl RegexExtension for Regex {
 // Convenience methods for regex matching
 pub trait CapturesExtension<'t> {
     fn get_as<F: FromStr>(&self, index: usize) -> F
-        where <F as std::str::FromStr>::Err: std::fmt::Debug;
+        where <F as FromStr>::Err: std::fmt::Debug;
 
     fn get_str(&self, index: usize) -> &'t str;
 }
 
 impl<'t> CapturesExtension<'t> for Captures<'t> {
     fn get_as<F: FromStr>(&self, index: usize) -> F
-        where <F as std::str::FromStr>::Err: std::fmt::Debug {
+        where <F as FromStr>::Err: std::fmt::Debug {
         self.get(index).unwrap().as_str().parse::<F>().unwrap()
     }
 

@@ -1,7 +1,12 @@
 use std::collections::{BinaryHeap, HashSet};
+use fancy_regex::Regex;
+use itertools::Itertools;
+
+use crate::utils::RegexExtension;
+
+const INPUT: &'static str = include_str!("../../inputs/day22.txt");
 
 struct Spell {
-    name: &'static str,
     mana: i32,
     damage: i32,
     heal: i32,
@@ -12,19 +17,19 @@ struct Spell {
 }
 
 impl Spell {
-    const fn new(name: &'static str, mana: i32, damage: i32, heal: i32, effect_armor: i32, effect_damage: i32, effect_mana: i32) -> Spell {
-        Spell { name, mana, damage, heal, effect_armor, effect_damage, effect_mana }
+    const fn new(mana: i32, damage: i32, heal: i32, effect_armor: i32, effect_damage: i32, effect_mana: i32) -> Spell {
+        Spell { mana, damage, heal, effect_armor, effect_damage, effect_mana }
     }
 }
 
 // Include a 'none' spell to have a explicit none turn, which means we can eliminate further states when you cannot cast a spell
 const SPELLS: [Spell; 6] = [
-    Spell::new("None", 0, 0, 0, 0, 0, 0),
-    Spell::new("Magic Missile", 53, 4, 0, 0, 0, 0),
-    Spell::new("Drain", 73, 2, 2, 0, 0, 0),
-    Spell::new("Shield", 113, 0, 0, 6, 0, 0),
-    Spell::new("Poison", 173, 0, 0, 0, 6, 0),
-    Spell::new("Recharge", 229, 0, 0, 0, 0, 5)
+    Spell::new(0, 0, 0, 0, 0, 0), // None
+    Spell::new(53, 4, 0, 0, 0, 0), // Magic Missile
+    Spell::new(73, 2, 2, 0, 0, 0), // Drain
+    Spell::new(113, 0, 0, 6, 0, 0), // Shield
+    Spell::new(173, 0, 0, 0, 6, 0), // Poison
+    Spell::new(229, 0, 0, 0, 0, 5) // Recharge
 ];
 
 const PLAYER_HP: i32 = 50;
@@ -35,27 +40,31 @@ const EFFECT_ARMOR: i32 = 7;
 const EFFECT_DAMAGE: i32 = 3;
 const EFFECT_MANA: i32 = 101;
 
-// Puzzle Input
-const BOSS_HP: i32 = 59;
-const BOSS_ATTACK: i32 = 9;
-
 // The state of the game at any point in time. Equality doesn't include total mana spent, as we're interested only in the minimum mana per any given state
 #[derive(Clone, Copy, Eq, PartialEq, PartialOrd, Ord, Debug, Hash)]
 struct State {
     player_hp: i32,
     player_mana: i32,
     enemy_hp: i32,
+    enemy_attack: i32,
     effect_armor: i32,
     effect_damage: i32,
-    effect_mana: i32
+    effect_mana: i32,
 }
 
 impl State {
     fn new() -> State {
+        let (enemy_hp, enemy_attack) = Regex::new(r"(\d+)").unwrap()
+            .findall(INPUT)
+            .into_iter()
+            .map(|u| u.parse::<i32>().unwrap())
+            .collect_tuple()
+            .unwrap();
         State {
             player_hp: PLAYER_HP,
             player_mana: PLAYER_MANA,
-            enemy_hp: BOSS_HP,
+            enemy_hp,
+            enemy_attack,
             effect_armor: 0,
             effect_damage: 0,
             effect_mana: 0
@@ -96,7 +105,7 @@ impl State {
     fn enemy_attack(&mut self) {
         // Perform the enemy attack sequence
         let armor: i32 = if self.effect_armor > 0 { EFFECT_ARMOR } else { 0 };
-        self.player_hp -= std::cmp::max(1, BOSS_ATTACK - armor);
+        self.player_hp -= std::cmp::max(1, self.enemy_attack - armor);
     }
 }
 

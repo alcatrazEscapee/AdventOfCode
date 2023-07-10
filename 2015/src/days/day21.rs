@@ -1,46 +1,51 @@
+use fancy_regex::Regex;
+use itertools::Itertools;
+
+use crate::utils::RegexExtension;
+
+const INPUT: &'static str = include_str!("../../inputs/day21.txt");
 
 struct Equipment {
-    name: &'static str,
     cost: u32,
     damage: u32,
     armor: u32
 }
 
 impl Equipment {
-    const fn new(name: &'static str, cost: u32, damage: u32, armor: u32) -> Equipment {
-        Equipment { name, cost, damage, armor }
+    const fn new(cost: u32, damage: u32, armor: u32) -> Equipment {
+        Equipment { cost, damage, armor }
     }
 
     const fn none() -> Equipment {
-        Equipment::new("None", 0, 0, 0)
+        Equipment::new(0, 0, 0)
     }
 }
 
 const WEAPONS: [Equipment; 5] = [
-    Equipment::new("Dagger", 8, 4, 0),
-    Equipment::new("Shortsword", 10, 5, 0),
-    Equipment::new("Warhammer", 25, 6, 0),
-    Equipment::new("Longsword", 40, 7, 0),
-    Equipment::new("Greataxe", 74, 8, 0)
+    Equipment::new(8, 4, 0), // Dagger
+    Equipment::new(10, 5, 0), // Shortsword
+    Equipment::new(25, 6, 0), // Warhammer
+    Equipment::new(40, 7, 0), // Longsword
+    Equipment::new(74, 8, 0) // Greataxe
 ];
 
 const ARMOR: [Equipment; 6] = [
     Equipment::none(),
-    Equipment::new("Leather", 13, 0, 1),
-    Equipment::new("Chainmail", 31, 0, 2),
-    Equipment::new("Splintmail", 53, 0, 3),
-    Equipment::new("Bandedmail", 75, 0, 4),
-    Equipment::new("Platemail", 102, 0, 5)
+    Equipment::new(13, 0, 1), // Leather
+    Equipment::new(31, 0, 2), // Chainmail
+    Equipment::new(53, 0, 3), // Splintmail
+    Equipment::new(75, 0, 4), // Bandedmail
+    Equipment::new(102, 0, 5) // Platemail
 ];
 
 const RINGS: [Equipment; 7] = [
     Equipment::none(),
-    Equipment::new("Damage +1", 25, 1, 0),
-    Equipment::new("Damage +2", 50, 2, 0),
-    Equipment::new("Damage +3", 100, 3, 0),
-    Equipment::new("Defense +1", 20, 0, 1),
-    Equipment::new("Defense +2", 40, 0, 2),
-    Equipment::new("Defense +3", 80, 0, 3)
+    Equipment::new(25, 1, 0), // Damage +1
+    Equipment::new(50, 2, 0), // Damage +2
+    Equipment::new(100, 3, 0), // Damage +3
+    Equipment::new(20, 0, 1), // Defense +1
+    Equipment::new(40, 0, 2), // Defense +2
+    Equipment::new(80, 0, 3) // Defense +3
 ];
 
 const EMPTY_HAND: usize = 0;
@@ -60,13 +65,18 @@ impl Character {
     }
 }
 
-// Puzzle Input
-const BOSS: Character = Character::new(8, 1, 104);
-
 
 pub fn both() -> (u32, u32) {
     let mut part1: Option<u32> = None; // Min cost victory
     let mut part2: Option<u32> = None; // Max cost defeat
+
+    let (boss_hp, boss_damage, boss_armor) = Regex::new(r"(\d+)").unwrap()
+        .findall(INPUT)
+        .into_iter()
+        .map(|u| u.parse::<i32>().unwrap())
+        .collect_tuple()
+        .unwrap();
+    let boss: Character = Character::new(boss_damage, boss_armor, boss_hp);
 
     for i in 1..WEAPONS.len() * ARMOR.len() * RINGS.len() * RINGS.len() {
         let weapon: usize = (i) % WEAPONS.len();
@@ -79,7 +89,7 @@ pub fn both() -> (u32, u32) {
 
             // Don't run the fight unless we have to - if this fight would change either of the results
             if part1.is_none() || part2.is_none() || cost < part1.unwrap() || cost > part2.unwrap() {
-                if fight(&player, &BOSS) {
+                if fight(&player, &boss) {
                     part1 = match part1 {
                         Some(value) => Some(std::cmp::min(value, cost)),
                         None => Some(cost)

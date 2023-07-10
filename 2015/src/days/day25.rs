@@ -1,7 +1,19 @@
+use fancy_regex::Regex;
+use itertools::Itertools;
+
+use crate::utils::RegexExtension;
+
+const INPUT: &'static str = include_str!("../../inputs/day25.txt");
 
 pub fn part1() -> u64 {
+    let (row, col) = Regex::new(r"(\d+)").unwrap()
+        .findall(INPUT)
+        .into_iter()
+        .map(|u| u.parse::<u32>().unwrap())
+        .collect_tuple()
+        .unwrap();
     let mut code: u64 = 20151125;
-    for _ in 1..ord(2981, 3075) {
+    for _ in 1..ord(row, col) {
         code = (code * 252533) % 33554393;
     }
     code
