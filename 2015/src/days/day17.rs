@@ -1,21 +1,23 @@
-
-const LENGTH: usize = 20;
 const TARGET: u32 = 150;
-const INPUT: [u32; LENGTH] = [11, 30, 47, 31, 32, 36, 3, 1, 5, 3, 32, 36, 15, 11, 46, 26, 28, 1, 19, 3];
+const INPUT: &'static str = include_str!("../../inputs/day17.txt");
 
 pub fn both() -> (usize, usize) {
-    let part1: usize = values().count();
-    let min: u32 = values().map(|i| i.count_ones()).min().unwrap();
-    let part2: usize = values().filter(|i| i.count_ones() == min).count();
+    let input: Vec<u32> = INPUT.lines()
+        .map(|u| u.parse::<u32>().unwrap())
+        .collect();
+    let part1: usize = values(&input).count();
+    let min: u32 = values(&input).map(|i| i.count_ones()).min().unwrap();
+    let part2: usize = values(&input).filter(|i| i.count_ones() == min).count();
     (part1, part2)
 }
 
-fn values() -> impl Iterator<Item=usize> {
+fn values(input: &Vec<u32>) -> impl Iterator<Item=usize> + '_ {
     // Power set through bit manipulations!
-    (0usize..(1 << LENGTH))
-        .filter(|i|
-            TARGET == (0usize..LENGTH)
-                .map(|j| (((i >> j) & 1) as u32) * INPUT[j])
+    let length: usize = input.len();
+    (0usize..(1 << length))
+        .filter(move |i|
+            TARGET == (0usize..length)
+                .map(|j| (((i >> j) & 1) as u32) * input[j])
                 .sum::<u32>()
         )
 }

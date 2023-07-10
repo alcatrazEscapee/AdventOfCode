@@ -1,35 +1,40 @@
 
-const INPUT: usize = 34000000;
-const SIZE: usize = INPUT / 10;
+const INPUT: &'static str = include_str!("../../inputs/day20.txt");
 
 pub fn part1() -> usize {
+    let input: usize = INPUT.parse::<usize>().unwrap();
+    let size: usize = input / 10;
+    let mut presents: Box<[usize]> = vec![0; size].into_boxed_slice();
+
     // Find lowest T s.t. the sum of the divisors of 10T >= INPUT
-    let mut presents: Box<[usize]> = vec![0; SIZE].into_boxed_slice();
-    for elf in 1..=SIZE {
-        for house in (elf..SIZE).step_by(elf) {
+    for elf in 1..=size {
+        for house in (elf..size).step_by(elf) {
             presents[house] += 10 * elf;
         }
     }
-    first_element_greater_than(&presents, INPUT)
+    first_element_greater_than(&presents, input)
 }
 
 pub fn part2() -> usize {
-    let mut presents: Box<[usize]> = vec![0; SIZE].into_boxed_slice();
-    for elf in 1..=SIZE {
+    let input: usize = INPUT.parse::<usize>().unwrap();
+    let size: usize = input / 10;
+
+    let mut presents: Box<[usize]> = vec![0; size].into_boxed_slice();
+    for elf in 1..=size {
         for i in 1..=50 {
             let house = elf * i;
-            if house < SIZE {
+            if house < size {
                 presents[elf * i] += 11 * elf;
 
             }
         }
     }
-    first_element_greater_than(&presents, INPUT)
+    first_element_greater_than(&presents, input)
 }
 
 fn first_element_greater_than(presents: &Box<[usize]>, e: usize) -> usize {
     for (i, present) in presents.iter().enumerate() {
-        if *present >= INPUT {
+        if *present >= e {
             return i
         }
     }
