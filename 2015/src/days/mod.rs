@@ -64,7 +64,7 @@ pub fn run_day(day: u8) -> Result<Solution, String> {
         22 => run_both(|| day22::both()),
         23 => run_parts(|| day23::part1(), || day23::part2()),
         24 => run_both(|| day24::both()),
-        25 => run_parts(|| day25::part1(), || "n/a"),
+        25 => run_parts(|| day25::part1(), || "none"),
         _ => Err(String::from("No solution"))
     };
 }
@@ -88,135 +88,44 @@ fn timeit<T>(part: impl Fn() -> T) -> (T, u128) {
 
 #[cfg(test)]
 mod tests {
+    use crate::days;
 
-    #[test]
-    fn day01() {
-        test_day(1, "232", "1783");
-    }
+    const ANSWERS: &'static str = include_str!("../../inputs/answers.txt");
 
-    #[test]
-    fn day02() {
-        test_day(2, "1588178", "3783758");
-    }
+    #[test] fn test_day01() { test_day(1); }
+    #[test] fn test_day02() { test_day(2); }
+    #[test] fn test_day03() { test_day(3); }
+    #[test] fn test_day04() { test_day(4); }
+    #[test] fn test_day05() { test_day(5); }
+    #[test] fn test_day06() { test_day(6); }
+    #[test] fn test_day07() { test_day(7); }
+    #[test] fn test_day08() { test_day(8); }
+    #[test] fn test_day09() { test_day(9); }
+    #[test] fn test_day10() { test_day(10); }
+    #[test] fn test_day11() { test_day(11); }
+    #[test] fn test_day12() { test_day(12); }
+    #[test] fn test_day13() { test_day(13); }
+    #[test] fn test_day14() { test_day(14); }
+    #[test] fn test_day15() { test_day(15); }
+    #[test] fn test_day16() { test_day(16); }
+    #[test] fn test_day17() { test_day(17); }
+    #[test] fn test_day18() { test_day(18); }
+    #[test] fn test_day19() { test_day(19); }
+    #[test] fn test_day20() { test_day(20); }
+    #[test] fn test_day21() { test_day(21); }
+    #[test] fn test_day22() { test_day(22); }
+    #[test] fn test_day23() { test_day(23); }
+    #[test] fn test_day24() { test_day(24); }
+    #[test] fn test_day25() { test_day(25); }
 
-    #[test]
-    fn day03() {
-        test_day(3, "2565", "2639");
-    }
-
-    #[test]
-    fn day04() {
-        test_day(4, "282749", "9962624");
-    }
-
-    #[test]
-    fn day05() {
-        test_day(5, "238", "69");
-    }
-
-    #[test]
-    fn day06() {
-        test_day(6, "400410", "15343601");
-    }
-
-    #[test]
-    fn day07() {
-        test_day(7, "16076", "2797");
-    }
-
-    #[test]
-    fn day08() {
-        test_day(8, "1371", "2117");
-    }
-
-    #[test]
-    fn day09() {
-        test_day(9, "117", "909");
-    }
-
-    #[test]
-    fn day10() {
-        test_day(10, "329356", "4666278");
-    }
-
-    #[test]
-    fn day11() {
-        test_day(11, "cqjxxyzz", "cqkaabcc");
-    }
-
-    #[test]
-    fn day12() {
-        test_day(12, "191164", "87842");
-    }
-
-    #[test]
-    fn day13() {
-        test_day(13, "618", "601");
-    }
-
-    #[test]
-    fn day14() {
-        test_day(14, "2660", "1256");
-    }
-
-    #[test]
-    fn day15() {
-        test_day(15, "222870", "117936");
-    }
-
-    #[test]
-    fn day16() {
-        test_day(16, "373", "260");
-    }
-
-    #[test]
-    fn day17() {
-        test_day(17, "4372", "4");
-    }
-
-    #[test]
-    fn day18() {
-        test_day(18, "768", "781");
-    }
-
-    #[test]
-    fn day19() {
-        test_day(19, "518", "200");
-    }
-
-    #[test]
-    fn day20() {
-        test_day(20, "786240", "831600");
-    }
-
-    #[test]
-    fn day21() {
-        test_day(21, "78", "148");
-    }
-
-    #[test]
-    fn day22() {
-        test_day(22, "1269", "1309");
-    }
-
-    #[test]
-    fn day23() {
-        test_day(23, "184", "231");
-    }
-
-    #[test]
-    fn day24() {
-        test_day(24, "11266889531", "77387711");
-    }
-
-    #[test]
-    fn day25() {
-        assert_eq!(crate::days::run_day(25).unwrap().part1, "9132360");
-    }
-
-    fn test_day(day: u8, first: &str, second: &str) {
-        let sln = crate::days::run_day(day).unwrap();
-        assert_eq!(sln.part1, first);
-        assert_eq!(sln.part2, second);
+    fn test_day(day: u8) {
+        let (part1, part2) = ANSWERS.lines()
+            .nth(day as usize - 1)
+            .expect("No answer found")
+            .split_once(",")
+            .unwrap();
+        let sln = days::run_day(day).unwrap();
+        assert_eq!(sln.part1, part1);
+        assert_eq!(sln.part2, part2);
     }
 }

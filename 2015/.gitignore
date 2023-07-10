@@ -7,5 +7,5 @@
 
 !/Cargo.toml
 !/Cargo.lock
+
 !/src/**/*.rs
-!/inputs/**/day*.txt

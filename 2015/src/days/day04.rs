@@ -4,7 +4,7 @@ use crypto::md5::Md5;
 use std::sync::{Mutex, Arc};
 use std::thread;
 
-const INPUT: &str = "yzbqklnj";
+const INPUT: &str = include_str!("../../inputs/day04.txt");
 
 struct Controller {
     part1: Option<u32>,

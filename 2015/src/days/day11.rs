@@ -1,4 +1,4 @@
-const INPUT: &str = "cqjxjnds";
+const INPUT: &str = include_str!("../../inputs/day11.txt");
 const LIO: [char; 3] = ['l', 'i', 'o'];
 
 pub fn both() -> (String, String) {

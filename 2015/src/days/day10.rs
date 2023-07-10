@@ -1,5 +1,5 @@
 
-const INPUT: &str = "3113322113";
+const INPUT: &str = include_str!("../../inputs/day10.txt");
 
 pub fn both() -> (usize, usize) {
     let mut current: String = String::from(INPUT);
