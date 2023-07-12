@@ -62,7 +62,7 @@ pub fn run_day(day: u8) -> Result<Solution, String> {
         20 => run_parts(|| day20::part1(), || day20::part2()),
         21 => run_both(|| day21::both()),
         22 => run_both(|| day22::both()),
-        23 => run_parts(|| day23::part1(), || day23::part2()),
+        23 => run_both(|| day23::both()),
         24 => run_both(|| day24::both()),
         25 => run_parts(|| day25::part1(), || "none"),
         _ => Err(String::from("No solution"))
