@@ -1,11 +1,10 @@
 # Advent of Code 2021
 
 
-My Advent of Code solutions, code, and utilities from 2021. I have written a test suite and made an effort to document my solutions, and clean them up from their midnight-speed-coding state. Some miscellaneous stats about my Advent of Code experience and performance:
+My Advent of Code solutions, code, and utilities from 2021. I have written a test suite and made an effort to document my solutions, and clean them up from their midnight-speed-coding state. The project has no dependencies. Inputs are expected in a folder `./inputs/day##.txt`, and running `main.py` will check each day against a csv file of `/inputs/answers.txt`, of the form `part1,part2` for each day (plus one header row). Below are some miscellaneous notes, statistics, and reflections about the event this year:
 
 - Language: Python 3.10
 - IDE: PyCharm
-- Packages: `pytest` for unit testing, `numpy` for Day 6's analytical solution.
 - 24 / 25 days competing at puzzle unlock. The one that was skipped was due to being on a plane without access to internet.
 - Leaderboard Appearances: 15 (9 part 1's, 6 part 2's)
 - Total Leaderboard Score: 779 points
