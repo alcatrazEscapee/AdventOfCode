@@ -5,7 +5,7 @@ from utils import *
 
 
 def main():
-    sample1, sample2 = run(get_input('./example_input.txt'))
+    sample1, sample2 = run(get_input('../inputs/day20_example.txt'))
 
     assert sample1 == 20899048083289
     assert sample2 == 273

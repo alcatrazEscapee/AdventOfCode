@@ -2,6 +2,7 @@
 
 import re
 import math
+import inspect
 import functools
 import itertools
 
@@ -10,13 +11,16 @@ from enum import IntEnum, auto
 from typing import Any, Callable, DefaultDict, Deque, Dict, FrozenSet, Iterable, Iterator, List, Mapping, MutableMapping, Optional, Sequence, Set, Tuple, TypeVar, Union
 
 
-def get_input(path: str = './input.txt') -> str:
-    with open(path) as f:
+def get_input(path: str = None, offset: int = 1) -> str:
+    if path is None:
+        *_, day = ints(inspect.stack()[offset].filename)
+        path = '../inputs/day%02d.txt' % day
+    with open(path, 'r', encoding='utf-8') as f:
         return f.read()
 
 
-def get_input_lines(path: str = './input.txt') -> List[str]:
-    return get_input(path).split('\n')
+def get_input_lines(path: str = None) -> List[str]:
+    return get_input(path, offset=2).split('\n')
 
 
 def ints(text: str, sign_prefixes: bool = True) -> Tuple[int, ...]:

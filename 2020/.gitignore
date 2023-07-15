@@ -5,8 +5,7 @@
 !/README.md
 !/LICENSE.txt
 
+!/main.py
 !/utils.py
-!/run.py
 
-!/day*/*.py
-!/day*/*.txt
+!/src/*.py

@@ -7,7 +7,7 @@ from utils import *
 def main(lines: List[str]):
     part1 = part2 = 0
     for line in lines:
-        x, y, c, pwd = re.match('(\d+)-(\d+) (\w): (\w+)', line).groups()
+        x, y, c, pwd = re.match(r'(\d+)-(\d+) (\w): (\w+)', line).groups()
         x, y = int(x), int(y)
         if x <= pwd.count(c) <= y:  # Part 1: the number of appearances of 'c' must be in [x, y]
             part1 += 1

@@ -7,12 +7,12 @@ from utils import *
 def main(lines: List[str], target_color: str):
     bags: Dict[str, Tuple[Tuple[int, str], ...]] = {}
     for line in lines:
-        match = re.fullmatch('([a-z ]+) bags contain ([\da-z,. ]+)', line)
+        match = re.fullmatch(r'([a-z ]+) bags contain ([\da-z,. ]+)', line)
         parent, children = match.groups()
         bag = []
         if 'no other bags' not in children:
             for child in children.split(','):
-                match = re.match(' ?([\d+]) ([a-z ]+) bags?', child)
+                match = re.match(r' ?([\d+]) ([a-z ]+) bags?', child)
                 bag.append((int(match.group(1)), match.group(2)))
         bags[parent] = tuple(bag)
 
