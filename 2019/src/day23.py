@@ -19,7 +19,7 @@ def main(values):
                 y = runner.outputs.pop(0)
                 if addr == 255:
                     nat = x, y
-                    if part1:
+                    if not part1:
                         part1 = True
                         print('Part 1:', y)
                 else:

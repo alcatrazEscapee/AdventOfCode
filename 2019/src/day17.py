@@ -29,7 +29,7 @@ def check_cameras(values):
                 checksum += i * (max_y - j)
 
     print_grid(grid)
-    print('Part 1', checksum)
+    print('Part 1:', checksum)
 
 
 def count_dust(values, path):

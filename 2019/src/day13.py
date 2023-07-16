@@ -30,14 +30,14 @@ def would_you_like_to_play_a_game(values):
         if is_first:
             is_first = False
             print_grid(game, GAME_OBJECTS)
-            print('Bricks:', list(game.values()).count(2))
+            print('Part 1:', list(game.values()).count(2))
 
         # Uncomment to see progression of the game
         # print_grid(game, GAME_OBJECTS)
 
         # Simple paddle logic - move towards the ball
         runner.inputs.append(sign(ball - paddle))
-    print('Score:', score)
+    print('Part 2:', score)
 
 
 GAME_OBJECTS = {0: ' ', 1: 'W', 2: 'X', 3: '=', 4: 'O'}

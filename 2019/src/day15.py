@@ -61,7 +61,7 @@ def main(code):
         droid.outputs.clear()
 
     print_grid(grid, padding=1)
-    print('Part 1:', len(path_to_o2[2]), 'Steps')
+    print('Part 1:', len(path_to_o2[2]))
 
     print('Running Part 2')
     minutes = 0
@@ -80,7 +80,7 @@ def main(code):
             break
         minutes += 1
 
-    print('Part 2:', minutes, 'Minutes')
+    print('Part 2:', minutes)
 
 
 DROID = {'N': 1, 'S': 2, 'W': 3, 'E': 4}

@@ -11,7 +11,7 @@ def find_energy(moons_pos):
 
     pe = [pnorm1(p) for p in moons_pos]
     ke = [pnorm1(p) for p in moons_vel]
-    print('Part 1', sum(pe[i] * ke[i] for i in range(4)))
+    print('Part 1:', sum(pe[i] * ke[i] for i in range(4)))
 
 
 def tick(moons_pos, moons_vel):

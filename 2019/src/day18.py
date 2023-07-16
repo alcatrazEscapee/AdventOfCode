@@ -91,5 +91,13 @@ def print_key_map(key_map: Dict[str, Dict[str, Tuple[int, Set[str]]]]):
 
 
 if __name__ == '__main__':
-    print('Part 1:', find_shortest_path(get_input_lines('./input_part1.txt')))
-    print('Part 2:', find_shortest_path(get_input_lines('./input_part2.txt')))
+    # This uses two inputs because it was easier than modifying them
+    # The part1 input is the standard puzzle input
+    # The part2 input is the standard puzzle input, but with the following section replaced:
+    #
+    # .....      .@#@.
+    # #.@.#  --> #####
+    # .....      .@#@.
+    #
+    print('Part 1:', find_shortest_path(get_input_lines('../inputs/day18_part1.txt')))
+    print('Part 2:', find_shortest_path(get_input_lines('../inputs/day18_part2.txt')))

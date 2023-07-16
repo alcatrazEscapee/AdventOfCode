@@ -2,27 +2,31 @@
 
 import re
 import math
+import inspect
 import functools
 
 from collections import defaultdict
 from typing import Any, DefaultDict, Dict, Iterable, List, Optional, Tuple, TypeVar
 
 
-def get_input(path: str = './input.txt') -> str:
-    with open(path) as f:
+def get_input(path: str = None, offset: int = 1) -> str:
+    if path is None:
+        *_, day = ints(inspect.stack()[offset].filename)
+        path = '../inputs/day%02d.txt' % day
+    with open(path, 'r', encoding='utf-8') as f:
         return f.read()
 
 
-def get_input_lines(path: str = './input.txt') -> List[str]:
-    return get_input(path).split('\n')
+def get_input_lines(path: str = None) -> List[str]:
+    return get_input(path, offset=2).split('\n')
 
 
 def ints(text: str) -> Tuple[int, ...]:
-    return tuple(map(int, re.findall('([\-+]?\d+)', text)))
+    return tuple(map(int, re.findall(r'([\-+]?\d+)', text)))
 
 
 def floats(text: str) -> Tuple[float, ...]:
-    return tuple(map(float, re.findall('([\-+]?\d*(?:\d|\d\.|\.\d)\d*)', text)))
+    return tuple(map(float, re.findall(r'([\-+]?\d*(?:\d|\d\.|\.\d)\d*)', text)))
 
 
 Number = TypeVar('Number', int, float)
@@ -146,7 +150,7 @@ def print_grid(grid_objects: Dict[Tuple[int, int], Any], values_map: Optional[Di
 
 
 def get_input_intcode() -> List[int]:
-    return list(map(int, get_input().split(',')))
+    return list(map(int, get_input(offset=2).split(',')))
 
 
 class IntCode:
