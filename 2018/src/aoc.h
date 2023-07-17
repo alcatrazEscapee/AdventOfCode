@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <limits.h>
 
 #endif // __cplusplus
 
