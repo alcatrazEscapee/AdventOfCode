@@ -1,0 +1,43 @@
+#ifdef __cplusplus
+
+#include <iostream>
+#include <cstdio>
+#include <algorithm>
+#include <string>
+#include <vector>
+#include <map>
+#include <unordered_map>
+#include <unordered_set>
+
+#else
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+
+#endif // __cplusplus
+
+#ifndef AOC_H
+#define AOC_H
+
+#define main \
+void __main__(); \
+int main(int argc, char** argv) {\
+    __main__(); \
+} \
+void __main__()
+
+typedef unsigned char byte;
+
+#define println(format_string, ...) printf(format_string "\n" , ## __VA_ARGS__)
+
+#define assert(condition, format_string, ...) do { \
+    if (!(condition)) { \
+        println("Assertion Failed: " format_string, ## __VA_ARGS__); \
+        println("    at %s:%d", __FILE__, __LINE__); \
+        exit(-1); \
+    } \
+} while (0)
+
+#endif

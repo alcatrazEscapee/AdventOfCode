@@ -1,0 +1,10 @@
+*
+!*/
+
+!/.gitignore
+!/Makefile
+!/README.md
+
+!/src/*.c
+!/src/*.cpp
+!/src/*.h
