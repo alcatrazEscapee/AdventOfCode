@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <string>
 #include <vector>
+#include <deque>
 #include <map>
 #include <set>
 #include <unordered_map>
@@ -37,7 +38,8 @@ typedef unsigned char byte;
 #define assert(condition, format_string, ...) do { \
     if (!(condition)) { \
         println("Assertion Failed: " format_string, ## __VA_ARGS__); \
-        println("    at %s:%d", __FILE__, __LINE__); \
+        println("    at: %s", #condition); \
+        println("    at: %s:%d", __FILE__, __LINE__); \
         exit(-1); \
     } \
 } while (0)
