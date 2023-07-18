@@ -7,7 +7,7 @@ Monorepo containing all my [Advent of Code](https://adventofcode.com/) solutions
 - 2015: Rust
 - 2016: Haskell (Mostly) + Rust, and C
 - 2017: [Cordy](https://github.com/alcatrazEscapee/cordy)
-- 2018: Python
+- 2018: C / C++
 - 2019: Python (Rank 68th / Score 1054)
 - 2020: Python
 - 2021: Python (Rank 89th / Score 779)

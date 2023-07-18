@@ -42,6 +42,7 @@ run : $(OUT_DIR)/day$(day).o
 
 .PHONY : test
 test : $(DAYS_O) FORCE
+	@printf "Running tests ...\n"
 	@printf "Advent of Code 2016\n" > $(OUT_TXT)
 	@for day in $(DAYS) ; do \
 		printf "Day $$day\n" >> $(OUT_TXT) ; \
