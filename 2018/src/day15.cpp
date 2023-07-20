@@ -1,14 +1,12 @@
 #include "aoc.h"
 
 
-/// @brief A basic 2-d point, which supports +, - ==, != operators.
+/// @brief A basic 2D point, which supports +, - ==, != operators.
 class Point {
 public:
 
     Point() = default;
     Point(int x, int y) : x(x), y(y) {}
-
-    int order() const { return this->x + this->y * 9999; }
 
     Point& operator+=(const Point& rhs) { x += rhs.x; y += rhs.y; return *this; }
     Point& operator-=(const Point& rhs) { x -= rhs.x; y -= rhs.y; return *this; }
@@ -18,6 +16,15 @@ public:
 
     bool operator==(const Point& other) const { return this->x == other.x && this->y == other.y; }
     bool operator!=(const Point& other) const { return !(*this == other); }
+
+    // The smallest point is defined in terms of the 'counting order' or priority
+    bool operator<(const Point& other) const {
+        return this->y != other.y ? this->y < other.y : this->x < other.x;
+    }
+
+    bool operator>(const Point& other) const { return other < *this; }
+    bool operator<=(const Point& other) const { return !(other < *this); }
+    bool operator>=(const Point& other) const { return !(*this < other); }
 
     int x, y;
 
@@ -42,8 +49,12 @@ public:
 
     // The best path is sorted first by distance, then by order of the position
     bool operator<(const Path& other) const {
-        return this->dist != other.dist ? this->dist < other.dist : this->pos.order() < other.pos.order();
+        return this->dist != other.dist ? this->dist < other.dist : this->pos < other.pos;
     }
+
+    bool operator>(const Path& other) const { return other < *this; }
+    bool operator<=(const Path& other) const { return !(other < *this); }
+    bool operator>=(const Path& other) const { return !(*this < other); }
 
     Point pos;
     Point start;
@@ -101,7 +112,7 @@ public:
         for (int rounds = 0;; rounds++) {
             this->sort(); // Entities take actions in reading order
             for (Entity& entity : this->entities) {
-                //entity.debug();
+
                 if (entity.is_dead()) continue; // Dead entities don't take a turn
                 if (!this->has_enemies(entity)) { // If at the start of this entities turn, we don't have any enemies, combat is over
                     return rounds * this->total_hp();
@@ -162,6 +173,11 @@ private:
             }
         }
 
+        // This is a minor optimization to repeated path finding
+        // Since we always choose a target that is the closest, we can stop exploring once we are only identifying targets beyond that distance.
+        // The nature of our BFS means we have a monotonically increasing queue of distances
+        int chosen_dist = -1;
+
         while (queue.size() > 0) {
             Path path = queue.front();
             queue.pop_front();
@@ -169,6 +185,17 @@ private:
             // If we've already visited this position, then skip
             if (visited.find(path.pos) != visited.end()) continue;
             visited.insert(path.pos);
+
+            // Check if we have found any target, at this point
+            // If we have, we can set the minimum distance, if unset
+            if (targets.find(path.pos) != targets.end() && chosen_dist == -1) {
+                chosen_dist = path.dist;
+            }
+
+            // Then, if we ever find paths > the chosen distance, we can abort the BFS
+            if (chosen_dist != -1 && path.dist > chosen_dist) {
+                break;
+            }
 
             // Consider adjacent moves
             for (const Point& adj : CARDINALS) {
@@ -195,7 +222,7 @@ private:
                 path.dist > 0 && ( // The path must be a real path (not the origin, or unreachable), then;
                 chosen == nullptr || // The current chosen path must be null, or;
                 path.dist < chosen->dist || // This path must be shorter than the chosen path, or;
-                (path.dist == chosen->dist && path.pos.order() < chosen->pos.order()) // This path must be the same distance, but lower ordinal
+                (path.dist == chosen->dist && path.pos < chosen->pos) // This path must be the same distance, but lower ordinal
             )) {
                 chosen = &path;
             }
@@ -218,7 +245,7 @@ private:
                 if (
                     chosen == nullptr || // No chosen enemy yet
                     enemy->hp < chosen->hp || // A enemy with a lower HP is found
-                    (enemy->hp == chosen->hp && enemy->pos.order() < chosen->pos.order()) // An enemy with the same HP, but better sort order is found
+                    (enemy->hp == chosen->hp && enemy->pos < chosen->pos) // An enemy with the same HP, but better sort order is found
                 ) {
                     chosen = enemy;
                 }
@@ -234,7 +261,7 @@ private:
     void sort() {
         std::sort(
             this->entities.begin(), this->entities.end(),
-            [](const Entity& a, const Entity& b) { return a.pos.order() < b.pos.order(); });
+            [](const Entity& a, const Entity& b) { return a.pos < b.pos; });
     }
 
     /// @return The total HP of all alive entities. 
