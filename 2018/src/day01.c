@@ -8,6 +8,8 @@
 #define BITSET_GET(bitset, value) (((bitset)[(value) >> 3] >> ((value) & 0b111)) & 0b1)
 #define BITSET_SET(bitset, value) ((bitset)[(value) >> 3] |= 0b1 << ((value) & 0b111))
 
+itype(unsigned char, 1) u8;
+
 main {
     // Part 1 involves just finding the sum of all values
     // Parsing is fortunately quite easy this time, no thank you C
@@ -25,7 +27,7 @@ main {
 
     // Track unique values in a bitset
     // Since this can produce negative values, offset the value by half the bitset size
-    byte* bitset = malloc(BYTES);
+    u8* bitset = malloc(BYTES);
     int value = HALF;
 
     memset(bitset, 0, BYTES);

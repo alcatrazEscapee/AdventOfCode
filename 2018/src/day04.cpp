@@ -2,12 +2,14 @@
 
 #define SIZE 966
 
+itype(unsigned char, 1) u8;
+
 enum class Action {
     Start, Sleep, Wake
 };
 
 struct Guard {
-    byte asleep[60];
+    u8 asleep[60];
     int total;
     int id;
     int max_minute;
@@ -22,8 +24,8 @@ public:
     }
 
     void calculate_max_minute_asleep() {
-        const byte* start = asleep;
-        const byte* end = std::next(asleep, 60);
+        const u8* start = asleep;
+        const u8* end = std::next(asleep, 60);
         max_minute = std::distance(start, std::max_element(start, end));
     }
 };

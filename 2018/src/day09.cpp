@@ -1,6 +1,6 @@
 #include "aoc.h"
 
-typedef unsigned long long int u64;
+itype(unsigned long long, 8) u64;
 
 u64 play(int max_turns, int max_players);
 

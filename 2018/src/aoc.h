@@ -34,7 +34,7 @@ int main(int argc, char** argv) {\
 } \
 void __main__()
 
-typedef unsigned char byte;
+#define itype(root_type, bytes) static_assert(sizeof(root_type) == bytes) ; typedef root_type 
 
 #define println(format_string, ...) printf(format_string "\n" , ## __VA_ARGS__)
 

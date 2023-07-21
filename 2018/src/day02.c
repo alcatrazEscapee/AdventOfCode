@@ -3,6 +3,8 @@
 #define SIZE 250
 #define BUFFER 32
 
+itype(unsigned char, 1) u8;
+
 
 main {
     char** lines = (char**) malloc(sizeof(char*) * SIZE);
@@ -16,7 +18,7 @@ main {
     // Part 1 requires counting unique occurrences of each character
     // For each line, we store the counts in a buffer indexed by character - 'a'
     int pairs = 0, triples = 0;
-    byte counts[BUFFER] = { 0 };
+    u8 counts[BUFFER] = { 0 };
     
     for (int i = 0; i < SIZE; i++) {
         memset(counts, 0, BUFFER);
