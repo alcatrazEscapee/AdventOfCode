@@ -46,8 +46,10 @@ test : $(DAYS_O) FORCE
 	@printf "Running tests ...\n"
 	@printf "Advent of Code 2016\n" > $(OUT_TXT)
 	@for day in $(DAYS) ; do \
+		printf "Day $$day: " ; \
 		printf "Day $$day\n" >> $(OUT_TXT) ; \
-		cat $(INPUT_DIR)/day$$day.txt | $(OUT_DIR)/day$$day.o >> $(OUT_TXT) ; \
+		TIMEFORMAT='%3lR' ; \
+		time cat $(INPUT_DIR)/day$$day.txt | $(OUT_DIR)/day$$day.o >> $(OUT_TXT) ; \
 	done
 	@diff --strip-trailing-cr $(EXP_TXT) $(OUT_TXT) >> /dev/null || ( \
 		printf "\n=== Tests Failed! ===\n\n" && \

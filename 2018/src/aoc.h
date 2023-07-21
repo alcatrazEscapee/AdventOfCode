@@ -20,6 +20,8 @@
 #include <stdbool.h>
 #include <limits.h>
 
+#define static_assert _STATIC_ASSERT
+
 #endif // __cplusplus
 
 #ifndef AOC_H

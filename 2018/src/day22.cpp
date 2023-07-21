@@ -46,17 +46,10 @@ private:
 };
 
 
-bool is_compatible(Type type, Tool tool) {
-    return !((type == Rocky && tool == None)
-        || (type == Wet && tool == Torch)
-        || (type == Narrow && tool == ClimbingGear));
-}
+bool is_compatible(Type type, Tool tool);
+Tool get_compatible_tool(Type type, Tool tool);
 
-Tool get_compatible_tool(Type type, Tool tool) {
-    return type == Rocky ? (tool == ClimbingGear ? Torch : ClimbingGear)
-        : type == Wet ? (tool == ClimbingGear ? None : ClimbingGear)
-        : (tool == Torch ? None : Torch);
-}
+int pack_key(const Point& pos, const Tool& tool);
 
 
 main {
@@ -81,13 +74,6 @@ main {
 
     // Part 2 is a slightly more involved BFS
     // First, we need some custom operators
-
-    struct Hash {
-        size_t operator()(const std::pair<Point, Tool>& pair) const {
-            return (Point::Hash()(pair.first)) ^ (std::hash<int>()(pair.second));
-        }
-    };
-
     struct Compare {
         bool operator()(const std::tuple<Point, Tool, int>& a, const std::tuple<Point, Tool, int>& b) {
             return std::get<2>(a) > std::get<2>(b);
@@ -96,8 +82,10 @@ main {
 
     // For the search, we use A*
     // This was an order-of-magnitude improvement over using a standard Dijkstra's in this problem (~22s -> ~2s).
+    // Some refactors (using `[]` instead of `.find()`), and optimizations (using `pack_key` and a `int` based cost map),
+    // yielded an improvement to ~0.5s runtime.
     std::priority_queue<std::tuple<Point, Tool, int>, std::vector<std::tuple<Point, Tool, int>>, Compare> queue;
-    std::unordered_map<std::pair<Point, Tool>, int, Hash> costs;
+    std::unordered_map<int, int> costs;
 
     queue.push(std::tuple(Point(0, 0), Torch, cave->get_dist_to_target(Point(0, 0), Torch)));
 
@@ -106,7 +94,7 @@ main {
         queue.pop();
 
         auto& [ pos, tool, _ ] = top;
-        int cost = costs[std::pair(pos, tool)];
+        int cost = costs[pack_key(pos, tool)];
 
         if (pos == cave->target && tool == Torch) {
             println("Part 2: %d", cost);
@@ -115,22 +103,42 @@ main {
 
         for (const Point& adj : CARDINALS) {
             Point next = pos + adj;
-            if (next.x >= 0 && next.y >= 0 && is_compatible(cave->get_type(next), tool)) {
-                int next_cost = cost + 1;
-                auto ptr = costs.find(std::pair(next, tool));
-                if (ptr == costs.end() || next_cost < ptr->second) { // If we haven't seen this point, or can visit it faster
-                    queue.push(std::tuple(next, tool, next_cost + cave->get_dist_to_target(next, tool)));
-                    costs[std::pair(next, tool)] = next_cost;
+            if (next.x >= 0 && next.y >= 0) {
+                Type next_type = cave->get_type(next);
+                if (is_compatible(next_type, tool)) {
+                    int next_cost = cost + 1;
+                    int& prev_cost = costs[pack_key(next, tool)];
+                    if (prev_cost == 0 || next_cost < prev_cost) { // If we haven't seen this point, or can visit it faster
+                        queue.push(std::tuple(next, tool, next_cost + cave->get_dist_to_target(next, tool)));
+                        prev_cost = next_cost;
+                    }
                 }
             }
         }
 
         Tool swap = get_compatible_tool(cave->get_type(pos), tool);
-        auto ptr = costs.find(std::pair(pos, swap));
+        int& prev_cost = costs[pack_key(pos, swap)];
         int next_cost = cost + 7;
-        if (ptr == costs.end() || next_cost < ptr->second) {
+        if (prev_cost == 0 || next_cost < prev_cost) {
             queue.push(std::tuple(pos, swap, next_cost + cave->get_dist_to_target(pos, swap)));
-            costs[std::pair(pos, swap)] = next_cost;
+            prev_cost = next_cost;
         }
     }
+}
+
+
+bool is_compatible(Type type, Tool tool) {
+    return !((type == Rocky && tool == None)
+        || (type == Wet && tool == Torch)
+        || (type == Narrow && tool == ClimbingGear));
+}
+
+Tool get_compatible_tool(Type type, Tool tool) {
+    return type == Rocky ? (tool == ClimbingGear ? Torch : ClimbingGear)
+        : type == Wet ? (tool == ClimbingGear ? None : ClimbingGear)
+        : (tool == Torch ? None : Torch);
+}
+
+int pack_key(const Point& pos, const Tool& tool) {
+    return (pos.x << 14) | (pos.y << 2) | static_cast<int>(tool);
 }
