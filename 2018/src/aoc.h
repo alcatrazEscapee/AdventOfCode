@@ -50,4 +50,6 @@ typedef unsigned char byte;
     exit(-1); \
 } while (0)
 
+#define loop while(1)
+
 #endif
