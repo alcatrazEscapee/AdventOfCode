@@ -6,22 +6,9 @@ typedef unsigned long long int u64;
 typedef unsigned int u32;
 typedef unsigned char u8;
 
-
-// A very basic resizable Vector<u8> implementation
-// Supports push(), get(), new(), clear() operations.
-typedef struct {
-    u8* data;
-    u32 capacity;
-    u32 len;
-} u8_vec_t;
-
-u8_vec_t* vec_new();
-
-void vec_clear (u8_vec_t* vec);
-void vec_push  (u8_vec_t* vec, u8 value);
-u8   vec_get   (u8_vec_t* vec, u32 index);
-
-#define vec_push2(vec, a, b) vec_push(vec, a), vec_push(vec, b)
+#define vec_data_t u8
+#define vec_t u8_vec_t
+#include "../lib/vec.h"
 
 
 bool check_recipe(u8_vec_t* recipes, u8* digits, u32 len, u8 offset);
@@ -85,32 +72,4 @@ bool check_recipe(u8_vec_t* recipes, u8* digits, u32 len, u8 offset) {
         if (vec_get(recipes, recipes->len - i - offset - 1) != digits[i])
             return false;
     return true;
-}
-
-
-// === Vector<u8> implementation ===
-
-u8_vec_t* vec_new() {
-    u8_vec_t* vec = (u8_vec_t*) malloc(sizeof(u8_vec_t));
-    memset(vec, 0, sizeof(u8_vec_t));
-    return vec;
-}
-
-void vec_clear(u8_vec_t* vec) {
-    vec->len = 0;
-}
-
-void vec_push(u8_vec_t* vec, u8 value) {
-    if (vec->len >= vec->capacity) {
-        vec->capacity *= 2;
-        if (vec->capacity == 0) vec->capacity = 8;
-        vec->data = realloc(vec->data, vec->capacity);
-    }
-    vec->data[vec->len] = value;
-    vec->len++;
-}
-
-u8 vec_get(u8_vec_t* vec, u32 index) {
-    assert(index < vec->len, "Index out of bounds: %d not in range [0, %d)", index, vec->len);
-    return vec->data[index];
 }

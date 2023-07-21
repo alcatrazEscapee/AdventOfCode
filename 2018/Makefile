@@ -3,6 +3,7 @@ SHELL := /bin/bash
 INPUT_DIR  := inputs
 OUT_DIR    := out
 SRC_DIR    := src
+LIB_DIR    := lib
 
 DAYS_TXT   := $(shell find $(INPUT_DIR) -name 'day\*.txt')
 DAYS_O     := $(DAYS_TXT:$(INPUT_DIR)/day%.txt=$(OUT_DIR)/day%.o)
@@ -65,3 +66,5 @@ $(OUT_DIR)/%.o : $(SRC_DIR)/%.cpp $(AOC_H)
 	$(MAKE_DIRS)
 	-@printf "Compiling $< ...\n"
 	@$(CPP) -o $@ $<
+
+$(OUT_DIR)/day14.o : $(LIB_DIR)/vec.h
