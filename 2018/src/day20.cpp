@@ -1,4 +1,5 @@
 #include "aoc.h"
+#include "../lib/point.h"
 
 enum class Axis { X, Y };
 
@@ -6,6 +7,10 @@ class Edge {
 public:
     Edge() = default;
     Edge(int x, int y, Axis axis) : x(x), y(y), axis(axis) {}
+    Edge(Point pos, char c) :
+        x(c == 'W' ? pos.x - 1 : pos.x),
+        y(c == 'N' ? pos.y - 1 : pos.y),
+        axis(c == 'N' || c == 'S' ? Axis::Y : Axis::X) {}
 
     bool operator==(const Edge& other) const { return x == other.x && y == other.y && axis == other.axis; }
 
@@ -19,42 +24,16 @@ public:
     Axis axis;
 };
 
-class Pos {
-public:
-    Pos() = default;
-    Pos(int x, int y) : x(x), y(y) {}
 
-    const Edge edge(char c) {
-        switch (c) {
-            case 'N': return Edge(x, y - 1, Axis::Y);
-            case 'E': return Edge(x, y, Axis::X);
-            case 'S': return Edge(x, y, Axis::Y);
-            case 'W': return Edge(x - 1, y, Axis::X);
-            default: unreachable;
-        }
+Point operator+(const Point pos, const char c) {
+    switch (c) {
+        case 'N': return Point(pos.x, pos.y - 1);
+        case 'E': return Point(pos.x + 1, pos.y);
+        case 'S': return Point(pos.x, pos.y + 1);
+        case 'W': return Point(pos.x - 1, pos.y);
+        default: unreachable;
     }
-
-    const Pos adj(char c) {
-        switch (c) {
-            case 'N': return Pos(x, y - 1);
-            case 'E': return Pos(x + 1, y);
-            case 'S': return Pos(x, y + 1);
-            case 'W': return Pos(x - 1, y);
-            default: unreachable;
-        }
-    }
-
-    bool operator==(const Pos& other) const { return x == other.x && y == other.y; }
-
-    struct Hash {
-        size_t operator()(const Pos& self) const {
-            return (std::hash<int>()(self.x) << 1) ^ (std::hash<int>()(self.y));
-        }
-    };
-
-private:
-    int x, y;
-};
+}
 
 
 main {
@@ -65,8 +44,8 @@ main {
     // An edge exists between (x, y) and (x + 1, y) if (x, y, Axis::X) is present in the edge set
     // An edge exists between (x, y) and (x, y + 1) if (x, y, Axis::Y) is present in the edge set
     std::unordered_set<Edge, Edge::Hash> edges;
-    std::vector<Pos> stack ({ Pos(0, 0) });
-    Pos start, pos;
+    std::vector<Point> stack ({ Point(0, 0) });
+    Point start, pos;
 
     for (const char& c : regex) {
         switch (c) {
@@ -77,8 +56,8 @@ main {
             case 'E':
             case 'S':
             case 'W':
-                edges.insert(pos.edge(c));
-                pos = pos.adj(c);
+                edges.insert(Edge(pos, c));
+                pos = pos + c;
                 break;
             case '(':
                 stack.push_back(start);
@@ -97,8 +76,8 @@ main {
 
     // Next, we need to search this graph to find all paths of all lengths
     // This is a standard BFS through a graph with cardinal direction adjacency, just different due to the need to check each edge in the edge set
-    std::deque<std::pair<Pos, int>> queue ({ std::pair(Pos(0, 0), 0) });
-    std::unordered_map<Pos, int, Pos::Hash> paths;
+    std::deque<std::pair<Point, int>> queue ({ std::pair(Point(0, 0), 0) });
+    std::unordered_map<Point, int, Point::Hash> paths;
     std::string directions = "NEWS";
 
     while (queue.size() > 0) {
@@ -106,9 +85,9 @@ main {
         paths[pos] = dist;
         
         for (const char& c : directions) {
-            const Edge edge = pos.edge(c);
+            const Edge edge = Edge(pos, c);
             if (edges.find(edge) != edges.end()) {
-                const Pos next = pos.adj(c);
+                const Point next = pos + c;
                 if (paths.find(next) == paths.end()) {
                     queue.push_back(std::pair(next, dist + 1));
                 }

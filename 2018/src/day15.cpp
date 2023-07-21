@@ -1,39 +1,11 @@
 #include "aoc.h"
+#include "../lib/point.h"
 
 
-/// @brief A basic 2D point, which supports +, - ==, != operators.
-class Point {
-public:
-
-    Point() = default;
-    Point(int x, int y) : x(x), y(y) {}
-
-    Point& operator+=(const Point& rhs) { x += rhs.x; y += rhs.y; return *this; }
-    Point& operator-=(const Point& rhs) { x -= rhs.x; y -= rhs.y; return *this; }
-
-    const Point operator+(const Point& other) const { return Point(*this) += other; }
-    const Point operator-(const Point& other) const { return Point(*this) -= other; }
-
-    bool operator==(const Point& other) const { return this->x == other.x && this->y == other.y; }
-    bool operator!=(const Point& other) const { return !(*this == other); }
-
-    // The smallest point is defined in terms of the 'counting order' or priority
-    bool operator<(const Point& other) const {
-        return this->y != other.y ? this->y < other.y : this->x < other.x;
-    }
-
-    bool operator>(const Point& other) const { return other < *this; }
-    bool operator<=(const Point& other) const { return !(other < *this); }
-    bool operator>=(const Point& other) const { return !(*this < other); }
-
-    int x, y;
-
-    struct Hash {
-        size_t operator()(const Point& point) const {
-            return (std::hash<int>()(point.x) << 1) ^ (std::hash<int>()(point.y));
-        }
-    };
-};
+// Points compare based on their reading order, which is used for selecting targets, moving, etc.
+bool operator<(const Point& left, const Point& right) {
+    return left.y != right.y ? left.y < right.y : left.x < right.x;
+}
 
 // Points for the four adjacent cardinal directions. Immutable.
 static const Point CARDINALS[4] = { Point(0, -1), Point(-1, 0), Point(1, 0), Point(0, 1) };

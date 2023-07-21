@@ -68,5 +68,7 @@ $(OUT_DIR)/%.o : $(SRC_DIR)/%.cpp $(AOC_H)
 	@$(CPP) -o $@ $<
 
 $(OUT_DIR)/day14.o : $(LIB_DIR)/vec.h
+$(OUT_DIR)/day15.o : $(LIB_DIR)/point.h
 $(OUT_DIR)/day18.o : $(LIB_DIR)/set.h
+$(OUT_DIR)/day20.o : $(LIB_DIR)/point.h
 $(OUT_DIR)/day21.o : $(LIB_DIR)/vec.h $(LIB_DIR)/set.h
