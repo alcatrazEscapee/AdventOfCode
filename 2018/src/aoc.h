@@ -44,4 +44,10 @@ typedef unsigned char byte;
     } \
 } while (0)
 
+#define unreachable do { \
+    println("Unreachable code!"); \
+    println("    at: %s:%d", __FILE__, __LINE__); \
+    exit(-1); \
+} while (0)
+
 #endif
