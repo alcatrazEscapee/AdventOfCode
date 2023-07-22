@@ -18,5 +18,5 @@ My Advent of Code solutions from 2022. Most of these are cleaned up and document
 - Favourite puzzle: It is honestly hard to pick... I really enjoyed this AoC, because so many of the puzzles felt novel and exciting. There were of course the "standard computer science algorithm" days, but I felt like I solved some new things, and learned a little along the way! My highlights were:
   - Learning how to write a cube folder (Day 22),
   - Figuring out coordinate transforms and rectangular area subdivisions (Day 15),
-  - Seeing one of my [favourite puzzles](https://github.com/alcatrazEscapee/AdventOfCode2018/blob/aaf3d6ee22a0162c33e602c6004ef2f5bf21bc72/day17/day17.py#L3) from past years again (Day 14),
+  - Seeing one of my [favourite puzzles](https://github.com/alcatrazEscapee/AdventOfCode/commit/be39d55eeb5750cf63da603a4c64b09dcd254e5a) from past years again (Day 14),
   - And even a pretty neat VM/assembly implementation (Day 10)!
