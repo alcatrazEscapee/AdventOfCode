@@ -12,7 +12,7 @@ DAYS       := $(DAYS_TXT:$(INPUT_DIR)/day%.txt=%)
 GCC        := -Wall -Werror -O3
 
 C          := gcc -std=c11 $(GCC)
-CPP        := g++ -std=c++17 -lstdc++ $(GCC)
+CPP        := g++ -std=c++20 -lstdc++ $(GCC)
 
 AOC_H      := $(SRC_DIR)/aoc.h
 OUT_TXT    := $(OUT_DIR)/test.txt

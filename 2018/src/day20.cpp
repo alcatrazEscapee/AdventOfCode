@@ -13,6 +13,7 @@ public:
         axis(c == 'N' || c == 'S' ? Axis::Y : Axis::X) {}
 
     bool operator==(const Edge& other) const { return x == other.x && y == other.y && axis == other.axis; }
+    bool operator!=(const Edge other) const { return !(*this == other); }
 
     struct Hash {
         size_t operator()(const Edge& self) const {
@@ -45,8 +46,8 @@ main {
     // An edge exists between (x, y) and (x, y + 1) if (x, y, Axis::Y) is present in the edge set
     std::unordered_set<Edge, Edge::Hash> edges;
     std::vector<Point> stack ({ Point(0, 0) });
-    Point start, pos;
-
+    Point start = Point(), pos = Point();
+ 
     for (const char& c : regex) {
         switch (c) {
             case '$':
@@ -76,7 +77,7 @@ main {
 
     // Next, we need to search this graph to find all paths of all lengths
     // This is a standard BFS through a graph with cardinal direction adjacency, just different due to the need to check each edge in the edge set
-    std::deque<std::pair<Point, int>> queue ({ std::pair(Point(0, 0), 0) });
+    std::deque<std::pair<Point, int>> queue ({ std::pair(Point(), 0) });
     std::unordered_map<Point, int, Point::Hash> paths;
     std::string directions = "NEWS";
 
