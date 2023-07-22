@@ -45,11 +45,24 @@ private:
     int depth;
 };
 
+int pack_key(const Point& pos, const Tool& tool);
+
+
+class Path {
+public:
+    Path() = default;
+    Path(Point pos, Tool tool, int cost) : pos(pos), tool(tool), cost(cost) {}
+
+    int key() { return pack_key(pos, tool); }
+
+    Point pos;
+    Tool tool;
+    int cost;
+};
+
 
 bool is_compatible(Type type, Tool tool);
 Tool get_compatible_tool(Type type, Tool tool);
-
-int pack_key(const Point& pos, const Tool& tool);
 
 
 main {
@@ -75,8 +88,8 @@ main {
     // Part 2 is a slightly more involved BFS
     // First, we need some custom operators
     struct Compare {
-        bool operator()(const std::tuple<Point, Tool, int>& a, const std::tuple<Point, Tool, int>& b) {
-            return std::get<2>(a) > std::get<2>(b);
+        bool operator()(const Path& a, const Path& b) {
+            return a.cost > b.cost;
         }
     };
 
@@ -84,43 +97,42 @@ main {
     // This was an order-of-magnitude improvement over using a standard Dijkstra's in this problem (~22s -> ~2s).
     // Some refactors (using `[]` instead of `.find()`), and optimizations (using `pack_key` and a `int` based cost map),
     // yielded an improvement to ~0.5s runtime.
-    std::priority_queue<std::tuple<Point, Tool, int>, std::vector<std::tuple<Point, Tool, int>>, Compare> queue;
+    std::priority_queue<Path, std::vector<Path>, Compare> queue;
     std::unordered_map<int, int> costs;
 
-    queue.push(std::tuple(Point(0, 0), Torch, cave->get_dist_to_target(Point(0, 0), Torch)));
+    queue.push(Path(Point(), Torch, cave->get_dist_to_target(Point(), Torch)));
 
     while (queue.size() > 0) {
-        std::tuple<Point, Tool, int> top = queue.top();
+        Path top = queue.top();
         queue.pop();
 
-        auto& [ pos, tool, _ ] = top;
-        int cost = costs[pack_key(pos, tool)];
+        int cost = costs[top.key()];
 
-        if (pos == cave->target && tool == Torch) {
+        if (top.pos == cave->target && top.tool == Torch) {
             println("Part 2: %d", cost);
             break;
         }
 
         for (const Point& adj : CARDINALS) {
-            Point next = pos + adj;
+            Point next = top.pos + adj;
             if (next.x >= 0 && next.y >= 0) {
                 Type next_type = cave->get_type(next);
-                if (is_compatible(next_type, tool)) {
+                if (is_compatible(next_type, top.tool)) {
                     int next_cost = cost + 1;
-                    int& prev_cost = costs[pack_key(next, tool)];
+                    int& prev_cost = costs[pack_key(next, top.tool)];
                     if (prev_cost == 0 || next_cost < prev_cost) { // If we haven't seen this point, or can visit it faster
-                        queue.push(std::tuple(next, tool, next_cost + cave->get_dist_to_target(next, tool)));
+                        queue.push(Path(next, top.tool, next_cost + cave->get_dist_to_target(next, top.tool)));
                         prev_cost = next_cost;
                     }
                 }
             }
         }
 
-        Tool swap = get_compatible_tool(cave->get_type(pos), tool);
-        int& prev_cost = costs[pack_key(pos, swap)];
+        Tool swap = get_compatible_tool(cave->get_type(top.pos), top.tool);
+        int& prev_cost = costs[pack_key(top.pos, swap)];
         int next_cost = cost + 7;
         if (prev_cost == 0 || next_cost < prev_cost) {
-            queue.push(std::tuple(pos, swap, next_cost + cave->get_dist_to_target(pos, swap)));
+            queue.push(Path(top.pos, swap, next_cost + cave->get_dist_to_target(top.pos, swap)));
             prev_cost = next_cost;
         }
     }
