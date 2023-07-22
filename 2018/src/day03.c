@@ -3,6 +3,8 @@
 #define SIZE 1295
 #define WIDTH 1000
 
+itype(unsigned char, 1) u8;
+
 typedef struct {
     int id;
     int x, y;
@@ -18,23 +20,22 @@ main {
     }
 
     // Count the total number of points, which are within two or more claims
-    // The easiest way to do this without a large bitset or array is to just iterate each point
+    // When in doubt? VERY LARGE BUFFER :D
+    // Almost surprisingly, 1.6 MB of buffer and iterating claims, is actually faster (by an order of magnitude, 0.7s -> 0.03s)
+    // than iterating every position x every claim, and checking membership.
+    u8* overlaps = (u8*) malloc(SIZE * SIZE);
+    
+    memset(overlaps, 0, SIZE * SIZE);
+    
     int count = 0;
-    for (int x = 0; x < WIDTH; x++) {
-        for (int y = 0; y < WIDTH; y++) {
-            int n = 0;
-            for (int i = 0; i < SIZE; i++) {
-                if (claims[i].x <= x &&
-                    claims[i].x + claims[i].w > x &&
-                    claims[i].y <= y &&
-                    claims[i].y + claims[i].h > y
-                ) {
-                    n++;
-                }
-                
-                if (n >= 2) {
-                    count++;
-                    break;
+    for (int i = 0; i < SIZE; i++) {
+        claim_t* claim = &claims[i];
+
+        for (int dx = 0; dx < claim->w; dx++) {
+            for (int dy = 0; dy < claim->h; dy++) {
+                int x = claim->x + dx, y = claim->y + dy;
+                if (++overlaps[x + SIZE * y] == 2) {
+                    count++;  // Increment as soon as we detect a single spot of overlap
                 }
             }
         }

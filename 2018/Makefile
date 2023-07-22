@@ -41,6 +41,18 @@ run : $(OUT_DIR)/day$(day).o
 		cat $(INPUT_DIR)/day$(day).txt | $(OUT_DIR)/day$(day).o ; \
 	fi
 
+.PHONY : bench
+bench : $(OUT_DIR)/day$(day).o
+	@printf "Running Benchmark for day $$day ...\n"
+	-@rm -f bench.txt
+	@printf "0 / 100\n"
+	@for i in {1..100} ; do \
+		TIMEFORMAT='%3lR' ; \
+		{ time cat $(INPUT_DIR)/day$$day.txt | $(OUT_DIR)/day$$day.o > /dev/null ; } 2>> bench.txt ; \
+		printf "\e[1A\e[K$$i / 100\n"; \
+	done
+	@cat bench.txt | python bench.py
+
 .PHONY : test
 test : $(DAYS_O) FORCE
 	@printf "Running tests ...\n"

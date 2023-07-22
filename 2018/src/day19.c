@@ -15,7 +15,7 @@
 // 13 | gtrr 5 2 1     | r1 = r5 > r2   \ if r5 <= r2:      | 
 // 14 | addr 1 4 4     | r4 += r1       |     goto 01 ------+ > For a given r2, it's computing factors
 // 15 | seti 1 3 4     | r4 = 1         | else:               > r0 is the sum of all factors of r2
-// 16 | mulr 4 4 4     | exit           /     exit            > This is O(n^2), we can do it with % in O(n)
+// 16 | mulr 4 4 4     | exit           /     exit            > This is O(n^2), we can do it  in O(sqrt(n))
 //
 // The rest of the code is two different initializations for r2, one for part 1, and one for part 2
 // Obviously, the part 2 value is much larger.
@@ -82,10 +82,11 @@ main {
     }
 
     // And then do the rest of the solution using modulo, instead of a multiplication loop
+    // Slight optimization, by assuming the answer is not a perfect square, and we can skip it's factors
     int r2 = reg[2], sum = 0;
-    for (int f = 1; f <= r2; f++) {
+    for (int f = 1; f <= sqrt(r2); f++) {
         if (r2 % f == 0) {
-            sum += r2 / f;
+            sum += f + r2 / f;
         }
     }
 

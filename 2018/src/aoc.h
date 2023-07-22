@@ -20,6 +20,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <limits.h>
+#include <math.h>
 
 #define static_assert _STATIC_ASSERT
 

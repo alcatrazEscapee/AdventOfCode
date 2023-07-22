@@ -3,6 +3,7 @@
 
 !/.gitignore
 !/Makefile
+!/bench.py
 !/README.md
 
 !/src/*.c

@@ -131,7 +131,6 @@ private:
         // Path finding uses Dikjkstra's algorithm to find the best path to the enemy
         // We need this, not only to choose which enemy to move towards, but how to move towards it as well
         std::unordered_map<Point, Path, Point::Hash> paths;
-        std::unordered_set<Point, Point::Hash> visited ({ entity.pos });
         std::deque<Path> queue;
 
         // First four points determine the starting position for each path
@@ -154,10 +153,6 @@ private:
             Path path = queue.front();
             queue.pop_front();
 
-            // If we've already visited this position, then skip
-            if (visited.find(path.pos) != visited.end()) continue;
-            visited.insert(path.pos);
-
             // Check if we have found any target, at this point
             // If we have, we can set the minimum distance, if unset
             if (targets.find(path.pos) != targets.end() && chosen_dist == -1) {
@@ -174,13 +169,10 @@ private:
                 Point pos = path.pos + adj;
                 if (this->is_free(pos)) { // The target location is free to move to
                     Path next = Path(pos, path.start, path.dist + 1);
-                    queue.push_back(next); // Enqueue the path for exploration
-
-                    auto iter = paths.find(pos);
-                    if (paths.find(pos) == paths.end()) { // If this is the first time we find the path, the enter it in the map
-                        paths[pos] = next;
-                    } else {
-                        paths[pos] = std::min(iter->second, next);
+                    auto& prev = paths[pos];
+                    if (prev.dist <= 0 || next < prev) { // If this is the first time we find the path, or we find a shorter path
+                        prev = next;
+                        queue.push_back(next); // Enqueue the path for exploration
                     }
                 }
             }

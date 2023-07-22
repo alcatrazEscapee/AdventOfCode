@@ -9,18 +9,20 @@
 #define UNIT_PTR(unit) (* (army_t**) (unit))
 
 
-typedef int damage_t;
+itype(unsigned char, 1) u8;
+
+typedef u8 damage_t;
 
 typedef struct army_s {
-    int id;
+    struct army_s* target;
     int units;
     int hp;
+    int dmg;
+    u8 id;
+    u8 init;
     damage_t weak[RESISTS];
     damage_t immune[RESISTS];
     damage_t type;
-    int dmg;
-    int init;
-    struct army_s* target;
     bool is_target;
 } army_t;
 
@@ -102,14 +104,12 @@ int do_combat(army_t* immune, army_t* virus) {
 
     // We can sometimes reach a stale situation, where neither side can damage each other
     // If we hit a few rounds where we notice this (no units lost) we assume we're stale, and return 0 instead
-    int stale_counter = 0;
+    int stale_counter = 0, total_units = -1;
     loop {
 
         do_target_selection(immune_ptr, virus_ptr);
         do_target_selection(virus_ptr, immune_ptr);
         
-        int before_units = a_get_total_units(immune_ptr) + a_get_total_units(virus_ptr);
-
         do_attack_phase(all_ptr);
 
         int immune_total_units = a_get_total_units(immune_ptr),
@@ -119,13 +119,14 @@ int do_combat(army_t* immune, army_t* virus) {
         if (virus_total_units == 0) return immune_total_units;
         if (immune_total_units == 0) return -virus_total_units;
 
-        if (before_units == virus_total_units + immune_total_units) {
+        if (total_units == virus_total_units + immune_total_units) {
             stale_counter++;
             if (stale_counter == 5) {
                 return 0; // Stale!
             }
         } else {
             stale_counter = 0;
+            total_units = virus_total_units + immune_total_units;
         }
     }
 }
@@ -310,7 +311,7 @@ void scan_army(army_t army[SIZE], char** damage_types, int id_offset, const char
             assert(fgetc(stdin) == 'i', INFO("skip no resists"));
         }
 
-        assert(scanf("th an attack that does %d %s damage at initiative %d\n", &unit->dmg, buffer, &unit->init) == 3, INFO("dmg + init"));
+        assert(scanf("th an attack that does %d %s damage at initiative %hhd\n", &unit->dmg, buffer, &unit->init) == 3, INFO("dmg + init"));
         unit->type = scan_damage_type(damage_types, buffer);
     }
 #undef INFO
@@ -322,7 +323,6 @@ damage_t scan_damage_type(char** damage_types, char* type) {
             int len = strlen(type) + 1;
             damage_types[i] = (char*) malloc(len);
             memcpy(damage_types[i], type, len);
-            //println("damage type %s -> %d", damage_types[i], i);
             return i;
         }
         if (strcmp(damage_types[i], type) == 0) { // Existing damage type found
