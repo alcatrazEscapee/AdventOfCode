@@ -102,6 +102,10 @@ int do_combat(army_t* immune, army_t* virus) {
         all_ptr[SIZE + i] = virus_ptr[i] = &virus_local[i];
     }
 
+    // Sort all units, combined, by initiative
+    // These won't change during combat, so we can sort once
+    qsort(all_ptr, SIZE * 2, sizeof(army_t*), sort_attack_phase);
+
     // We can sometimes reach a stale situation, where neither side can damage each other
     // If we hit a few rounds where we notice this (no units lost) we assume we're stale, and return 0 instead
     int stale_counter = 0, total_units = -1;
@@ -203,8 +207,6 @@ bool sort_defender_target_selection(const army_t* chosen, int chosen_dmg, const 
 
 
 void do_attack_phase(army_t** all) {
-    qsort(all, SIZE * 2, sizeof(army_t*), sort_attack_phase); // Sort all units, combined, by initiative
-
     for (int i = 0; i < SIZE * 2; i++) {
         army_t* unit = all[i];
 
