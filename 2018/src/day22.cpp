@@ -22,15 +22,18 @@ public:
 
 private:
     int get_geologic_index(const Point& pos) {
-        if (pos == Point(0, 0) || pos == this->target) return 0;
+        if (pos == this->target) return 0;
         if (pos.y == 0) return pos.x * 16807;
         if (pos.x == 0) return pos.y * 48271;
         
-        auto ptr = cache.find(pos);
-        if (ptr != cache.end()) return ptr->second;
+        // Use an int key, because we're fairly confident positions aren't above 65535, and it's more memory dense
+        int key = (pos.x << 16) | pos.y;
+        int& index = cache[key];
 
-        int index = get_erosion_level(Point(pos.x - 1, pos.y)) * get_erosion_level(Point(pos.x, pos.y - 1));
-        cache[pos] = index;
+        if (index != 0) return index;
+
+        int new_index = get_erosion_level(Point(pos.x - 1, pos.y)) * get_erosion_level(Point(pos.x, pos.y - 1));
+        index = new_index; // Enters it into the cache, due to this being a reference, without an additional lookup
         return index;
     }
 
@@ -38,7 +41,7 @@ private:
         return (get_geologic_index(pos) + this->depth) % 20183;
     }
 
-    std::unordered_map<Point, int, Point::Hash> cache;
+    std::unordered_map<int, int> cache;
 public:
     Point target;
 private:
