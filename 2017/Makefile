@@ -15,16 +15,17 @@ run :
 
 .PHONY : test
 test : $(ACTUAL)
-	@diff --strip-trailing-cr $(ACTUAL) $(EXPECTED) >> /dev/null || ( \
+	@diff --strip-trailing-cr $(EXPECTED) $(ACTUAL) >> /dev/null || ( \
 		printf "\n=== Tests Failed! ===\n\n" && \
-		diff --strip-trailing-cr -u $(ACTUAL) $(EXPECTED))
+		diff --strip-trailing-cr -u $(EXPECTED) $(ACTUAL))
 	@printf "\n=== Tests Passed! ===\n"
 
 $(ACTUAL) : $(DAYS_COR) FORCE
-	-@rm -f $(ACTUAL)
-	-@touch $(ACTUAL)
+	@printf "Running tests ...\n"
+	@printf "Advent of Code 2016\n" > $(ACTUAL)
 	@for day in $(DAYS) ; do \
-		printf "Test Day $$day\n" ; \
+		printf "Day $$day: " ; \
 		printf "Day $$day\n" >> $(ACTUAL) ; \
-		cordy -o src/day$$day.cor >> $(ACTUAL) ; \
+		TIMEFORMAT='%3lR' ; \
+		time cordy -o src/day$$day.cor >> $(ACTUAL) ; \
 	done
