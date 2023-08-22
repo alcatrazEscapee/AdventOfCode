@@ -155,7 +155,7 @@ private:
 
             // Check if we have found any target, at this point
             // If we have, we can set the minimum distance, if unset
-            if (targets.find(path.pos) != targets.end() && chosen_dist == -1) {
+            if (targets.contains(path.pos) && chosen_dist == -1) {
                 chosen_dist = path.dist;
             }
 

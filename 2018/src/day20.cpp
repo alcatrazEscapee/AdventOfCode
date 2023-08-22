@@ -87,9 +87,9 @@ main {
         
         for (const char& c : directions) {
             const Edge edge = Edge(pos, c);
-            if (edges.find(edge) != edges.end()) {
+            if (edges.contains(edge)) {
                 const Point next = pos + c;
-                if (paths.find(next) == paths.end()) {
+                if (!paths.contains(next)) {
                     queue.push_back(std::pair(next, dist + 1));
                 }
             }

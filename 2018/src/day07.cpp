@@ -88,10 +88,10 @@ Task next_task(
     // Iterate all the incomplete tasks, then check each of their dependencies
     // Pick the first task that has complete dependencies
     for (auto dep = dependencies.begin(); dep != dependencies.end(); dep++) {
-        if (started.find(dep->first) == started.end()) { // Task is not started, meaning we can start it
+        if (!started.contains(dep->first)) { // Task is not started, meaning we can start it
             bool ready = true;
             for (auto pre = dep->second.begin(); pre != dep->second.end(); pre++) {
-                if (complete.find(*pre) == complete.end()) { // Prerequisite task is not complete
+                if (!complete.contains(*pre)) { // Prerequisite task is not complete
                     ready = false;
                     break;
                 }
