@@ -16,8 +16,7 @@ public:
     const Point operator+(const Point& other) const { return Point(*this) += other; }
     const Point operator-(const Point& other) const { return Point(*this) -= other; }
 
-    bool operator==(const Point& other) const { return this->x == other.x && this->y == other.y; }
-    bool operator!=(const Point& other) const { return !(*this == other); }
+    bool operator==(const Point& other) const = default;
 
     int x, y;
 

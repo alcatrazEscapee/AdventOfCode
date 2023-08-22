@@ -12,8 +12,7 @@ public:
         y(c == 'N' ? pos.y - 1 : pos.y),
         axis(c == 'N' || c == 'S' ? Axis::Y : Axis::X) {}
 
-    bool operator==(const Edge& other) const { return x == other.x && y == other.y && axis == other.axis; }
-    bool operator!=(const Edge other) const { return !(*this == other); }
+    bool operator==(const Edge& other) const = default;
 
     struct Hash {
         size_t operator()(const Edge& self) const {

@@ -3,8 +3,9 @@
 
 
 // Points compare based on their reading order, which is used for selecting targets, moving, etc.
-bool operator<(const Point& left, const Point& right) {
-    return left.y != right.y ? left.y < right.y : left.x < right.x;
+auto operator<=>(const Point& left, const Point& right) {
+    if (auto cmp = left.y <=> right.y; cmp != 0) return cmp;
+    return left.x <=> right.x;
 }
 
 // Points for the four adjacent cardinal directions. Immutable.
@@ -20,13 +21,10 @@ public:
     Path(Point pos, Point start, int dist) : pos(pos), start(start), dist(dist) {}
 
     // The best path is sorted first by distance, then by order of the position
-    bool operator<(const Path& other) const {
-        return this->dist != other.dist ? this->dist < other.dist : this->pos < other.pos;
+    auto operator<=>(const Path& other) const {
+        if (auto cmp = this->dist <=> other.dist; cmp != 0) return cmp;
+        return this->pos <=> other.pos;
     }
-
-    bool operator>(const Path& other) const { return other < *this; }
-    bool operator<=(const Path& other) const { return !(other < *this); }
-    bool operator>=(const Path& other) const { return !(*this < other); }
 
     Point pos;
     Point start;
