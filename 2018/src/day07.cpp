@@ -87,18 +87,18 @@ Task next_task(
         std::unordered_set<Task>& started) {
     // Iterate all the incomplete tasks, then check each of their dependencies
     // Pick the first task that has complete dependencies
-    for (auto dep = dependencies.begin(); dep != dependencies.end(); dep++) {
-        if (!started.contains(dep->first)) { // Task is not started, meaning we can start it
+    for (auto dep : dependencies) {
+        if (!started.contains(dep.first)) { // Task is not started, meaning we can start it
             bool ready = true;
-            for (auto pre = dep->second.begin(); pre != dep->second.end(); pre++) {
-                if (!complete.contains(*pre)) { // Prerequisite task is not complete
+            for (auto pre : dep.second) {
+                if (!complete.contains(pre)) { // Prerequisite task is not complete
                     ready = false;
                     break;
                 }
             }
             if (ready) {
-                started.insert(dep->first);
-                return dep->first;
+                started.insert(dep.first);
+                return dep.first;
             }
         }
     }

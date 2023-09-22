@@ -47,7 +47,7 @@ public:
     bool is_dead() const { return this->hp <= 0; }
     bool is_alive() const { return !this->is_dead(); }
 
-    bool is_enemy_of(Entity& other) const { return this->type != other.type; }
+    bool is_enemy_of(const Entity& other) const { return this->type != other.type; }
 
     Point pos;
     Type type;
@@ -110,10 +110,10 @@ private:
         // Calculate all possible target positions
         // This consists of every point that we can navigate to, i.e. is empty, and adjacent to a known enemy
         std::unordered_set<Point, Point::Hash> targets;
-        for (Entity& enemy : this->entities) {
+        for (const Entity& enemy : this->entities) {
             if (enemy.is_alive() && enemy.is_enemy_of(entity)) {
                 for (const Point& adj : CARDINALS) {
-                    Point pos = enemy.pos + adj;
+                    const Point pos = enemy.pos + adj;
                     if (this->is_free(pos)) {
                         targets.insert(pos);
                     }
@@ -134,9 +134,9 @@ private:
         // First four points determine the starting position for each path
         // As we explore, we track the best starting position to each point
         for (const Point& adj : CARDINALS) {
-            Point pos = entity.pos + adj;
+            const Point pos = entity.pos + adj;
             if (this->is_free(pos)) {
-                Path path = Path(pos, adj, 1);
+                const Path path = Path(pos, adj, 1);
                 queue.push_back(path);
                 paths[pos] = path;
             }
@@ -148,7 +148,7 @@ private:
         int chosen_dist = -1;
 
         while (queue.size() > 0) {
-            Path path = queue.front();
+            const Path path = queue.front();
             queue.pop_front();
 
             // Check if we have found any target, at this point
@@ -164,9 +164,9 @@ private:
 
             // Consider adjacent moves
             for (const Point& adj : CARDINALS) {
-                Point pos = path.pos + adj;
+                const Point pos = path.pos + adj;
                 if (this->is_free(pos)) { // The target location is free to move to
-                    Path next = Path(pos, path.start, path.dist + 1);
+                    const Path next = Path(pos, path.start, path.dist + 1);
                     auto& prev = paths[pos];
                     if (prev.dist <= 0 || next < prev) { // If this is the first time we find the path, or we find a shorter path
                         prev = next;
@@ -227,32 +227,32 @@ private:
     }
 
     /// @return The total HP of all alive entities. 
-    int total_hp() {
+    int total_hp() const {
         int total_hp = 0;
-        for (Entity& e : this->entities)
+        for (const Entity& e : this->entities)
             if (e.is_alive())
                 total_hp += e.hp;
         return total_hp;
     }
 
     /// @return true if at least one alive enemy of this entity exists.
-    bool has_enemies(Entity& entity) {
-        for (Entity& other : this->entities)
+    bool has_enemies(const Entity& entity) const {
+        for (const Entity& other : this->entities)
             if (other.is_alive() && other.is_enemy_of(entity))
                 return true;
         return false;
     }
 
     /// @return true if any elves are currently dead.
-    bool any_elves_have_died() {
-        for (Entity& e : this->entities)
+    bool any_elves_have_died() const {
+        for (const Entity& e : this->entities)
             if (e.is_dead() && e.type == Entity::Type::Elf)
                 return true;
         return false;
     }
 
     /// @return The entity at pos, if there is one, which is both alive and an enemy of the provided entity.
-    Entity* enemy_at(Entity entity, Point pos) {
+    Entity* enemy_at(const Entity& entity, const Point& pos) {
         for (Entity& other : this->entities)
             if (other.pos == pos && other.is_alive() && other.is_enemy_of(entity))
                 return &other;
@@ -260,16 +260,16 @@ private:
     }
 
     /// @return true if the given position is free of obstructions (walls, or alive entities) 
-    bool is_free(Point pos) {
+    bool is_free(const Point& pos) const {
         if (this->is_wall(pos)) return false;
-        for (Entity& entity : this->entities)
+        for (const Entity& entity : this->entities)
             if (entity.is_alive() && entity.pos == pos)
                 return false;
         return true;
     }
 
     /// @return true if the given position is a wall
-    bool is_wall(Point pos) { return this->grid[pos.y][pos.x] == '#'; }
+    bool is_wall(const Point& pos) const { return this->grid[pos.y][pos.x] == '#'; }
 
 
     std::vector<std::string> grid;

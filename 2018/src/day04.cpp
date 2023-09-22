@@ -31,14 +31,17 @@ public:
 };
 
 struct Record {
-    int id;
     int year, month, day, hr, min;
+    int id;
     Action action;
     Guard* guard;
 
     int timestamp() const {
         return min + 60 * (hr + 24 * day);
     }
+
+    bool operator==(const Record& other) const = default;
+    auto operator<=>(const Record& other) const = default;
 };
 
 
@@ -65,15 +68,7 @@ main {
 
     // Sort the list of records chronologically
     // Then we can fill in the missing guard IDs by iterating forward
-    std::sort(records, records + SIZE, [](const Record& a, const Record& b) -> bool {
-        if (a.year != b.year) return a.year < b.year;
-        if (a.month != b.month) return a.month < b.month;
-        if (a.day != b.day) return a.day < b.day;
-        if (a.hr != b.hr) return a.hr < b.hr;
-        if (a.min != b.min) return a.min < b.min;
-        return false;
-    });
-
+    std::sort(records, records + SIZE);
 
     // Iterate through each action, and store the guards' minutes spent asleep
     std::unordered_map<int, Guard> guards;
@@ -99,8 +94,8 @@ main {
     }
 
     // Calculate the max minute spent asleep, per guard
-    for (auto iter = guards.begin(); iter != guards.end(); iter++) {
-        iter->second.calculate_max_minute_asleep();
+    for (auto& guard : guards) {
+        guard.second.calculate_max_minute_asleep();
     }
 
     // Part 1: the guard who spent the most total minutes asleep

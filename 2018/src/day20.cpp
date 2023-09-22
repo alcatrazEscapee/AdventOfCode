@@ -100,7 +100,7 @@ main {
     // Part 1 is the max distance of all paths we find
     // Part 2 is the number of paths with distance >= 1k
     int part1 = 0, part2 = 0;
-    for (auto& path : paths) {
+    for (const auto& path : paths) {
         if (path.second > part1) part1 = path.second;
         if (path.second >= 1000) part2++;
     }
