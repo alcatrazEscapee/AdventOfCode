@@ -37,7 +37,7 @@ for x in range(128) {
                 seen.push((x, y))
                 for dx, dy in adj {
                     let px = x + dx, py = y + dy, p = (px, py)
-                    if px >= 0 and px < 128 and py >= 0 and py < 128 and grid[py][px] == '1' and p not in seen {
+                    if 0 <= px < 128 and 0 <= py < 128 and grid[py][px] == '1' and p not in seen {
                         seen.push(p)
                         queue.push(p)
                     }
