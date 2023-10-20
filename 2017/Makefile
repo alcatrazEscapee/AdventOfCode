@@ -7,11 +7,14 @@ DAYS     := $(DAYS_COR:src/day%.cor=%)
 
 .DEFAULT_GOAL := run
 
+CORDY := cordy -o --link day15=out/day15.so
+GCC   := gcc -shared -O3
+
 FORCE :
 
 .PHONY : run
-run :
-	@cordy -o src/day$(day).cor
+run : out/day15.so
+	@$(CORDY) src/day$(day).cor
 
 .PHONY : test
 test : $(ACTUAL)
@@ -27,5 +30,10 @@ $(ACTUAL) : $(DAYS_COR) FORCE
 		printf "Day $$day: " ; \
 		printf "Day $$day\n" >> $(ACTUAL) ; \
 		TIMEFORMAT='%3lR' ; \
-		time cordy -o src/day$$day.cor >> $(ACTUAL) ; \
+		time $(CORDY) src/day$$day.cor >> $(ACTUAL) ; \
 	done
+
+out/day15.so : src/day15.c src/cordy.h
+	@printf "Compiling src/day15.c ...\n"
+	@mkdir -p out
+	@$(GCC) -o out/day15.so src/day15.c

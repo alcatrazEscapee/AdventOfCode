@@ -6,3 +6,5 @@
 !/Makefile
 
 !/src/day**.cor
+!/src/day**.c
+!/src/cordy.h

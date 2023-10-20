@@ -5,6 +5,7 @@ let code = read_text('./inputs/day18.txt')
 let ip = 0
 let registers = dict() . default(0)
 let prev = nil
+
 loop {
     let op, *arg = code[ip]
     ip += 1
@@ -31,13 +32,12 @@ loop {
     }
 }
 
-struct Program(run, total)
+struct Program(inputs, outputs, ip, sends, registers) {
 
-fn program(program_id, inputs, outputs) {
-    let ip = 0, sends = 0
-    let registers = {'p': program_id} . default(0)
+    fn new(program_id, inputs, outputs)
+        -> Program(inputs, outputs, 0, 0, {'p': program_id} . default(0))
 
-    fn run() {
+    fn run(self) {
         let deadlock = true
         loop {
             let op, *arg = code[ip]
@@ -68,19 +68,16 @@ fn program(program_id, inputs, outputs) {
                     return !deadlock
                 }
             }
-
             deadlock = false
         }
         return false
     }
-
-    Program(run, fn() -> sends)
 }
 
 let left = [], right = []
-let program_1 = program(0, left, right),
-    program_2 = program(1, right, left)
+let program_1 = Program->new(0, left, right),
+    program_2 = Program->new(1, right, left)
 
 while program_1->run() or program_2->run() {}
 
-print('Part 2:', program_2->total())
+print('Part 2:', program_2->sends)
