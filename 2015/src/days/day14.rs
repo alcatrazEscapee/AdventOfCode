@@ -1,7 +1,7 @@
 use fancy_regex::Regex;
 use itertools::Itertools;
 
-use crate::utils::{CapturesExtension, vec_of};
+use crate::utils::CapturesExtension;
 
 const INPUT: &str = include_str!("../../inputs/day14.txt");
 const DURATION: u32 = 2503;
@@ -29,7 +29,7 @@ pub fn both() -> (u32, u32) {
         .max()
         .unwrap();
 
-    let mut points: Vec<u32> = vec_of(stats.len(), 0); // zeros
+    let mut points: Vec<u32> = vec![0; stats.len()];
     for t in 1..=DURATION {
         points[stats.iter()
             .map(|(v, vt, rt)| dist(v, vt, rt, t))

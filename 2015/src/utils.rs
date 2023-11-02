@@ -14,12 +14,6 @@ pub fn index_or_insert<T: Eq>(vec: &mut Vec<T>, e: T) -> usize {
     vec.len() - 1
 }
 
-// Creates a vector with a given length, filled with the specified value
-pub fn vec_of<T>(length: usize, value: T) -> Vec<T>
-    where T: Copy {
-    return (0..length).map(|_| value).collect();
-}
-
 // Given a length N, and sum S
 // Find all sequences (x1, x2, ... xN), where
 //   for all i, xi >= 0
