@@ -1,0 +1,3 @@
+let inp = read_text './inputs/day01.txt'
+
+print inp
