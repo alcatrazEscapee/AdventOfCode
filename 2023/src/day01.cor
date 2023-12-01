@@ -1,34 +1,38 @@
-let inp = read_text './inputs/day01.txt'
+// Day 01: 141th / 158th
 
-let nums = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine']
-let x = 0
+let inp = read_text './inputs/day01.txt' . split '\n'
+let digits = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine']
 
-for line in inp . split '\n' {
-    // Part 1
-    // line = line . filter(fn(x) -> int(x, '') != '')
-    //x += int(line[0] + line[-1])
-    
-    let min_x = -1, max_x = -1
-    for i in line.len.range {
-        if line[i] in '123456789' {
-            if min_x == -1 {
-                min_x = int(line[i])
-            }
-            max_x = int(line[i])
-        }
-        for j, n in nums.enumerate {
-            if line[i:i+len(n)] == n {
-                print(n)
+fn solve(part2) {
+    let total = 0
+    for line in inp {
+        let min_x = -1,
+            max_x = -1
+        
+        for i in line . len . range {
+            if line[i] in '123456789' {
                 if min_x == -1 {
-                    min_x = j + 1
+                    min_x = int(line[i])
                 }
-                max_x = j + 1
+                max_x = int(line[i])
+            }
+            if part2 {
+                for j, n in digits . enumerate {
+                    if line[i:i + len(n)] == n {
+                        if min_x == -1 {
+                            min_x = j + 1
+                        }
+                        max_x = j + 1
+                    }
+                }
             }
         }
+
+        assert min_x != -1 and max_x != -1
+        total += max_x + 10 * min_x
     }
-    assert min_x != -1 and max_x != -1
-    print(min_x, max_x)
-    x += max_x + 10 * min_x
+    total
 }
 
-print x
+print('Part 1:', solve(false))
+print('Part 2:', solve(true))
