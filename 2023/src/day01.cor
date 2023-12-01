@@ -9,13 +9,18 @@ fn solve(part2) {
         let min_x = -1,
             max_x = -1
         
-        for i in line . len . range {
-            if line[i] in '123456789' {
+        for i, c in line . enumerate {
+            // Checking if a digit is numeric, we can do be seeing if it's parsable as an int
+            // Since '0' is not valid, the only false value here is `nil`
+            if int(c, nil) {
                 if min_x == -1 {
-                    min_x = int(line[i])
+                    min_x = int c
                 }
-                max_x = int(line[i])
+                max_x = int c
             }
+            
+            // For part 2, we do the same thing, but check slices against each digit word
+            // Slices do not error as we slice off the end, and will just not compare equal
             if part2 {
                 for j, n in digits . enumerate {
                     if line[i:i + len(n)] == n {
