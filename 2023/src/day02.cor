@@ -1,0 +1,31 @@
+
+let inp = read_text './inputs/day02.txt' . split '\n'
+let part1 = 0, part2 = 0
+
+
+for line in inp {
+    let (_, game, results) = line . search 'Game (\d+): (.*)'
+    
+    results = results
+        . split '; '
+        . map(fn(rs) -> rs
+            . split ', '
+            . map(fn(word) {
+                let n, key = word . split ' '
+                (key, int n)
+            })
+            . dict
+            . default 0
+        )
+
+    if results . all(fn(r) -> r['red'] <= 12 and r['blue'] <= 14 and r['green'] <= 13) {
+        part1 += int game
+    }
+
+    part2 += ('red', 'blue', 'green')
+        . map(fn(key) -> results . map([key]) . max)
+        . reduce(*)
+}
+
+print('Part 1:', part1)
+print('Part 2:', part2)
