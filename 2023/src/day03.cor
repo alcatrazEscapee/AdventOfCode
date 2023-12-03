@@ -1,0 +1,66 @@
+let inp = read_text './inputs/day03.txt' . split '\n' // [y][x], Q IV
+
+let height = inp . len
+let width = inp . [0] . len
+
+let symbols = '#*+$%&/-=@'
+let digits = '0123456789'
+
+fn at(x, y) -> if 0 <= x < width and 0 <= y < height then inp[y][x] else '.'
+
+fn is_near_symbol(x0, x, y) {
+    for x1 in range(x0 - 1, x + 1) {
+        for y1 in range(y - 1, y + 2) {
+            if at(x1, y1) in symbols {
+                return true
+            }
+        }
+    }
+}
+
+fn is_near_number(xg, yg, (x0, x, y, _)) -> y - 1 <= yg <= y + 1 and x0 - 1 <= xg <= x
+
+let numbers = []
+let part1 = 0
+
+for y in range(0, height) {
+    let x = 0
+    while x < width {
+        let c = at(x, y)
+
+        assert c in symbols or c in digits or c == '.' : c
+
+        if c in digits {
+            let x0 = x
+            while at(x, y) in digits { x += 1 }
+
+            let sym = inp[y][x0:x] . int
+
+            // Part 1: sum of all numbers that are near at least one symbol
+            if is_near_symbol(x0, x, y) {
+                part1 += sym
+            }
+
+            numbers.push((x0, x, y, sym))
+        }
+        x += 1
+    }
+}
+
+print('Part 1:', part1)
+
+// Part 2, iterate over all gears, and check if exactly two numbers are adjacent
+let part2 = 0
+
+for y, line in inp . enumerate {
+    for x, c in line . enumerate {
+        if c == '*' {
+            let near = numbers . filter(is_near_number(x, y))
+            if len near == 2 {
+                part2 += near . map([-1]) . reduce(*)
+            }
+        }
+    }
+}
+
+print('Part 2:', part2)
