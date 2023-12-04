@@ -1,0 +1,22 @@
+fn numbers(line) -> line . split ' +' . map int . set
+
+let inp = read_text './inputs/day04.txt'
+    . split '\n'
+    . map(fn(line) {
+        let (_, wins, have) = line . search 'Card +\d+: +(.*) \| +(.*)'
+        len(numbers wins & numbers have)
+    })
+
+print('Part 1:', inp . map(fn(total) -> 1 << (total - 1)) . sum)
+
+let totals = [1] * len inp
+for i, wins in inp . enumerate {
+    let total = totals[i]
+    for j in range(i + 1, i + 1 + wins) {
+        totals[j] += total
+    }
+}
+
+print('Part 2:', totals . sum)
+
+
