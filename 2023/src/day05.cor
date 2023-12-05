@@ -1,0 +1,77 @@
+let seeds, *maps = read_text './inputs/day05.txt' . split '\n\n'
+
+seeds = seeds[7:] . split ' ' . map int . set
+maps .= map(fn(md) {
+    let name, *entries = md . split '\n'
+    entries . map(fn(e) -> e . split ' ' . map int)
+})
+
+fn apply(v) {
+    for ranges in maps {
+        let m1 = false
+        for dest, src, rlen in ranges {
+            if src <= v <= src + rlen and ! m1 {
+                v += dest - src
+                m1 = true
+            }
+        }
+    }
+    v
+}
+
+fn apply_range((start, size)) {
+    let slices = [(start, size)]
+    for ranges in maps {
+        let new_slices = []
+        while slices {
+            let start, size = slices.pop
+            let end = start + size - 1 // inclusive
+            let found = false
+
+            for dest, src, rlen in ranges {
+                let src_end = src + rlen - 1
+
+                // Look for overlap with this slice
+                //   [src ... src + rlen]
+                // [start ... start + size]
+                if !(end < src or src_end < start) and !found {
+
+                    // There is some overlap between these slices, so we need to create new slices
+                    found = true
+
+                    if src > start {
+                        // There will be some part of the slice at the front that doesn't get mapped by this range
+                        // So, we need to re-queue it in our original slices array
+                        slices.push((start, src - start))
+                    }
+
+                    if end > src_end {
+                        // There will be some part of the slice at the end that doesn't get mapped by this range
+                        // Same as above, trim off the end and re-queue in our original slices array
+                        slices.push((src_end + 1, end - src_end))
+                    }
+
+                    // Finally, there should be some overlapping intersection between the two
+                    // Calculate this, adjust for src->dest mapping, and push it into the _new_ slices array
+                    let overlap_start = max(src, start)
+                    let overlap_end = min(src + rlen - 1, end)
+                    let overlap_len = overlap_end - overlap_start + 1
+
+                    if overlap_len > 0 {
+                        new_slices.push((overlap_start - src + dest, overlap_len))
+                    }
+                }
+            }
+
+            // If we reach the end and haven't found any range that matches this slice, it doesn't get mapped
+            if !found {
+                new_slices.push((start, size))
+            }
+        }
+        slices = new_slices
+    }
+    slices
+}
+
+print('Part 1:', seeds . map apply . min)
+print('Part 2:', seeds . group_by(2) . flat_map apply_range . map([0]) . min)
