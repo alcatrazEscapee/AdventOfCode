@@ -6,66 +6,60 @@ maps .= map(fn(md) {
     entries . map(fn(e) -> e . split ' ' . map int)
 })
 
-fn apply(v) {
+fn apply(value) {
     for ranges in maps {
-        let m1 = false
         for dest, src, rlen in ranges {
-            if src <= v <= src + rlen and ! m1 {
-                v += dest - src
-                m1 = true
+            if src <= value <= src + rlen {
+                value += dest - src
+                break
             }
         }
     }
-    v
+    value
 }
 
 fn apply_range((start, size)) {
-    let slices = [(start, size)]
+    // First, convert the slices from (start, size) into [start, end] tuples, both inclusive
+    let slices = [(start, start + size - 1)]
+
     for ranges in maps {
         let new_slices = []
         while slices {
-            let start, size = slices.pop
-            let end = start + size - 1 // inclusive
-            let found = false
+            let start, end = slices.pop
 
             for dest, src, rlen in ranges {
                 let src_end = src + rlen - 1
 
-                // Look for overlap with this slice
-                //   [src ... src + rlen]
-                // [start ... start + size]
-                if !(end < src or src_end < start) and !found {
-
-                    // There is some overlap between these slices, so we need to create new slices
-                    found = true
-
+                // Look for overlap with this slice:
+                //     [src, src_end]
+                // [start     ,      end]
+                if !(end < src or src_end < start) {
                     if src > start {
                         // There will be some part of the slice at the front that doesn't get mapped by this range
                         // So, we need to re-queue it in our original slices array
-                        slices.push((start, src - start))
+                        slices.push((start, src - 1))
                     }
 
                     if end > src_end {
                         // There will be some part of the slice at the end that doesn't get mapped by this range
                         // Same as above, trim off the end and re-queue in our original slices array
-                        slices.push((src_end + 1, end - src_end))
+                        slices.push((src_end + 1, end))
                     }
 
                     // Finally, there should be some overlapping intersection between the two
                     // Calculate this, adjust for src->dest mapping, and push it into the _new_ slices array
                     let overlap_start = max(src, start)
-                    let overlap_end = min(src + rlen - 1, end)
-                    let overlap_len = overlap_end - overlap_start + 1
+                    let overlap_end = min(src_end, end)
 
-                    if overlap_len > 0 {
-                        new_slices.push((overlap_start - src + dest, overlap_len))
+                    if overlap_end > overlap_start {
+                        new_slices.push((overlap_start - src + dest, overlap_end - src + dest))
                     }
-                }
-            }
 
-            // If we reach the end and haven't found any range that matches this slice, it doesn't get mapped
-            if !found {
-                new_slices.push((start, size))
+                    break
+                }
+            } else {
+                // If we reach the end and haven't found any range that matches this slice, it doesn't get mapped
+                new_slices.push((start, end))
             }
         }
         slices = new_slices
@@ -74,4 +68,4 @@ fn apply_range((start, size)) {
 }
 
 print('Part 1:', seeds . map apply . min)
-print('Part 2:', seeds . group_by(2) . flat_map apply_range . map([0]) . min)
+print('Part 2:', seeds . group_by 2 . flat_map apply_range . map([0]) . min)
