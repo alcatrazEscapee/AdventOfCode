@@ -1,9 +1,29 @@
 let inp = read_text './inputs/day06.txt' . split '\n'
 
-fn race((t, d)) -> range(1, t) . filter(fn(h) -> (t - h) * h > d) . len
+fn race((t, d)) {
+    // Given (t - x) * x > d
+    // => tx - x^2 > d
+    // => tx > d
+    // => x > d/t
+    //
+    // => t > d/x + x
+    // => x < t - d/x
+    // => x < t
+    //
+    // This gives us close lower + upper bounds, which we just iterate until we find the actual lower + upper bound
+    // This is ~8x faster than iterating every point within these simple bounds
+
+    let t_min = d / t
+      , t_max = t
+
+    while (t - t_min) * t_min < d { t_min += 1 }
+    while (t - t_max) * t_max < d { t_max -= 1 }
+
+    t_max - t_min + 1
+}
 
 print('Part 1:', inp
-    . map(fn(line) -> line . search '(\d+)' . map(fn((_, e)) -> int e))
+    . map(fn(line) -> line . search '\d+' . map(fn((e)) -> int e))
     . zip
     . map race
     . reduce(*))
