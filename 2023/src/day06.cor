@@ -1,0 +1,14 @@
+let inp = read_text './inputs/day06.txt' . split '\n'
+
+fn race((t, d)) -> range(1, t) . filter(fn(h) -> (t - h) * h > d) . len
+
+print('Part 1:', inp
+    . map(fn(line) -> line . search '(\d+)' . map(fn((_, e)) -> int e))
+    . zip
+    . map race
+    . reduce(*))
+
+print('Part 2:', inp
+    . map(fn(line) -> line . replace ' ' '' . split ':' . [1] . int)
+    . race)
+
