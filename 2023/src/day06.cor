@@ -30,7 +30,7 @@ fn race((t, d)) {
 }
 
 print('Part 1:', inp
-    . map(fn(line) -> line . search '\d+' . map(fn((e)) -> int e))
+    . map(fn(line) -> line . split ' +' . [1:] . map int)
     . zip
     . map race
     . reduce(*))

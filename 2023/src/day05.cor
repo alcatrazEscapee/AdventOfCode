@@ -1,6 +1,6 @@
 let seeds, *maps = read_text './inputs/day05.txt' . split '\n\n'
 
-seeds = seeds[7:] . split ' ' . map int . set
+seeds = seeds . split ' ' . [1:] . map int . set
 maps .= map(fn(md) {
     let _, *entries = md . split '\n'
     entries . map(fn(e) -> e . split ' ' . map int)
