@@ -12,12 +12,19 @@ fn race((t, d)) {
     //
     // This gives us close lower + upper bounds, which we just iterate until we find the actual lower + upper bound
     // This is ~8x faster than iterating every point within these simple bounds
+    //
+    // In addition, instead of iterating by +/- 1 towards the target point, we recompute these upper and lower bounds,
+    // by using t_min, t_max as the previous values of x. This centers in on the actual bounds very quickly. ~20x
+    // faster than the previous iteration
+    //
+    // There are other ways to improve this, or procedurally just calculate the (integral) sqrt(), but at ~0.03s runtime,
+    // this method is essentially as fast as necessary. 
 
     let t_min = d / t
       , t_max = t
 
-    while (t - t_min) * t_min < d { t_min += 1 }
-    while (t - t_max) * t_max < d { t_max -= 1 }
+    while (t - t_min) * t_min < d { t_min = max(t_min + 1, (d + t_min * t_min) / t) }
+    while (t - t_max) * t_max < d { t_max = min(t_max - 1, t - (d / t_max)) }
 
     t_max - t_min + 1
 }
