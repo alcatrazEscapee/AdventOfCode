@@ -1,0 +1,60 @@
+let cards = '23456789TJQKA'
+let joker = cards.index_of('J')
+let ace = cards.index_of('A')
+
+let inp = read_text './inputs/day07.txt'
+    . split '\n'
+    . map(fn(line) {
+        let hand, bid = line . split ' '
+        (hand . map(fn(c) -> index_of c cards), int bid)
+    })
+
+// Returns the 'level' of each hand, where higher > lower
+fn level(hand) {
+    let unique = set hand
+    let counts = unique . map(fn(c) -> hand . filter(==c) . len) . sort
+
+    if len unique == 1 {
+        return 6 // 5-of-a-kind
+    }
+    if len unique == 2 { // 4-of-a-kind or full house
+        return if counts == [1, 4]
+            then 5 // 4-of-a-kind
+            else 4 // full house
+    }
+    if len unique == 3 { // 3-of-a-kind or 2-pair
+        return if counts == [1, 1, 3]
+            then 3 // 3-of-a-kind
+            else 2 // 2-pair
+    }
+    if len unique == 4 {
+        return 1 // pair
+    }
+    0 // high card
+}
+
+fn score(hands) -> hands
+    . sort
+    . enumerate
+    . map(fn((rank, (_, _, bid))) -> (rank + 1) * bid)
+    . sum
+
+print('Part 1:', inp . map(fn((hand, bid)) -> (level hand, hand, bid)) . score)
+print('Part 2:', inp . map(fn((hand, bid)) {
+    // Adjust hands for jokers
+    // 1. map any 'J' 9 -> -1 for rank based ordering, but determine the best possible level according to any jokers
+    // 2. jokers will always be best, as the most common card in the hand, repeated
+    let best = hand
+        . set
+        . max_by(fn(c) -> if c == joker then (0, 0) else (hand . filter(==c) . len, c))
+    
+    if best == joker {
+        best = ace // Edge case, 5 x 'J' should be 5 x 'A'
+    }
+
+    (
+        hand . map(fn(x) -> if x == joker then best else x) . level, // For calculating the level, use the best replacement
+        hand . map(fn(x) -> if x == joker then -1 else x), // Jokers must *order* as if they are the worst
+        bid
+    )
+}) . score)
