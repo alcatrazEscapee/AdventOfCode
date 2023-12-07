@@ -40,10 +40,6 @@ print('Part 2:', inp . map(fn((hand, bid)) {
     let best = hand
         . set
         . max_by(fn(c) -> if c == joker then -1 else hand . filter(==c) . len)
-    
-    if best == joker {
-        best = ace // Edge case, 5 x 'J' should be 5 x 'A'
-    }
 
     (
         hand . map(fn(x) -> if x == joker then best else x) . level, // For calculating the level, use the best replacement
