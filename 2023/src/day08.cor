@@ -1,0 +1,30 @@
+let steps, nodes = read_text './inputs/day08.txt' . split '\n\n'
+let N = len steps
+
+steps .= map(=='R')
+nodes = nodes
+    . split '\n'
+    . map(fn(line) {
+        let (_, src, lhs, rhs) = line . search '(.*) = \((.*), (.*)\)'
+        (src, (lhs, rhs))
+    })
+    . dict
+
+fn path(step, end) {
+    let n = 0
+    while !end(step) {
+        step = nodes[step][steps[n % N]]
+        n += 1
+    }
+    n
+}
+
+print('Part 1:', path 'AAA' (=='ZZZ'))
+
+// Part 2 involves running the same linear search across a number of different start/end pairs, and then taking the lcm() of all of their paths
+// Honestly, I'm half surprised this worked - it seems the input was nice after all
+print('Part 2:', nodes
+    . keys
+    . filter(fn(x) -> x[-1] == 'A')
+    . map(fn(x) -> path(x, fn(y) -> y[-1] == 'Z'))
+    . lcm)
