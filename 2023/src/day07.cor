@@ -1,12 +1,11 @@
 let cards = '23456789TJQKA'
 let joker = cards . index_of 'J'
-let ace = cards . index_of 'A'
 
 let inp = read_text './inputs/day07.txt'
     . split '\n'
     . map(fn(line) {
         let hand, bid = line . split ' '
-        (hand . map(fn(c) -> index_of c cards), int bid)
+        (hand . map(fn(c) -> cards . index_of c), int bid)
     })
 
 // Returns the 'level' of each hand, where higher > lower
@@ -37,9 +36,7 @@ print('Part 2:', inp . map(fn((hand, bid)) {
     // Adjust hands for jokers
     // 1. map any 'J' 9 -> -1 for rank based ordering, but determine the best possible level according to any jokers
     // 2. jokers will always be best, as the most common card in the hand, repeated
-    let best = hand
-        . set
-        . max_by(fn(c) -> if c == joker then -1 else hand . filter(==c) . len)
+    let best = hand . max_by(fn(c) -> if c == joker then -1 else hand . filter(==c) . len)
 
     (
         hand . map(fn(x) -> if x == joker then best else x) . level, // For calculating the level, use the best replacement
