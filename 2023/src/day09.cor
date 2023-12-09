@@ -1,0 +1,29 @@
+let part1, part2 = read_text './inputs/day09.txt'
+    . split '\n'
+    . map(fn(line) {
+        let seq = line . split ' ' . map int
+
+        // This is one of those problems where 'just do what the problem says' is not only fairly straightforward,
+        // it's a pretty decent way of solving the problem
+        //
+        // N.B. Cordy's `list` has O(1) push_front!
+        let height = [seq]
+        while seq . any(!=0) {
+            seq = range(len(seq) - 1) . map(fn(x) -> seq[x + 1] - seq[x])
+            height.push_front(seq)
+        }
+
+        height[0].push(0)
+        height[0].push_front(0)
+
+        for h1, h0 in zip(height[1:], height) {
+            h1.push(h1[-1] + h0[-1])
+            h1.push_front(h1[0] - h0[0])
+        }
+
+        (height[-1][-1], height[-1][0])
+    })
+    . reduce(+)
+
+print('Part 1:', part1)
+print('Part 2:', part2)
