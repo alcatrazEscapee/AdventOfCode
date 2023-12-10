@@ -1,0 +1,112 @@
+
+let N = -1i, S = 1i, E = 1, W = -1
+let CW = 1i, CCW = -1i
+let MOVES = {
+    (N, 'F'): CW, (N, '7'): CCW, (N, '|'): 1,
+    (S, 'J'): CW, (S, 'L'): CCW, (S, '|'): 1,
+    (E, '7'): CW, (E, 'J'): CCW, (E, '-'): 1,
+    (W, 'L'): CW, (W, 'F'): CCW, (W, '-'): 1,
+}
+let ADJ = (N, S, E, W)
+
+
+// Solves both parts for a given input
+fn solve(inp) {
+
+    inp .= split '\n'
+
+    // 1. Find the starting position, and determine in which direction do we start moving
+    let start
+    for y, line in inp . enumerate {
+        for x, c in line . enumerate {
+            if c == 'S' {
+                start = x + y * S
+                break
+            }
+        }
+    }
+
+    fn at(c) -> inp[imag c][real c]
+
+    // 2. Determine in which direction the start tile connects to an adjacent tile
+    let start_dir
+    for adj in ADJ {
+        if (adj, at(start + adj)) in MOVES {
+            start_dir = adj
+            break
+        }
+    }
+
+    // 3. Part 1: iterate the length of the pipe until we return to the start, counting the total length
+    //    While we do this, we also save the _order_ of the rotation, so we can tell which side is the inside
+    let pos = start
+    let dir = start_dir
+    let step = 0
+    let order = 0
+    let border = set()
+
+    loop {
+        border.push(pos)
+        pos += dir
+        if pos == start {
+            // Account for the final rotation step
+            order += start_dir / dir
+            break
+        }
+        let rot = MOVES[(dir, at(pos))]
+        
+        order += rot
+        dir *= rot
+        step += 1
+    }
+
+    // 4. The order of the loop is used to compute if this is a CW or CCW loop
+    // We use the direction of the loop in order to find the interior, by traversing the loop again with this order in mind
+    let rot = if imag order == 4 then CW else CCW
+    let enclosed = set()
+
+    fn bfs(pos) {
+        let queue = [pos]
+        while queue {
+            let curr = queue.pop
+            at(curr)
+            if curr not in border and curr not in enclosed {
+                enclosed.push(curr)
+                for dir in ADJ {
+                    queue.push(curr + dir)
+                }
+            }
+        }
+    }
+
+    // 5. Traverse the loop again, but at each point, BFS the possible interior positions
+    pos, dir = (start, start_dir)
+    loop {
+        pos += dir
+        if pos == start {
+            break
+        }
+
+        // BFS from each interior point, catching points inside both rotations at this position
+        bfs(pos + rot * dir)
+        dir *= MOVES[(dir, at(pos))]
+        bfs(pos + rot * dir)
+    }
+
+    ((step + 1) / 2, len enclosed)
+}
+
+
+read_text './inputs/day10_examples.txt'
+    . split '\n\n'
+    . group_by 2
+    . map(fn((example, answer)) {
+        let result = solve example
+        assert str result == answer : 'Expected %s, Got %s' % (answer, result)
+    })
+
+
+let part1, part2 = read_text './inputs/day10.txt' . solve
+
+print('Part 1:', part1)
+print('Part 2:', part2)
