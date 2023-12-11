@@ -20,13 +20,9 @@ solve inp dN = show . sum $ [
             ]
             , (x2, y2) <- gs
         ]
-    where xs = coordinates dN . transpose $ inp
+    where xs = coordinates dN . List.transpose $ inp
           ys = coordinates dN inp
 
 
 coordinates :: Int -> [[Char]] -> [Int]
 coordinates dN = scanl (+) 0 . map (\x -> if all (== '.') x then dN else 1)
-
-transpose :: [[a]] -> [[a]]
-transpose ([]:_) = []
-transpose x      = (map head x) : transpose (map tail x)

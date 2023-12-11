@@ -12,4 +12,4 @@ Monorepo containing all my [Advent of Code](https://adventofcode.com/) solutions
 - 2020: Python
 - 2021: Python (Rank 89th / Score 779)
 - 2022: Python (Rank 47th / Score 1170)
-- 2023: [Cordy](https://github.com/alcatrazEscapee/cordy)
+- 2023: [Cordy](https://github.com/alcatrazEscapee/cordy) + (some) Haskell

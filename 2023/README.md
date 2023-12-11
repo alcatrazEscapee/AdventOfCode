@@ -5,4 +5,4 @@ This Advent of Code attempting to complete in [Cordy](https://github.com/alcatra
 Inputs are expected in a folder `./inputs/dayXX.txt`, and a single day can be ran with `make day=XX`. Expected output of running all days is expected in `./inputs/expected.txt`, and can be tested - including runtime - by running `make test`.
 
 - Day 10 runs itself against all examples in `./inputs/day10_examples.txt` Examples are `\n\n` separated, as pairs of input, expected answer
-- Day 11 is implemented both in Cordy and Haskell, and can be ran with `make haskell day=11`
+- Day 9, 11 are also implemented in Haskell, and can be ran with `make haskell day=XX`. These are also tested when running `make test`
