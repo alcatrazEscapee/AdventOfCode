@@ -1,0 +1,38 @@
+let inp = read_text './inputs/day11.txt' . split '\n'
+
+fn coordinates(inp, dN) {
+    let ns = [], n = 0
+    for row in inp {
+        ns.push(n)
+        n += if row . all(=='.') then dN else 1
+    }
+    ns
+}
+
+fn solve(dN) {
+    let xs = coordinates(zip inp, dN)
+      , ys = coordinates(inp, dN)
+
+    let galaxies = set()
+
+    for yi, row in inp . enumerate {
+        for xi, c in row . enumerate {
+            if c == '#' {
+                galaxies.push((xs[xi], ys[yi]))
+            }
+        }
+    }
+
+    let total = 0
+    for g1 in galaxies {
+        for g2 in galaxies {
+            if g1 < g2 {
+                total += (g1 - g2 . map abs . sum)
+            }
+        }
+    }
+    total
+}
+
+print('Part 1:', solve 2)
+print('Part 2:', solve 1_000_000)
