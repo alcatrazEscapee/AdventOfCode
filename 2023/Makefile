@@ -7,7 +7,10 @@ DAYS     := $(DAYS_COR:src/day%.cor=%)
 
 .DEFAULT_GOAL := run
 
+MAKE_DIRS = @mkdir -p $(@D)
+
 CORDY := cordy -o
+GHC   := ghc -O2 --make -odir out -hidir out
 
 FORCE :
 
@@ -31,3 +34,14 @@ $(ACTUAL) : $(DAYS_COR) FORCE
 		TIMEFORMAT='%3lR' ; \
 		time $(CORDY) src/day$$day.cor >> $(ACTUAL) ; \
 	done
+
+# Haskell
+.PHONY : haskell
+haskell : out/day$(day).hs.o
+	@cat ./inputs/day$(day).txt | ./out/day$(day).hs.o
+
+out/%.hs.o : src/%.hs
+	$(MAKE_DIRS)
+	-@rm -f out/Main.hi
+	-@rm -f out/Main.o
+	@$(GHC) -o $@ $<
