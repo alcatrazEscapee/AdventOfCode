@@ -1,0 +1,121 @@
+fn parse(line) {
+    let part, parity = line . split ' '
+    (part . list, parity . split ',' . map int)
+}
+
+fn expand((part, parity)) {
+    part.push('?')
+    part *= 5
+    (part[:-1], parity * 5)
+}
+
+fn solve((part, parity)) {
+    let npart = len part
+    let nparity = len parity
+
+    // Calculates the number of possible configurations downstream of (ipart, iparity)
+    //
+    // - `ipart` is an index into `part[]`, which is the current part position we're pointing at
+    // - `iparity` is an index into `parity[]`, which is the current parity sequence we're trying to match
+    //
+    // Note that both `ipart` and `iparity` may be out-of-bounds when this function is called
+    @memoize
+    fn count(ipart, iparity) {
+
+        if ipart >= npart {
+            // Part is out of bounds, so this is valid if we have satisfied all parities
+            return iparity == nparity
+        }
+
+        // First, skip any '.' at the front of the list
+        while part[ipart] == '.' {
+            ipart += 1
+            if ipart >= npart {
+                return iparity == nparity
+            }
+        }
+
+        assert ipart < npart
+        assert part[ipart] != '.'
+
+        // At this point, we must be looking at the first location that may have an error
+        // If it is a '?', we can count all cases reached by assuming this was a '.'
+        let n = 0
+        if part[ipart] == '?' {
+            // Possibility that this part is a '.'
+            n += count(ipart + 1, iparity)
+        }
+
+        // Possibility that this part is a '#' - this forms the start of the parity[iparity]
+        // We then require that we see either '?' or '#' ahead, for the rest of the parity length
+        // Then finally, we need to see either '?' or '.', to end the sequence.
+
+        // First, if `iparity` is out of bounds, then we expect no more errors, and so this is invalid
+        if iparity >= nparity {
+            return n
+        }
+        
+        // Second, we assume that `ipart` represents the start of the sequence of errors given by `iparity`
+        // We've already checked the start, so iterate n-1 steps ahead and assert that they are errors
+        // First, check that we are in-bounds once - we need at least `parity[iparity] - 1` more steps ahead
+        let p = parity[iparity] - 1
+        if ipart + p >= npart {
+            // This goes out of bounds, so we can't satisfy the parity length
+            return n
+        }
+
+        // Check each next position - now that we know we will be in-bounds - for errors
+        for _ in range(p) {
+            ipart += 1
+            
+            if part[ipart] == '.' {
+                // This needed to be an error, so this is illegal
+                return n
+            }
+        }
+        
+        // We have satisfied this parity, now we need to check one step after the end of the error sequence 
+        iparity += 1
+        ipart += 1
+
+        // Now, we must have one of two possible cases
+        // 1. `ipart` is out-of-bounds, ending in an error (legal), in which case we must've satisfied the last iparity
+        if ipart >= npart {
+            n += iparity == nparity
+            return n
+        }
+
+        // 2. We ran into a new character which is *not* an error, so either '.' or '#'
+        // `ipart` should be in-bounds, so we can check the next step
+
+        if part[ipart] == '#' {
+            // This configuration is invalid, because we have an error string longer than the parity
+            return n
+        }
+
+        // Now, this slice *is* legal, and matches the length of the current parity
+        // We know our current `ipart` points to something which must be `.`, so we re-call with the next unknown position
+        n += count(ipart + 1, iparity)
+
+        // Finally, return the total counts
+        n
+    }
+    count(0, 0)
+}
+
+read_text './inputs/day12_examples.txt'
+    . split '\n\n'
+    . group_by 2
+    . map(fn((example, answer)) {
+        let parsed = parse example
+        let result = (parsed . solve, parsed . expand . solve)
+        assert str result == answer : 'Expected %s, Got %s, at %s' % (answer, result, repr example)
+    })
+
+
+let inp = read_text './inputs/day12.txt'
+    . split '\n'
+    . map parse
+
+print('Part 1:', inp . map solve . sum)
+print('Part 2:', inp . map(fn(x) -> x . expand . solve) . sum)
