@@ -1,0 +1,36 @@
+
+fn reflection(grid) {
+    for n in range(1, len(grid)) {
+        if zip(grid[n:], grid[n - 1::-1]) . all(fn((a, b)) -> a == b) {
+            return n
+        }
+    }
+    0
+}
+
+fn smudge_reflection(grid) {
+    // Rather than trying all possible combinations of reflections x mistaken points,
+    // We check the number of errors in the reflection - only one indicates the correct choice
+    for n in range(1, len(grid)) {
+        if zip(grid[n:], grid[n - 1::-1]). map(fn((a, b)) -> zip(a, b) . filter(fn((a, b)) -> a != b) . len) . sum . (==1) {
+            return n
+        }
+    }
+    0
+}
+
+let part1, part2 = read_text './inputs/day13.txt'
+    . split '\n\n'
+    . map(fn(grid) {
+        let grid = grid . split '\n'
+        let gridT = zip grid
+
+        let part1 = (reflection gridT) + 100 * (reflection grid)
+        let part2 = (smudge_reflection gridT) + 100 * (smudge_reflection grid)
+
+        (part1, part2)
+    })
+    . reduce(+)
+
+print('Part 1:', part1)
+print('Part 2:', part2)
