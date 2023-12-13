@@ -12,7 +12,7 @@ fn smudge_reflection(grid) {
     // Rather than trying all possible combinations of reflections x mistaken points,
     // We check the number of errors in the reflection - only one indicates the correct choice
     for n in range(1, len(grid)) {
-        if zip(grid[n:], grid[n - 1::-1]). map(fn((a, b)) -> zip(a, b) . filter(fn((a, b)) -> a != b) . len) . sum . (==1) {
+        if zip(grid[n:], grid[n - 1::-1]) . map(fn((a, b)) -> zip(a, b) . filter(fn((a, b)) -> a != b) . len) . sum . (==1) {
             return n
         }
     }
