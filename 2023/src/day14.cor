@@ -34,7 +34,6 @@ fn load_platform(inp) -> inp
 
 let inp = read_text './inputs/day14.txt'
     . split '\n'
-    . map list
     . zip
 
 tilt_platform inp
@@ -53,8 +52,6 @@ while inp not in seen {
 // We've seen a repeat state - now we can calculate the target state exactly
 // Since `seen` stores the entire cycle, we just look for the state at the right offset from the _start_ of the cycle
 let n_len = n - seen[inp]
-  , n_offset = 1000000000 - n_len - (1000000000 - n) / n_len * n_len
+  , n_offset = (1000000000 - n) % n_len + seen[inp]
 
-inp = seen . find(fn((_, ni)) -> ni == n_offset) . [0]
-
-print('Part 2:', load_platform inp)
+print('Part 2:', seen . find(fn((_, n)) -> n == n_offset) . [0] . load_platform)
