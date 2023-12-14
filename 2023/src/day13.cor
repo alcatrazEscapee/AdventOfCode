@@ -1,37 +1,30 @@
-// Functional wankery is coming, to town
+// This solution used to be readable
+// And then it was rewritten to be extra-functional
+
 fn uncurry(f) -> fn((a, b)) -> f(a, b)
 
-fn reflection(grid) {
-    for n in range(1, len(grid)) {
-        if zip(grid[n:], grid[n - 1::-1]) . all(uncurry (==)) {
-            return n
-        }
-    }
-    0
+fn reflection(predicate, grid) -> range(1, len grid) . find(fn(n) -> zip(grid[n:], grid[n - 1::-1]) . predicate) or 0
+
+fn solve(predicate, grid) {
+    let grid = grid . split '\n'
+    let gridT = zip grid
+
+    let f = reflection predicate
+
+    (f gridT) + 100 * (f grid)
 }
 
-fn smudge_reflection(grid) {
-    // Rather than trying all possible combinations of reflections x mistaken points,
-    // We check the number of errors in the reflection - only one indicates the correct choice
-    for n in range(1, len(grid)) {
-        if zip(grid[n:], grid[n - 1::-1]) . map(fn(x) -> x . uncurry zip . filter(uncurry (!=)) . len) . sum . (==1) {
-            return n
-        }
-    }
-    0
-}
+// Part 1: just check that all of the reflected rows are equal
+let reflect = all(uncurry (==))
+
+// Part 2: Rather than trying all possible combinations of reflections x mistaken points,
+// We check the number of errors in the reflection - only one indicates the correct choice
+fn reflect_smudge(z) -> z . map(fn(x) -> x . uncurry zip . filter(uncurry (!=)) . len) . sum . (==1)
+
 
 let part1, part2 = read_text './inputs/day13.txt'
     . split '\n\n'
-    . map(fn(grid) {
-        let grid = grid . split '\n'
-        let gridT = zip grid
-
-        let part1 = (reflection gridT) + 100 * (reflection grid)
-        let part2 = (smudge_reflection gridT) + 100 * (smudge_reflection grid)
-
-        (part1, part2)
-    })
+    . map(fn(grid) -> (solve reflect grid, solve reflect_smudge grid))
     . reduce(+)
 
 print('Part 1:', part1)
