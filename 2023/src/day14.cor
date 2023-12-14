@@ -1,0 +1,60 @@
+
+fn tilt_platform(inp) {
+    for row in inp {
+        let n = -1
+        for i, c in row . enumerate {
+            if c == '#' {
+                n = i
+            } elif c == 'O' {
+                row[i] = '.'
+                row[n + 1] = 'O'
+                n += 1
+            }
+        }
+    }
+    inp
+}
+
+fn rotate_platform(inp) -> inp . map reverse . zip
+
+fn cycle_platform(inp) -> inp
+    . tilt_platform . rotate_platform
+    . tilt_platform . rotate_platform
+    . tilt_platform . rotate_platform
+    . tilt_platform . rotate_platform
+
+fn load_platform(inp) -> inp
+    . flat_map(fn(row) -> row
+        . reverse
+        . enumerate
+        . filter(fn((_, c)) -> c == 'O')
+        . map(fn((n, _)) -> n + 1))
+    . sum
+
+
+let inp = read_text './inputs/day14.txt'
+    . split '\n'
+    . map list
+    . zip
+
+tilt_platform inp
+
+print('Part 1:', load_platform inp)
+
+// For part 2, we need to detect a cycle in the input states, then loop until it repeats
+// First step, store all visited states until we see a single identical state
+let seen = dict(), n = 0
+while inp not in seen {
+    seen[inp . map vector] = n
+    inp .= cycle_platform
+    n += 1
+}
+
+// We've seen a repeat state - now we can calculate the target state exactly
+// Since `seen` stores the entire cycle, we just look for the state at the right offset from the _start_ of the cycle
+let n_len = n - seen[inp]
+let n_offset = 1000000000 - (n + (1000000000 - n) / n_len * n_len)
+
+inp = seen . find(fn((inp, ni)) -> ni == n - n_len + n_offset) . [0]
+
+print('Part 2:', load_platform inp)
