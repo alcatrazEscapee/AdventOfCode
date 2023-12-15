@@ -1,0 +1,38 @@
+let inp = read_text './inputs/day15.txt' . split ','
+
+fn hash(inp) {
+    let h = 0
+    for c in inp {
+        h += ord c
+        h *= 17
+        h %= 256
+    }
+    h
+}
+
+print('Part 1:', inp . map hash . sum)
+
+// This solution takes advantage of the fact that `dict` in Cordy, like in Python, preserves
+// insertion ordering among elements, including through `remove` and insertion.
+//
+// A previous solution here used regex in order to check which step was which, but that was ~2s total runtime,
+// the majority spent evaluating the regex. This one is now ~0.03s, which is much more reasonable.
+let lenses = dict() . default dict
+for step in inp {
+    if step[-1] == '-' {
+        let *label, _ = step
+        lenses[hash label].remove label
+    } else {
+        let *label, _, n = step
+        lenses[hash label][label] = int n
+    }
+}
+
+print('Part 2:', lenses
+    . map(fn((n, lenses)) -> lenses
+        . enumerate
+        . map(fn((i, (_, lens))) -> (i + 1) * lens)
+        . sum
+        . (* n + 1)
+    )
+    . sum)

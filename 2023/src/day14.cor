@@ -36,9 +36,7 @@ let inp = read_text './inputs/day14.txt'
     . split '\n'
     . zip
 
-tilt_platform inp
-
-print('Part 1:', load_platform inp)
+print('Part 1:', inp . tilt_platform . load_platform)
 
 // For part 2, we need to detect a cycle in the input states, then loop until it repeats
 // First step, store all visited states until we see a single identical state
