@@ -1,0 +1,92 @@
+
+let N = -1i, S = 1i, E = 1, W = -1
+let ADJ = [N, S, E, W]
+
+let DIRECTIONS = {
+    'R': E, 'D': S, 'L': W, 'U': N,  // Part 1
+    '0': E, '1': S, '2': W, '3': N   // Part 2
+}
+
+
+fn bfs(pos, seen) {
+    let queue = [pos]
+    while queue {
+        pos = queue.pop
+        if pos in seen {
+            continue
+        }
+        seen.push(pos)
+        for adj in ADJ {
+            queue.push(pos + adj)
+        }
+    }
+}
+
+
+fn solve(inp) {
+    // Traverse the edges once, to create a list of all node (vertex) positions
+    let pos = 0
+    let nodes = [pos]
+    for dir, n in inp {
+        pos += dir * n
+        nodes.push(pos)
+    }
+
+    // All the coordinate positions of corner nodes
+    // These are translated into rows/columns with width/height = 1
+    //
+    // They also correspond to *even numbered* coordinates
+    // *Odd numbered* coordinates correspond to the non-unit-width ranges between these coordinates
+    //
+    // i.e.
+    //    [1, 30, 35] means there are nodes at 1, 30 and 35, matching coordinates 0, 30, 35
+    //    then, coordinate 1 is a range of width 28, and coordinate 3 is a range of 4
+    let x_coordinates = nodes . map real . set . sort
+      , y_coordinates = nodes . map imag . set . sort
+    
+    fn coordinate(c) -> 
+        (x_coordinates . index_of(real c)) * 2 +
+        (y_coordinates . index_of(imag c)) * 2i
+
+    // Traverse the edges again, but this time, recording the key points translated into real space
+    let pi_start = coordinate 0
+    let p = 0
+    let pi = pi_start
+    let area = {pi}
+
+    for dir, n in inp {
+        p += dir * n
+
+        let ci = coordinate p
+        
+        // Traverse from pi -> ci
+        while pi != ci {
+            pi += dir
+            area.push(pi)
+        }
+    }
+
+    // BFS to fill in the interior
+    bfs(pi_start + 1 + 1i, area)
+
+    // Then, sum up the total area, by accumulating the area represented by each coordinate
+    // - Even coordinates have dimension 1
+    // - Odd coordinates measure the width between two adjacent coordinates in <d>_coordinates
+    fn dimension(n, coordinates) -> if n % 2 == 0
+        then 1
+        else coordinates[(n + 1) / 2] - coordinates[n / 2] - 1
+
+    area . map(fn(c) -> dimension(real c, x_coordinates) * dimension(imag c, y_coordinates)) . sum
+}
+
+
+let part1, part2 = read_text './inputs/day18.txt'
+    . split '\n'
+    . map(fn(line) {
+        let k1, n1, (_, _, *n2, k2, _) = line . split ' '
+        ((DIRECTIONS[k1], int n1), (DIRECTIONS[k2], eval('0x' + n2)))
+    })
+    . zip
+
+print('Part 1:', solve part1)
+print('Part 2:', solve part2)
