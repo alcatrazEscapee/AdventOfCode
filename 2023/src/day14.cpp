@@ -1,24 +1,6 @@
-#include <unordered_map>
-#include <iostream>
-#include <cstdio>
-#include <string>
-#include <vector>
+#include "aoc.h"
 
 #define SIZE 100
-
-/// Like `printf` but appends a newline at the end, since we pretty much always want this
-#define println(format_string, ...) printf(format_string "\n" , ## __VA_ARGS__)
-
-/// Assertions that are able to print a formatted string if the assertion fails.
-/// Also includes line and file information
-#define assert(condition, format_string, ...) do { \
-    if (!(condition)) { \
-        println("Assertion Failed: " format_string, ## __VA_ARGS__); \
-        println("    at: %s", #condition); \
-        println("    at: %s:%d", __FILE__, __LINE__); \
-        exit(-1); \
-    } \
-} while (0)
 
 
 enum class Type : unsigned char {
@@ -32,7 +14,7 @@ void rotate_platform(const std::vector<Type>& src, std::vector<Type>& dest);
 size_t load_platform(const std::vector<Type>& grid);
 
 
-int main(int argc, char** argv) {
+main {
 
     std::vector<Type> grid;
     std::string line;
@@ -97,8 +79,6 @@ int main(int argc, char** argv) {
 
         prev_n = n;
     }
-
-    return 0;
 }
 
 void zip_platform(std::vector<Type>& grid) {

@@ -7,3 +7,5 @@
 !/src/day**.cor
 !/src/day**.hs
 !/src/day**.cpp
+
+!/src/aoc.h

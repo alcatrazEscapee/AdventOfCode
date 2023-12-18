@@ -7,8 +7,6 @@ fn at(c) {
 }
 
 let N = -1i, S = 1i, E = 1, W = -1
-let CW = 1i, CCW = -1i
-
 let MOVES = {
     (E, '/'): N, (N, '/'): E, (W, '/'): S, (S, '/'): W,
     (E, '\\'): S, (S, '\\'): E, (N, '\\'): W, (W, '\\'): N,
@@ -17,7 +15,7 @@ let MOVES = {
 
     (N, '-'): (E, W), (S, '-'): (E, W),
     (E, '|'): (N, S), (W, '|'): (N, S),
-} . default nil
+}
 
 fn calculate_energy(*start) {
     let queue = [start]
@@ -39,7 +37,7 @@ fn calculate_energy(*start) {
 
             seen.push(key)
 
-            let move = MOVES[(dir, at pos)]
+            let move = MOVES[(dir, c)]
             if typeof move == vector {
                 // Beam splits into multiple different vectors, so continue in one direction and push to the queue for the other
                 queue.push((pos, move[1]))
