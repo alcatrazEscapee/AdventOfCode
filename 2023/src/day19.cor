@@ -1,0 +1,132 @@
+struct Part(x, m, a, s) {
+    fn total(self) -> x + m + a + s
+    fn total_range(self) ->
+        max(x[1] - x[0] + 1, 0) *
+        max(m[1] - m[0] + 1, 0) *
+        max(a[1] - a[0] + 1, 0) *
+        max(s[1] - s[0] + 1, 0)
+    
+    fn copy(self) -> Part(vector x, vector m, vector a, vector s)
+}
+
+struct Rule(key, lt, value, result) {
+    fn apply(self, part) -> if lt then key(part) < value else key(part) > value
+
+    fn apply_range(self, part, out) {
+        let v_min, v_max = key(part)
+        if lt {
+            if v_max < value {
+                // Range is completely contained within this condition, so insert into `out` with the current result
+                // Return `nil` as no further subrange is processed
+                out.push((result, part->copy()))
+                return nil
+            } elif v_min >= value {
+                // Range is completely excluded from this condition, so just return the part unmodified
+                return part
+            } else {
+                // Some part of this range intersects the condition, so split the part
+                let split_part = part->copy()
+
+                key(split_part)[1] = value - 1
+                key(part)[0] = value
+                out.push((result, split_part))
+                return part
+            }
+        } else {
+            if v_min > value {
+                out.push((result, part->copy()))
+                return nil
+            } elif v_max <= value {
+                return part
+            } else {
+                let split_part = part->copy()
+
+                key(split_part)[0] = value + 1
+                key(part)[1] = value
+
+                out.push((result, split_part))
+                return part
+            }
+        }
+    }
+}
+
+struct Rules(rules, result) {
+    fn apply(self, part) {
+        for rule in self->rules {
+            if rule->apply(part) {
+                return rule->result
+            }
+        }
+        result
+    }
+
+    fn apply_range(self, part) {
+        let out = []
+        for rule in self->rules {
+            if (part = rule->apply_range(part, out)) is nil {
+                return out
+            }
+        }
+        out.push((result, part))
+        out
+    }
+}
+
+let GET = {'x': (->x), 'm': (->m), 'a': (->a), 's': (->s)}
+let rules, parts = read_text './inputs/day19.txt' . split '\n\n'
+
+rules /* dict<str, Rules> */ = rules
+    . split '\n'
+    . map(fn(line) {
+        let key, (*value, _) = line . split '{'
+        let *rules, result = value . split ','
+
+        rules .= map(fn(r) {
+            let (k, op, *value), dest = r . split ':'
+            Rule(GET[k], op == '<', int value, dest)
+        })
+
+        (key, Rules(rules, result))
+    })
+    . dict
+
+parts /* list<Part> */ = parts
+    . split '\n'
+    . map(fn(line) {
+        let x, m, a, s = line . search '\d+' . map(fn(e) -> e[0] . int)
+        Part(x, m, a, s)
+    })
+
+// Part 1: Apply the list of parts to the rules, and count the total output
+// This uses `Rules->apply` to sort a single position by rule
+let part1 = 0
+for part in parts {
+    let pos = 'in'
+    while pos in rules {
+        pos = rules[pos]->apply(part)
+    }
+    if pos == 'A' {
+        part1 += part->total()
+    }
+}
+
+print('Part 1:', part1)
+
+// Part 2: Apply the list of rules to the entire range of possible parts, and count the total output
+// Use a queue of 'in-progress' part ranges that have passed through a rule
+// This uses `Rules->apply_range` to move or split parts into different subranges
+let part2 = 0
+let queue = [('in', Part((1, 4000), (1, 4000), (1, 4000), (1, 4000)))]
+while queue {
+    let pos, part = queue.pop
+    for pos, part in rules[pos]->apply_range(part) {
+        if pos == 'A' {
+            part2 += part->total_range()
+        } elif pos != 'R' {
+            queue.push((pos, part))
+        }
+    }
+}
+
+print('Part 2:', part2)
