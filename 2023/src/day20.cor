@@ -1,0 +1,166 @@
+let (_, spec), (_, (broadcast)) = read_text './inputs/day20.txt'
+    . split '\n'
+    . group_by(fn(x) -> x[0] == 'b')
+    . sort
+    . list
+
+broadcast = broadcast . split ' -> ' . [1] . split ', '
+spec = spec
+    . map(fn(line) {
+        let (key, *name), dest = line . split ' -> '
+        (name, (key, dest . split ', '))
+    })
+    . dict
+
+let LOW = false, HIGH = true
+
+struct FFModule(name, state, outputs) {
+    fn accept(self, src, pulse, queue) {
+        if !pulse {
+            state = !state
+            for out in outputs {
+                queue.push((name, out, state))
+            }
+        }
+    }
+}
+
+struct JoinModule(name, inputs, outputs) {
+    fn accept(self, src, pulse, queue) {
+        inputs[src] = pulse
+        
+        let send = inputs . all([1]) . (!)
+        for out in outputs {
+            queue.push((name, out, send))
+        }
+    }
+}
+
+// ===== Part 1 =====
+// This is just route simulation of the input - the number of button presses is manageable.
+
+let queue = []
+let low = 0, high = 0
+
+// Build the module instances
+let modules = dict()
+for k, (type, outputs) in spec {
+    modules[k] = if type == '%'
+        then FFModule(k, LOW, outputs)
+        else JoinModule(k, dict(), outputs)
+}
+
+// And populate the join module inputs
+for _, src in modules {
+    for out in src->outputs {
+        if out in modules {
+            let dest = modules[out]
+            if typeof dest == JoinModule {
+                dest->inputs[src->name] = LOW
+            }
+        }
+    }
+}
+
+for _ in range(1000) {
+    // Push the button, sending a single low pulse to the broadcaster module
+    low += 1
+
+    // The broadcaster module, when receiving a pulse (which it only does from the button module),
+    // sends a low pulse to all connected broadcast targets
+    for b in broadcast {
+        queue.push(('broadcaster', b, LOW))
+    }
+
+    // Then, we process pulses in order they were queued, counting the pulses as they are processed
+    while queue {
+        let src, dest, pulse = queue.pop_front
+
+        // Record the pulse as sent, for part 1 answer
+        if pulse {
+            high += 1
+        } else {
+            low += 1
+        }
+
+        // And handle the pulse with the destination module
+        if dest in modules {
+            modules[dest]->accept(src, pulse, queue)
+        }
+    }
+}
+
+print('Part 1:', low * high)
+
+// ===== Part 2 =====
+// Here, we make an assumption that the number of button presses before 'rx' is way too high to simulate
+// Instead, we start analyzing and making assumptions about the structure of the input
+// A basic conversion to a flowchart reveals a structure:
+//
+// broadcast -+-> [ cycle 1 ] --> join -+-> join -> rx
+//            |                         |
+//            +-> [ cycle 2 ] --> join -+
+//            |                         |
+//            +-> [ cycle 3 ] --> join -+
+//            |                         |
+//            +-> [ cycle 4 ] --> join -+
+//
+// where [ cycle n ] resembles:
+//
+// in --> %1 -> %2 -> %3 -> %4 -> %5 -> %6 -> %7 -> %8 -> %9 -> %10 -> &12 --> out
+//        ^                                                             ^
+//        +-------------------------------------------------------------+
+//
+// Every %n module is connected to &12 but the direction is arbitrary, except for %1, which connects always in both directions
+//
+// We can then analyze a single cycle:
+// - First, %1 will receive a low pulse -> this will cause it to turn on (1) and emit a high pulse
+// - Connected FFs will do nothing when receiving a high pulse, only a low pulse, so this functions as a counter!
+// - [%1, %2, %3, ...] will be 000, 100, 010, 110, 001, 101, etc. upon each low pulse sent to %1
+//
+// However, each low pulse sent to %1 via the input, also causes &12 to receive a pulse:
+//
+// - &12 functions as a test -> if some subset of %n's are all 1, then this emits a low pulse, otherwise a high pulse
+// - A 1 does nothing to all the FFs, but it will send a 1 to the output
+//
+// When &12 emits a 0, we know that:
+// - All the &n's that are connected --> &12 will be 1
+// - All the &n's that are connected <-- &12 will be 0
+//
+// This is fairly easy to reason, given that %1..%11 are counting upwards, and we are waiting for the first occurance that all the marked positions are 1.
+// So, this causes all values to be set to 1, and the next pulse will _reset_ the counter, effectively via overflow
+//
+// So:
+// - each [ cycle n ] module will count to a given number, emit a high pulse every T pulses, and emit a low pulse every other tick
+// - the [ cycle n ] is connected to a [join], with one input -> this functions as an inverter, converting high pulse -> low pulse
+// - the final [join] then takes all high pulses, and will only emit a low pulse to `rx` when all inputs are high pulses, which is the lcm() of each cycle length!
+//
+// So, we need to
+// - Identify the cycles and their matching &12's
+// - Identify the cycle length via matching 0s and 1s to the connections to and from &12
+// - Take the lcm() of all cycles
+
+let part2 = broadcast
+    . map(fn(b) {
+        let cycle = []
+        while b {
+            cycle.push(b)
+            b = spec[b][1] . find(fn(k) -> spec[k][0] == '%')
+        }
+
+        // Find the &12
+        let term = spec[cycle[-1]][1] . find(fn(h) -> spec[h][0] == '&')
+
+        // And calculate the cycle length
+        cycle
+            . reverse
+            . map(fn(k) -> if term in spec[k][1] then '1' else '0')
+            . join ''
+            . ('0b'+)
+            . eval
+    })
+    . lcm
+
+print('Part 2:', part2)
+
+
