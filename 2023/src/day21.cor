@@ -1,0 +1,93 @@
+let ADJ = (-1, 1, -1i, 1i)
+
+let inp = read_text './inputs/day21.txt' . split '\n'
+
+let start
+let garden = inp
+    . enumerate
+    . flat_map(fn((y, line)) -> line
+        . enumerate
+        . filter(fn((x, c)) {
+            if c == 'S' {
+                start = x + y * 1i
+            }
+            c != '#'
+        })
+        . map(fn((x, _)) -> x + y * 1i)
+    )
+    . set
+
+fn step(f, seen) {
+    let next = set()
+    for c in seen {
+        for dc in ADJ {
+            let pos = c + dc
+            if f pos {
+                next.push(pos)
+            }
+        }
+    }
+    seen = next
+}
+
+let seen = {start}
+for _ in range(64) {
+    seen .= step (in garden)
+}
+
+print('Part 1:', len seen)
+
+// ===== Part 2 =====
+//
+// 
+let N = 26501365
+  , n = len inp
+  , x0 = N % n
+
+assert x0 > 64 // Required as we assume `in garden` and `in_garden` are equivilant functions for iterations < 64
+
+fn in_garden(c) {
+    let x = real c, y = imag c
+    let pos = (x % n) + 1i * (y % n)
+    pos in garden
+}
+
+for _ in range(x0 - 64) {
+    seen .= step in_garden
+}
+
+let points = [len seen]
+for _ in range(2) {
+    for _ in range(n) {
+        seen .= step in_garden
+    }
+    points.push(len seen)
+}
+
+// ===== Part 2 =====
+//
+// This relies on the fact that we can observe for this input/puzzle, the output is a quadratic equation
+//
+// Solve the quadratic equation describing len(seen) at f(x), f(x+n), f(x+2*n), etc.
+// Since Cordy does not have floats, we need to use exact fractions, all over `d` as the common denominator
+//
+// f(x) = (a/d)x^2 + (b/d)x + (c/d)
+//
+// where a, b, c, d integers
+//
+// In addition, we have to do some _stupid_ arithmetic tricks to avoid overflowing the intermediate calculation
+// So, for f(N), set N = u*d + v, where 0 < v < d, and u, v integers
+//
+// Then, calculate an alternate form that minimizes the intermediate calculation
+
+let y0, y1, y2 = points
+
+let a = y2 - 2 * y1 + y0
+  , d = 2 * n * n
+  , b = 2 * n * (y1 - y0) - a * (2 * x0 + n)
+  , c = y0 * d - a * x0 * x0 - b * x0
+  , u = N / d
+  , v = N % d
+  , part2 = a * u * u * d + 2 * a * u * v + b * u + (a * v * v + b * v + c) / d
+
+print('Part 2:', part2)
