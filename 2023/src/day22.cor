@@ -1,0 +1,124 @@
+
+// A cube described by [x0, x1) x [y0, y1) x [z0, z1)
+struct Cube(x0, x1, y0, y1, z0, z1) {
+
+    // Returns true if this cube as a *dependency* on `other`
+    //
+    // This means that the horizonal shadow of the cube intersects with the other cube,
+    // and that the other cube is currently lower (in y) than this one.
+    fn depends_on(self, other) -> !(
+        other->x0 >= x1 or other->x1 <= x0 or
+        other->z0 >= z1 or other->z1 <= z0
+    ) and other->y1 <= y0
+
+    fn dy(self) -> y1 - y0
+}
+
+struct Node(depth, fanin) {}
+
+let cubes = read_text './inputs/day22.txt'
+    . split '\n'
+    . map(fn(line) {
+        let x0, z0, y0, x1, z1, y1 = line . replace '~' ',' . split ',' . map int
+        Cube(x0, x1 + 1, y0, y1 + 1, z0, z1 + 1)
+    })
+
+// Construct a dependency graph between bricks, expressed as a pair of fanin/fanout edges. These include all possible
+// dependencies between bricks, and can be used to reconstruct the final resting dependencies.
+
+let fanout = dict() . default list
+  , fanin  = dict() . default list
+
+for i, ic in cubes . enumerate {
+    for j, jc in cubes . enumerate {
+        if i != j and ic->depends_on(jc) {
+            fanout[j].push(i)
+            fanin[i].push(j)
+        }
+    }
+}
+
+// Now, we can traverse the fanin/fanout graph, starting at the origin set, and compute the exact depth of each node.
+// Knowing the depth is not critical, but it *is* required in order to later prune fanin/fanout edges that are not real - 
+// our dependency graph includes many redundant edges, and we want to prune only the edges that are actually supporting.
+
+// Calculate the origin set - the set of cubes with no fanin
+let origins = range(len cubes) . filter(fn(i) -> fanin[i] == [])
+
+let nodes = dict() // node id -> Node(depth, # of unresolved fanin)
+  , queue = [] // nodes that can be processed
+
+// node -> number of unresolved fanins
+for i, ins in fanin {
+    nodes[i] = Node(0, len ins)
+}
+
+// Origins always have y = 1
+for o in origins {
+    nodes[o]->depth = 1
+    queue.push(o)
+}
+
+while queue {
+    let o = queue.pop
+    let y = nodes[o]->depth
+    let dy = cubes[o]->dy()
+    for p in fanout[o] {
+        let node = nodes[p]
+        
+        node->depth max= y + dy
+        node->fanin -= 1
+
+        if node->fanin == 0 {
+            queue.push(p)
+        }
+    }
+}
+
+// Now we have computed the depth graph (nodes : node id -> depth), we can recompute the fanin/fanout graphs, by checking each edge
+// and seeing if the difference in depth is greater than would need to be, in order to be supporting
+let r_fanout = dict() . default list
+  , r_fanin = dict() . default list
+
+for src, dests in fanout {
+    let y = nodes[src]->depth + cubes[src]->dy()
+    for dest in dests {
+        if y == nodes[dest]->depth {
+            r_fanout[src].push(dest)
+            r_fanin[dest].push(src)
+        }
+    }
+}
+
+// Part 1: for each node, count the number of fanouts, which have a single fanin leading back to this node
+print('Part 1:', range(len cubes)
+    . filter(fn(src) -> r_fanout[src] . all(fn(dest) -> r_fanin[dest] != [src]))
+    . len)
+
+// Part 2: for each node, recursively cascade through the graph, looking for incident edges
+
+fn cascade(src) {
+    for i, node in nodes {
+        node->fanin = len(r_fanin[i])
+    }
+
+    let n = 0
+    let queue = [src]
+
+    while queue {
+        let i = queue.pop
+
+        for j in r_fanout[i] {
+            let node = nodes[j]
+            
+            node->fanin -= 1
+            if node->fanin == 0 {
+                queue.push(j)
+                n += 1
+            }
+        }
+    }
+    n
+}
+
+print('Part 2:', range(len cubes) . map cascade . sum)
