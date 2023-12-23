@@ -1,0 +1,119 @@
+let N = -1i, S = 1i, E = 1, W = -1
+let ADJ = [N, S, E, W]
+let SLOPES = {N: '^', S: 'v', E: '>', W: '<'}
+
+let inp = read_text './inputs/day23.txt' . split '\n'
+
+let height = len(inp)
+  , width = len(inp[0])
+
+// Make an observation that the easiest way to avoid bounds checks, is to move the start and end points one step inwards, and close off the
+// outer edges of the graph. We can then adjust all path lengths by +2 in the end
+
+inp[0] = '#' * width
+inp[-1] = '#' * width
+
+// First, compute all nodes on the graph
+// We make an observation that the input is largely linear, with few actual nodes that present decisions
+// So, this is best formulated as a graph problem (longest simple path), which is simple in part 1, and NP-hard in part 2 (due to the presence of cycles)
+let start = 1 + 1i
+  , end = width - 2 + height * 1i - 2i
+let nodes = {start, end}
+for y, line in inp . enumerate {
+    for x, c in line . enumerate {
+        if c == '.' and (line[x - 1] != '#') + (line[x + 1] != '#') + (inp[y - 1][x] != '#') + (inp[y + 1][x] != '#') > 2 {
+            nodes.push(x + y * 1i)
+        }
+    }
+}
+
+// In order to construct the edges, we run a BFS from each node, stopping at each adjacent node reached
+let edges = dict() . default list
+
+fn bfs(start) {
+    let queue = [(start, 0, false)]
+    let seen = set()
+    while queue {
+        let pos, cost, slope = queue.pop
+
+        if pos in nodes and pos != start {
+            edges[start].push((pos, cost, slope))
+            continue
+        }
+
+        if pos in seen {
+            continue
+        }
+
+        seen.push(pos)
+
+        for adj in ADJ {
+            let next = pos + adj
+            let c = inp[imag next][real next]
+            if c == '.' or c == SLOPES[adj] {
+                queue.push((next, cost + 1, slope))
+            } elif c != '#' {
+                queue.push((next, cost + 1, true)) // This path requires traversing *up* a slope - legal on part 2, not on part 1
+            }
+        }
+    }
+}
+
+for node in nodes {
+    bfs node
+}
+
+// Here, re-label the nodes on the graph to simple integral values, 0 = start, 1 = end, etc.
+// Also split the edge list into two seperate edge sets, one for part 1 (without moving up slopes),
+// and one for part 2 (all edges)
+nodes .= list
+
+// Use flat lists here for speed
+let part1 = range(len nodes) . map(fn(_) -> [])
+  , part2 = range(len nodes) . map(fn(_) -> [])
+
+for k, vs in edges {
+    k = nodes . index_of k
+    for v, cost, slope in vs {
+        v = nodes . index_of v
+        part2[k].push((v, cost))
+        if !slope {
+            part1[k].push((v, cost))
+        }
+    }
+}
+
+// There's one notable improvement we can make to the graph, to reduce the possible search space, which is
+// to remove cases where reachability to the terminal node (1) is not possible
+//
+// Observe that there is only one node connected to the sink
+assert len(part2[1]) == 1
+
+// Then, we know that if we reach *that node*, we must go to the sink, as otherwise we will have blocked off
+// the only possible path to sink. So, we remove any edges leading from this node that aren't to the sink
+// This brings runtime from ~33s -> ~20s by eliminating some potential search space
+part2[part2[1][0][0]] .= filter(fn((k, _)) -> k == 1)
+
+
+fn longest_path(edges) {
+    let queue = [(0, 0, 0)] // (node, cost, seen)
+    let path = 0
+    while queue {
+        let node, cost, seen = queue.pop
+        if node == 1 {
+            path max= cost
+            continue
+        }
+
+        for dest, dest_cost in edges[node] {
+            let mask = 1 << dest
+            if seen & mask == 0 {
+                queue.push((dest, cost + dest_cost, seen | mask))
+            }
+        }
+    }
+    path + 2
+}
+
+print('Part 1:', longest_path part1)
+print('Part 2:', longest_path part2)
