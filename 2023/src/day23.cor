@@ -94,25 +94,25 @@ assert len(part2[1]) == 1
 // This brings runtime from ~33s -> ~20s by eliminating some potential search space
 part2[part2[1][0][0]] .= filter(fn((k, _)) -> k == 1)
 
-
+// Use a recursive DFS, as opposed to a queue-based DFS, as it saves further runtime (~20s -> ~15s)
+// There's nothing generalizable about why this would be father, other than the Cordy VM implementation is
+// able to run this faster than the queue-based solution.
 fn longest_path(edges) {
-    let queue = [(0, 0, 0)] // (node, cost, seen)
-    let path = 0
-    while queue {
-        let node, cost, seen = queue.pop
+    fn run(node, cost, seen) {
         if node == 1 {
-            path max= cost
-            continue
+            return cost
         }
 
+        let max_cost = cost
         for dest, dest_cost in edges[node] {
             let mask = 1 << dest
             if seen & mask == 0 {
-                queue.push((dest, cost + dest_cost, seen | mask))
+                max_cost max= run(dest, cost + dest_cost, seen | mask)
             }
         }
+        max_cost
     }
-    path + 2
+    run(0, 0, 0) + 2
 }
 
 print('Part 1:', longest_path part1)

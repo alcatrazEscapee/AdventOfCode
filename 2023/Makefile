@@ -13,6 +13,9 @@ DAYS_CPP   := $(shell find src -name 'day\*.cpp')
 DAYS_CPP_N := $(DAYS_CPP:src/day%.cpp=%)
 DAYS_CPP_O := $(DAYS_CPP:src/%=out/%.o)
 
+DAYS_PY    := $(shell find src -name 'day\*.py')
+DAYS_PY_N  := $(DAYS_PY:src/day%.py=%)
+
 .DEFAULT_GOAL := run
 
 MAKE_DIRS = @mkdir -p $(@D)
@@ -57,6 +60,13 @@ $(ACTUAL) : $(DAYS_COR) $(DAYS_HS_O) $(DAYS_CPP_O) FORCE
 		TIMEFORMAT='%3lR' ; \
 		time cat ./inputs/day$$day.txt | ./out/day$$day.cpp.o >> $(ACTUAL) ; \
 	done
+	@printf "\nRunning tests (Python) ...\n\n"
+	@for day in $(DAYS_PY_N) ; do \
+		printf "  Day $$day: " ; \
+		printf "Python Day $$day\n" >> $(ACTUAL) ; \
+		TIMEFORMAT='%3lR' ; \
+		time python src/day$$day.py >> $(ACTUAL) ; \
+	done
 
 
 # Haskell
@@ -79,3 +89,8 @@ out/%.cpp.o : src/%.cpp
 	$(MAKE_DIRS)
 	-@printf "Compiling $< ...\n"
 	@$(CPP) -o $@ $<
+
+# Python
+.PHONY : py
+py : FORCE
+	@python src/day$(day).py
