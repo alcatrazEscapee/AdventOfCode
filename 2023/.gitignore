@@ -3,7 +3,6 @@
 !/.gitignore
 !/README.md
 !/Makefile
-!/requirements.txt
 
 !/src/day**.cor
 !/src/day**.hs
@@ -11,3 +10,4 @@
 !/src/day**.py
 
 !/src/aoc.h
+!/src/aoc.py
