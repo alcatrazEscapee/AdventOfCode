@@ -19,7 +19,7 @@ struct Node(depth, fanin) {}
 let cubes = read_text './inputs/day22.txt'
     . split '\n'
     . map(fn(line) {
-        let x0, z0, y0, x1, z1, y1 = line . replace '~' ',' . split ',' . map int
+        let x0, z0, y0, x1, z1, y1 = line . search '\d+' . map int
         Cube(x0, x1 + 1, y0, y1 + 1, z0, z1 + 1)
     })
 

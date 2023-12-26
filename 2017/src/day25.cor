@@ -10,7 +10,7 @@ let inp = read_text('./inputs/day25.txt') . split('\n\n')
 let prefix, *rules = inp
 
 let state = prefix . search(state_regex) . fn(((_, state))) -> state
-let N = prefix . search('[0-9]+') . [0] . [0] . int
+let N = prefix . search('\d+') . [0] . int
 
 rules = rules . map(fn(group) -> (
     group . search(state_regex) . fn(((_, state))) -> state,

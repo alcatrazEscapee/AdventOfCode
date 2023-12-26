@@ -34,5 +34,5 @@ for i in range(2, 1 + inp) {
     }
 }
 
-print('Part 1:', p . map(abs) . sum)
+print('Part 1:', p . abs . sum)
 print('Part 2:', part2)

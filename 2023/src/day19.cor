@@ -94,7 +94,7 @@ rules /* dict<str, Rules> */ = rules
 parts /* list<Part> */ = parts
     . split '\n'
     . map(fn(line) {
-        let x, m, a, s = line . search '\d+' . map(fn(e) -> e[0] . int)
+        let x, m, a, s = line . search '\d+' . map int
         Part(x, m, a, s)
     })
 

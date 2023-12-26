@@ -156,8 +156,7 @@ let part2 = broadcast
             . reverse
             . map(fn(k) -> if term in spec[k][1] then '1' else '0')
             . join ''
-            . ('0b'+)
-            . eval
+            . bin
     })
     . lcm
 

@@ -13,7 +13,7 @@ let particles = read_text('./inputs/day20.txt')
         Particle(pos, v, a, true)
     })
 
-fn norm1(p) -> p . map(abs) . sum
+fn norm1(p) -> p . abs . sum
 
 // 'Infinite' ~ 1000
 for _ in range(1000) {

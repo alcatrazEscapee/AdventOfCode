@@ -27,7 +27,7 @@ fn solve(dN) {
     for g1 in galaxies {
         for g2 in galaxies {
             if g1 < g2 {
-                total += g1 - g2 . map abs . sum
+                total += g1 - g2 . abs . sum
             }
         }
     }

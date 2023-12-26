@@ -71,12 +71,7 @@ print('Part 1:', part1)
 // So, for f(N), set N = u*d + v, where 0 < v < d, and u, v integers
 //
 // Then, calculate an alternate form that minimizes the intermediate calculation
-fn in_garden(c) {
-    // todo: Cordy 0.3+, change this to just `-> (pos % n) not in walls`
-    let x = real c, y = imag c
-    let pos = (x % n) + 1i * (y % n)
-    pos not in walls
-}
+fn in_garden(c) -> (c % n) not in walls
 
 let N = 26501365
   , n = len inp

@@ -84,7 +84,7 @@ let part1, part2 = read_text './inputs/day18.txt'
     . split '\n'
     . map(fn(line) {
         let k1, n1, (_, _, *n2, k2, _) = line . split ' '
-        ((DIRECTIONS[k1], int n1), (DIRECTIONS[k2], eval('0x' + n2)))
+        ((DIRECTIONS[k1], int n1), (DIRECTIONS[k2], hex n2))
     })
     . zip
 
