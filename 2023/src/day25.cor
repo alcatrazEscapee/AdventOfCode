@@ -1,0 +1,145 @@
+// The input is structured as a list of all unique *edges*
+// We build several structures
+//
+// `nodes`  : A set of all unique *nodes*, which gets converted to a list, to uniformly sample from
+// `edges`  : A list of all unique *edges*, which we then sort by weight
+// `fanout` : A mapping of node -> node -> edge
+//          : Note this gets populated with the same edge object for each ordering of node -> node
+struct Edge(weight)
+
+let inp = read_text './inputs/day25.txt' . split '\n'
+
+let nodes = {}
+let edges = []
+let fanout = dict() . default dict
+
+for line in inp {
+    let src, *dests = line . replace ':' '' . split ' '
+    
+    nodes.push(src)
+    
+    for dest in dests {
+        let edge = Edge(0)
+        
+        fanout[src][dest] = edge
+        fanout[dest][src] = edge
+
+        edges.push(edge)
+        nodes.push(dest)
+    }
+}
+
+nodes .= list
+
+// Implements XoRoShiRo128++ PRNG
+// When provided with a seed, returns a generator that produces random 64-bit numbers
+// upon each invocation of the PRNG function
+fn xoroshiro128(seed) {
+    let lo = seed
+    let hi = seed * 197234123 ^ seed
+
+    fn rotl(x, k) -> (x << k) | (x >> (64 - k))
+
+    fn() {
+        let s0 = lo
+        let s1 = hi
+        let result = rotl(s0 + s1, 17) + s0
+        
+        s1 ^= s0
+        lo = rotl(s0, 49) ^ s1 ^ (s1 << 21)
+        hi = rotl(s1, 28)
+
+        result
+    }
+}
+
+// Breadth first search from start -> end, and increment the weight of each edge we find along the path
+fn bfs(start, end) {
+    let queue = [(start, 0)]
+      , paths = {start: nil}
+      , costs = {start: 0}
+    
+    while queue {
+        let pos, cost = queue.pop_front
+        if pos == end {
+            loop {
+                let prev = paths[pos]
+                if prev == nil {
+                    return
+                }
+
+                fanout[prev][pos]->weight += 1
+                pos = prev
+            }
+        }
+        
+        let next_cost = cost + 1
+        for next, _ in fanout[pos] {
+            if next not in paths or next_cost < costs[next] {
+                paths[next] = pos
+                costs[next] = next_cost
+                queue.push((next, next_cost))
+            }
+        }
+    }
+}
+
+// Minimum Cut Check
+//
+// Since we only make a guess at the three connecting edges, this checks if we have found a minimum cut
+// It functions as a simple BFS from node 0, and then tries to identify two unique node sets,
+// assuming edges contained in `cut` are the ones being cut
+fn minimum_cut(cut) {
+    let queue = [nodes[0]]
+    let seen = set()
+    while queue {
+        let pos = queue.pop
+        if pos in seen {
+            continue
+        }
+
+        seen.push(pos)
+
+        for next, e in fanout[pos] {
+            if e not in cut {
+                queue.push(next)
+            }
+        }
+    }
+    len(seen) * (len(nodes) - len(seen))
+}
+
+// This is a heuristic, random algorithim. The way it works is:
+// 1. We assume the two partitions are *roughly* the same size, which means that if we pick two nodes at random, we have a
+//    ~50% chance that these two nodes are on opposite sides of the partition
+// 2. We then, repeatedly, choose two nodes, BFS from start to end, and increment the `weight` parameter of the edges
+//    along the shortest path. This relies on the fact that we will always have to cross one of the three 'cut' edges,
+//    which means statistically, we should be more likely to see them repeated in these random paths.
+// 3. Every `N` iterations, we check if by removing the top three weighted edges, we create a minimum cut?
+//    If so, abort and return.
+//
+// In practice, this runs typically in anywhere from ~10 x ~400 iterations, highly dependent on the seed for the PRNG
+let rng = xoroshiro128(17892341)
+  , N = 10
+  , n = 1
+
+loop {
+    for _ in range(N) {
+        let n0 = nodes[rng() % len(nodes)]
+          , n1 = nodes[rng() % len(nodes)]
+
+        bfs(n0, n1)
+    }
+
+    // Pick the top three edges, and cut them
+    // If we find a legal minimum cut, accept the answer, otherwise continue building up weight
+    let cut = edges . sort . [:-4:-1]
+      , min_cut = minimum_cut cut
+    
+    if min_cut != 0 {
+        print('Part 1:', min_cut, '(after %d x %d steps)' % (n, N))
+        exit
+    }
+
+    n += 1
+}
