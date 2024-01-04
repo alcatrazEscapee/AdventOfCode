@@ -83,36 +83,56 @@ for k, vs in edges {
     }
 }
 
-// There's one notable improvement we can make to the graph, to reduce the possible search space, which is
-// to remove cases where reachability to the terminal node (1) is not possible
-//
-// Observe that there is only one node connected to the sink
-assert len(part2[1]) == 1
 
-// Then, we know that if we reach *that node*, we must go to the sink, as otherwise we will have blocked off
-// the only possible path to sink. So, we remove any edges leading from this node that aren't to the sink
-// This brings runtime from ~33s -> ~20s by eliminating some potential search space
-part2[part2[1][0][0]] .= filter(fn((k, _)) -> k == 1)
-
-// Use a recursive DFS, as opposed to a queue-based DFS, as it saves further runtime (~20s -> ~15s)
-// There's nothing generalizable about why this would be father, other than the Cordy VM implementation is
-// able to run this faster than the queue-based solution.
 fn longest_path(edges) {
-    fn run(node, cost, seen) {
+    // The best cost, incremented whenever we reach a sink position
+
+    let best = 0
+
+    fn run(node, cost, remaining_cost, seen) {
+        // If, counting all possible remaining cost, we cannot beat the best possible cost, we early exit
+        // This is the key optimization that reduces the runtime from ~30s -> ~1s
+        if cost + remaining_cost <= best {
+            return
+        }
+        
+        // If we reach the target, update the best cost, and return
         if node == 1 {
-            return cost
+            best max= cost
+            return
         }
 
-        let max_cost = cost
+        // For all edges that fanout from this node, remove them as potential remaining_cost,
+        // if we have not already seen that destination node.
+        // This is a very accurate way of keeping track of how much additional cost we might be
+        // able to reach, for any given selection of an edge.
+        for dest, dest_cost in edges[node] {
+            if seen & (1 << dest) == 0 {
+                remaining_cost -= dest_cost
+            }
+        }
+
+        // Then, check all edges, using our new value of `remaining_cost` as a heuristic, to avoid
+        // exploring paths that are worse than the currently known best cost.
         for dest, dest_cost in edges[node] {
             let mask = 1 << dest
             if seen & mask == 0 {
-                max_cost max= run(dest, cost + dest_cost, seen | mask)
+                run(dest, cost + dest_cost, remaining_cost, seen | mask)
             }
         }
-        max_cost
     }
-    run(0, 0, 0) + 2
+
+    // Total cost is the sum of the weight of all edges. Since this graph is not directed,
+    // we sum all the fanout weights, and divide by two.
+    let total_cost = edges
+        . flat_map(map([1]))
+        . sum
+
+    // Run the DFS
+    run(0, 0, total_cost / 2, 1)
+
+    // The result is the best cost we found, +2 for the hack we did at the beginning w.r.t initial positions
+    best + 2
 }
 
 print('Part 1:', longest_path part1)
