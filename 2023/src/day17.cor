@@ -1,65 +1,101 @@
+/**
+ * An implementation of a bucket heap, which is a neat way to represent a priority queue,
+ * which works for problems with few, discrete costs. (And in this case, our costs are integers
+ * ranging from [0, ~1300])
+ *
+ * Using this over `heap()` results in ~10% speedup.
+ */
+struct BucketHeap(buckets, ptr) {
+    fn new() -> BucketHeap(dict() . default list, max int)
 
+    fn push(self, cost, e) {
+        buckets[cost].push(e)
+        ptr min= cost
+    }
 
-fn a_star(starts, end, step_fn, heuristic_fn) {
-    let queue = starts . map(fn(pos) -> (heuristic_fn pos, pos)) . heap
-    let paths = dict()  // Mapping of node -> node along the cheapest path
-    let costs = starts . map(fn(pos) -> (pos, 0)) . dict
+    fn pop(self) {
+        let bucket = buckets[ptr]
+        let e = bucket.pop
+
+        while not bucket {
+            ptr += 1
+            bucket = buckets[ptr]
+        }
+
+        e
+    }
+}
+
+/**
+ * Find the min-cost path to the target, customized for this problem's movement rules.
+ *
+ * A* was used initially, but upon inspection it was taking more runtime calculating heuristics, than
+ * it was saving by reducing the heap operations. This is likely due to a poor heuristic, plus the restrictions
+ * on movement meaning it was not very useful.
+ */
+fn min_cost_path(min_straight, max_straight) {
+    let costs = dict() . default(max int)
+    let queue = BucketHeap->new()
+
+    for dir in (1, 1i) {
+        queue->push(0, (0, dir))
+        costs[(0, dir)] = 0
+    }
 
     while queue {
-        let _, curr = queue.pop
-        let curr_cost = costs[curr]
+        let curr_cost = queue->ptr
+        let curr = queue->pop()
 
-        if end curr {
+        // Don't re-explore locations that we have already reached at a lower cost
+        if curr_cost > costs[curr] {
+            continue
+        }
+
+        // If we are at the end, return the first cost we reached it with
+        let pos, dir = curr
+        if pos == end {
             return curr_cost
         }
 
-        for adj, step_cost in step_fn curr {
-            let adj_cost = curr_cost + step_cost
-
-            if adj not in costs or adj_cost < costs[adj] {
-                paths[adj] = curr
-                costs[adj] = adj_cost
-                queue.push((adj_cost + heuristic_fn adj, adj))
-            }
-        }
-    }
-    assert false : 'A* did not reach the target'
-}
-
-fn solve(min_straight, max_straight) -> a_star(
-    [(0, 0, 0), (0, 0, 1)],
-    fn((x, y, _)) -> x == width - 1 and y == height - 1,
-    fn((x, y, d)) {
-        let adj = []
-        let dx, dy = DIRECTIONS[d]
-        let cost = 0
+        // Otherwise compute adjacent positions by stepping according to the movement rules
+        let adj_cost = curr_cost
         for n in range(1, 1 + max_straight) {
-            let x0 = x + n * dx
-            let y0 = y + n * dy
-            if x0 < 0 or x0 >= width or y0 < 0 or y0 >= height {
+            pos += dir
+
+            // If we reach a position outside the grid, abort, as we won't be able to explore any further from here
+            if pos not in grid {
                 break
             }
 
-            cost += grid[y0][x0]
+            adj_cost += grid[pos]
 
             if n >= min_straight {
-                adj.push(((x0, y0, (d + 1) % 4), cost))
-                adj.push(((x0, y0, (d + 3) % 4), cost))
+                let left  = (pos, dir * 1i)
+                  , right = (pos, dir * -1i)
+
+                if adj_cost < costs[left] {
+                    costs[left] = adj_cost
+                    queue->push(adj_cost, left)
+                }
+
+                if adj_cost < costs[right] {
+                    costs[right] = adj_cost
+                    queue->push(adj_cost, right)
+                }
             }
         }
-        adj
-    },
-    fn((x, y, _)) -> (width - x) + (height - y)
-)
-
+    }
+    assert false : 'min_cost_path() did not reach the target'
+}
 
 let grid = read_text './inputs/day17.txt'
     . split '\n'
-    . map(map int)
+    . enumerate
+    . flat_map(fn((y, line)) -> line
+        . enumerate
+        . map(fn((x, c)) -> (x + y * 1i, int c)))
+    . dict
+let end = grid . keys . max
 
-let height = len grid, width = len(grid[0])
-
-let DIRECTIONS = [(1, 0), (0, 1), (-1, 0), (0, -1)]
-
-print('Part 1:', solve(1, 3))
-print('Part 2:', solve(4, 10))
+print('Part 1:', min_cost_path(1, 3))
+print('Part 2:', min_cost_path(4, 10))
