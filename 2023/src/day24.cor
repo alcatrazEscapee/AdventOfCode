@@ -1,0 +1,116 @@
+struct Hail(x, y, z, vx, vy, vz)
+
+let hail = read_text './inputs/day24.txt'
+    . split '\n'
+    . map(fn(line) -> Hail(...line . split '[,@]' . map rational))
+
+// ===== Part 1 =====
+// Iterate through all pairs, and compute the intersection
+let part1 = 0
+
+let MIN = 200000000000000
+let MAX = 400000000000000
+
+for i, p in hail . enumerate {
+    for j in range(i + 1, len hail) {
+        let q = hail[j]
+          , t2d = p->vy * q->vx - p->vx * q->vy
+        if t2d == 0 {
+            continue
+        }
+
+        let t2 = (p->vy * (p->x - q->x) - p->vx * (p->y - q->y)) / t2d
+          , t1d = p->vy * t2
+        if t1d == 0 {
+            continue
+        }
+        
+        let t1 = (q->vy * t2 + q->y - p->y) / t1d
+        if t1 < 0 or t2 < 0 {
+            continue
+        }
+
+        let x = q->x + q->vx * t2
+          , y = q->y + q->vy * t2
+
+        if MIN <= x <= MAX and MIN <= y <= MAX {
+            part1 += 1
+        }
+    }
+}
+
+print('Part 1:', part1)
+
+
+// ===== Part 2 =====
+// Assume the rock is given by pr + t*vr, and hail given by pj + tj*vj
+// Then,
+//
+//     pr + tj*vr = pj + tj*vj for j=1,..
+//  => (pr - pj) = -tj * (vr - vj)
+//  => (pr - pj) x (vr - vj) = 0
+//
+// Then, by taking j=0,1 and j=0,2, we can equate these together:
+//
+//  => (pr - p0) x (vr - v0) = (pr - p1) x (vr - v1)
+//  => (pr - p0) x (vr - v0) = (pr - p2) x (vr - v2)
+//
+// Note that the terms p x v all cancel out in the expansion of the cross product,
+// so we are left with a series of six (2 x 3) linear equations in pr, vr:
+//
+// We can reformulate this as a linear system and solve for the resulting pr, vr,
+// and solve it in the rationals
+let h0, h1, h2, *_ = hail
+
+let A = [
+    [0,               h1->vz - h0->vz, h0->vy - h1->vy, 0,             h0->z - h1->z, h1->y - h0->y],
+    [h0->vz - h1->vz, 0,               h1->vx - h0->vx, h1->z - h0->z, 0,             h0->x - h1->x],
+    [h1->vy - h0->vy, h0->vx - h1->vx, 0,               h0->y - h1->y, h1->x - h0->x, 0            ],
+
+    [0,               h2->vz - h0->vz, h0->vy - h2->vy, 0,             h0->z - h2->z, h2->y - h0->y],
+    [h0->vz - h2->vz, 0,               h2->vx - h0->vx, h2->z - h0->z, 0,             h0->x - h2->x],
+    [h2->vy - h0->vy, h0->vx - h2->vx, 0,               h0->y - h2->y, h2->x - h0->x, 0            ],
+]
+let B = [
+    h1->y * h1->vz -h0->y * h0->vz + h0->z * h0->vy - h1->z * h1->vy,
+    h0->x * h0->vz -h1->x * h1->vz - h0->z * h0->vx + h1->z * h1->vx,
+    h1->x * h1->vy -h0->x * h0->vy - h1->y * h1->vx + h0->y * h0->vx,
+
+    h2->y * h2->vz -h0->y * h0->vz + h0->z * h0->vy - h2->z * h2->vy,
+    h0->x * h0->vz -h2->x * h2->vz - h0->z * h0->vx + h2->z * h2->vx,
+    h2->x * h2->vy -h0->x * h0->vy - h2->y * h2->vx + h0->y * h0->vx,
+]
+
+fn swap(i, j, a) {
+    let t = a[i]
+    a[i] = a[j]
+    a[j] = t
+}
+
+// Solves the linear system equation A*x = B
+// This has no extra handling for error cases, where a solution doesn't exist, or isn't all linearly independent
+let n = len B
+for i in range(n) {
+    let ic = range(i, n) . find(fn(j) -> A[i][j] != 0) // Pick the first row with a != 0 value in this column
+
+    // Swap this row to the target row, if needed
+    A.swap(i, ic)
+    B.swap(i, ic)
+
+    // Multiply this row by the reciprocal of the selected value, to produce a 1
+    let m = 1 / A[i][i]
+
+    B[i] *= m
+    A[i] .= map(*m)
+
+    for j in range(n) {
+        if i != j {
+            // Subtract this row from all others, to produce RRE form
+            m = A[j][i]
+            A[j] = zip(A[i], A[j]) . map(fn((aik, ajk)) -> ajk - aik * m)
+            B[j] -= B[i] * m
+        }
+    }
+}
+
+print('Part 2:', B . [:3] . reduce(+) . int)

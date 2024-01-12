@@ -42,7 +42,7 @@ print('Part 1:', inp . tilt_platform . load_platform)
 // First step, store all visited states until we see a single identical state
 let seen = dict(), n = 0
 while inp not in seen {
-    seen[inp . map vector] = n
+    seen[inp . copy] = n
     inp .= cycle_platform
     n += 1
 }

@@ -5,8 +5,6 @@ struct Part(x, m, a, s) {
         max(m[1] - m[0] + 1, 0) *
         max(a[1] - a[0] + 1, 0) *
         max(s[1] - s[0] + 1, 0)
-    
-    fn copy(self) -> Part(vector x, vector m, vector a, vector s)
 }
 
 struct Rule(key, lt, value, result) {
@@ -18,14 +16,14 @@ struct Rule(key, lt, value, result) {
             if v_max < value {
                 // Range is completely contained within this condition, so insert into `out` with the current result
                 // Return `nil` as no further subrange is processed
-                out.push((result, part->copy()))
+                out.push((result, copy part))
                 return nil
             } elif v_min >= value {
                 // Range is completely excluded from this condition, so just return the part unmodified
                 return part
             } else {
                 // Some part of this range intersects the condition, so split the part
-                let split_part = part->copy()
+                let split_part = copy part
 
                 key(split_part)[1] = value - 1
                 key(part)[0] = value
@@ -34,12 +32,12 @@ struct Rule(key, lt, value, result) {
             }
         } else {
             if v_min > value {
-                out.push((result, part->copy()))
+                out.push((result, copy part))
                 return nil
             } elif v_max <= value {
                 return part
             } else {
-                let split_part = part->copy()
+                let split_part = copy part
 
                 key(split_part)[0] = value + 1
                 key(part)[1] = value

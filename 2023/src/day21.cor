@@ -60,17 +60,10 @@ print('Part 1:', part1)
 //
 // This relies on the fact that we can observe for this input/puzzle, the output is a quadratic equation
 //
-// Solve the quadratic equation describing len(seen) at f(x), f(x+n), f(x+2*n), etc.
-// Since Cordy does not have floats, we need to use exact fractions, all over `d` as the common denominator
+// Solve the quadratic equation describing f(x) at f(x0), f(x0+n), f(x0+2*n)
+// Given by, f(x) = ax^2 + bx + c
 //
-// f(x) = (a/d)x^2 + (b/d)x + (c/d)
-//
-// where a, b, c, d integers
-//
-// In addition, we have to do some _stupid_ arithmetic tricks to avoid overflowing the intermediate calculation
-// So, for f(N), set N = u*d + v, where 0 < v < d, and u, v integers
-//
-// Then, calculate an alternate form that minimizes the intermediate calculation
+// Where a, b, c are `rational`, which allows for precise, arbitrary computation of the exact answer.
 fn in_garden(c) -> (c % n) not in walls
 
 let N = 26501365
@@ -79,12 +72,9 @@ let N = 26501365
   , y0 = advance(in_garden, x0 - 64)
   , y1 = advance(in_garden, n)
   , y2 = advance(in_garden, n)
-  , a = y2 - 2 * y1 + y0
-  , d = 2 * n * n
-  , b = 2 * n * (y1 - y0) - a * (2 * x0 + n)
-  , c = y0 * d - a * x0 * x0 - b * x0
-  , u = N / d
-  , v = N % d
-  , part2 = a * u * u * d + 2 * a * u * v + b * u + (a * v * v + b * v + c) / d
+  , a = rational(y2 - 2 * y1 + y0, 2 * n * n)
+  , b = rational(y1 - y0, n) - a * (2 * x0 + n)
+  , c = y0 - a * x0 * x0 - b * x0
+  , part2 = a * N * N + b * N + c
 
-print('Part 2:', part2)
+print('Part 2:', int part2)

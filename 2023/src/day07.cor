@@ -10,11 +10,7 @@ let inp = read_text './inputs/day07.txt'
 
 // Returns the 'level' of each hand, where higher > lower
 fn level(hand) {
-    let counts = dict() . default 0
-    for c in hand {
-        counts[c] += 1
-    }
-    counts = counts . values . sort
+    let counts = hand . counter . values . sort
 
     if counts == [5] then 6  // 5-of-a-kind
         else if counts == [1, 4] then 5 // 4-of-a-kind
