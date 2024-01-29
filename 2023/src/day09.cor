@@ -21,7 +21,7 @@ let part1, part2 = read_text './inputs/day09.txt'
             h1.push_front(h1[0] - h0[0])
         }
 
-        (height[-1][-1], height[-1][0])
+        height[-1][-1], height[-1][0]
     })
     . reduce(+)
 

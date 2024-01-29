@@ -81,11 +81,7 @@ let B = [
     h2->x * h2->vy -h0->x * h0->vy - h2->y * h2->vx + h0->y * h0->vx,
 ]
 
-fn swap(i, j, a) {
-    let t = a[i]
-    a[i] = a[j]
-    a[j] = t
-}
+fn swap(i, j, a) -> a[i], a[j] = a[j], a[i]
 
 // Solves the linear system equation A*x = B
 // This has no extra handling for error cases, where a solution doesn't exist, or isn't all linearly independent
